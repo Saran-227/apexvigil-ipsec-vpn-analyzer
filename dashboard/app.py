@@ -91,18 +91,18 @@ async def list_sample_pcaps():
         {
             "id": "secure_voip",
             "title": "Secure IKEv2 VoIP (Transport Mode)",
-            "description": "AES-CBC-128, HMAC-SHA256, Diffie-Hellman Group 14. Clean NIST SP 800-77 Compliant.",
-            "expected_verdict": "PASS [LOW RISK] (Score: 90/100)",
-            "expected_app": "VOIP (99.8%)",
+            "description": "AES-128-CBC, HMAC-SHA256, Diffie-Hellman Group 14. NIST SP 800-77 Transitional Baseline.",
+            "expected_verdict": "WARNING [MEDIUM RISK] (Score: 83/100)",
+            "expected_app": "VOIP (100.0%)",
             "tag": "SECURE",
             "pcap": "exp_002_voip_transport_aes_gcm_16_128_1789042405.pcapng"
         },
         {
             "id": "vulnerable_3des",
             "title": "Vulnerable Legacy IKEv1 3DES (Sweet32 Vulnerable)",
-            "description": "3DES-CBC, SHA-1, DH Group 2. Deprecated IKEv1. Active exploit risk.",
-            "expected_verdict": "FAIL [CRITICAL RISK] (Score: 0/100)",
-            "expected_app": "VOIP (99.8%)",
+            "description": "3DES-CBC, SHA-1, DH Group 2. Deprecated IKEv1. Veto capped active exploit risk.",
+            "expected_verdict": "FAIL [CRITICAL RISK] (Score: 25/100, Veto Capped)",
+            "expected_app": "VOIP (100.0%)",
             "tag": "CRITICAL_FAIL",
             "pcap": "exp_005_voip_tunnel_3des_cbc_1789042535.pcapng"
         },

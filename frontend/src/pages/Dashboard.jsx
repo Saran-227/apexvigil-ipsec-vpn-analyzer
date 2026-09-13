@@ -69,6 +69,8 @@ export default function Dashboard({
             <div className="combo-half">
               <SecurityScore
                 score={security?.riskScore}
+                rawScore={security?.rawScore}
+                vetoCeiling={security?.vetoCeiling}
                 level={security?.riskLevel}
                 anomaly={security?.anomalyDetected}
                 postureLabel={security?.postureLabel}

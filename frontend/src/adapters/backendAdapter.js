@@ -46,6 +46,9 @@ export function mapBackendReport(rawReport) {
   // 3. Security Score & Posture
   const security = {
     riskScore: exec.risk_score !== undefined ? exec.risk_score : 100,
+    rawScore: audit.raw_score !== undefined ? audit.raw_score : exec.risk_score,
+    vetoCeiling: audit.veto_ceiling || exec.veto_ceiling || {},
+    rubricBreakdown: audit.rubric_breakdown || exec.rubric_breakdown || {},
     riskLevel: exec.risk_level || 'LOW',
     complianceStatus: exec.compliance_status || 'PASS',
     postureLabel: exec.nist_sp800_77_posture || 'COMPLIANT DEFENSE POSTURE',

@@ -3,10 +3,14 @@
   "private": true,
   "version": "1.0.0",
   "type": "module",
+  "main": "electron/main.cjs",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "electron": "electron electron/main.cjs",
+    "electron:dev": "node electron/dev-runner.cjs",
+    "start:desktop": "electron electron/main.cjs"
   },
   "dependencies": {
     "@vitejs/plugin-react": "latest",
@@ -17,5 +21,8 @@
     "react-router-dom": "^7.18.3",
     "recharts": "latest",
     "vite": "latest"
+  },
+  "devDependencies": {
+    "electron": "^44.3.0"
   }
 }

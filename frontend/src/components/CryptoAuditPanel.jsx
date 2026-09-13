@@ -108,6 +108,119 @@ export default function CryptoAuditPanel({ auditData, ikeDetails, execSummary })
         ))}
       </div>
 
+      {/* 6-Pillar Formalized Scoring Rubric Breakdown */}
+      {auditData?.rubric_breakdown && Object.keys(auditData.rubric_breakdown).length > 0 && (
+        <div style={{ marginTop: '1.25rem' }}>
+          <div style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            marginBottom: '0.65rem'
+          }}>
+            <div>
+              <h4 style={{ margin: 0, fontSize: '0.82rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--text-primary)' }}>
+                NIST SP 800-77 &amp; CNSA 2.0 Scoring Rubric (6 Pillars)
+              </h4>
+              <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>
+                Multi-criteria weighted evaluation {auditData.raw_score !== undefined ? `(Raw: ${auditData.raw_score}/100)` : ''}
+              </span>
+            </div>
+            {auditData?.veto_ceiling?.is_capped && (
+              <span style={{
+                fontSize: '0.65rem',
+                fontWeight: 700,
+                padding: '2px 8px',
+                borderRadius: '4px',
+                background: 'rgba(239, 68, 68, 0.15)',
+                color: 'var(--accent-red)',
+                border: '1px solid rgba(239, 68, 68, 0.35)'
+              }}>
+                VETO CEILING APPLIED ({auditData.veto_ceiling.cap_limit}/100)
+              </span>
+            )}
+          </div>
+
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
+            gap: '0.6rem'
+          }}>
+            {Object.entries(auditData.rubric_breakdown).map(([key, item]) => {
+              const pct = Math.round((item.score / item.max_score) * 100)
+              const badgeColor = item.status === 'OPTIMAL'
+                ? 'var(--accent-green)'
+                : item.status === 'COMPLIANT'
+                  ? 'var(--accent-blue)'
+                  : item.status === 'CRITICAL_FAIL'
+                    ? 'var(--accent-red)'
+                    : item.status === 'UNVERIFIED'
+                      ? 'var(--text-muted)'
+                      : 'var(--accent-amber)'
+              const badgeBg = item.status === 'OPTIMAL'
+                ? 'var(--green-soft)'
+                : item.status === 'COMPLIANT'
+                  ? 'rgba(59, 130, 246, 0.15)'
+                  : item.status === 'CRITICAL_FAIL'
+                    ? 'var(--red-soft)'
+                    : 'var(--amber-soft)'
+
+              return (
+                <div
+                  key={key}
+                  style={{
+                    padding: '0.75rem 0.85rem',
+                    background: 'var(--glass-inner)',
+                    border: '1px solid var(--glass-inner-border)',
+                    borderRadius: 'var(--radius-sm)',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '0.35rem'
+                  }}
+                >
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                    <span style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-primary)', maxWidth: '75%' }}>
+                      {item.name}
+                    </span>
+                    <span style={{
+                      fontSize: '0.68rem',
+                      fontWeight: 700,
+                      padding: '1px 6px',
+                      borderRadius: '3px',
+                      background: badgeBg,
+                      color: badgeColor,
+                      fontFamily: 'monospace'
+                    }}>
+                      {item.score}/{item.max_score}
+                    </span>
+                  </div>
+
+                  {/* Progress bar */}
+                  <div style={{
+                    width: '100%',
+                    height: 4,
+                    borderRadius: 2,
+                    background: 'rgba(255, 255, 255, 0.08)',
+                    overflow: 'hidden'
+                  }}>
+                    <div style={{
+                      width: `${pct}%`,
+                      height: '100%',
+                      background: badgeColor,
+                      borderRadius: 2,
+                      transition: 'width 0.4s ease'
+                    }} />
+                  </div>
+
+                  <div style={{ fontSize: '0.72rem', color: 'var(--text-secondary)', lineHeight: 1.35 }}>
+                    {item.rationale}
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        </div>
+      )}
+
       {/* Threats / Vulnerabilities */}
       <div style={{ marginTop: '1.25rem' }}>
         {vulns.length === 0 ? (
