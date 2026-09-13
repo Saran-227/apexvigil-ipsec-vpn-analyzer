@@ -172,7 +172,7 @@
     sans-serif;
 
   color: var(--text-primary);
-  font-synthesis: none;
+  font-synthesis: weight style;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -418,7 +418,7 @@ button {
   animation: card-in 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
-.glass-card > div:last-child {
+.glass-card>div:last-child {
   width: 100%;
   height: 100%;
   display: flex;
@@ -687,6 +687,10 @@ button {
   line-height: 1;
   letter-spacing: -0.02em;
   font-weight: 600;
+  font-style: italic !important;
+  font-synthesis: style !important;
+  transform: skewX(-11deg);
+  transform-origin: left bottom;
   vertical-align: baseline;
 }
 
@@ -880,9 +884,11 @@ button {
 #top,
 #security,
 #traffic,
+#vpn,
 #events,
-#vpn {
-  scroll-margin-top: 80px;
+#intel,
+#trend {
+  scroll-margin-top: 90px;
 }
 
 /* ─── Card 1: Security + VPN combo ──────────────────────────────────────── */
@@ -893,7 +899,7 @@ button {
   width: 100%;
 }
 
-.combo-card > div:last-child {
+.combo-card>div:last-child {
   display: flex !important;
   flex-direction: column !important;
   align-items: stretch !important;
@@ -995,8 +1001,13 @@ button {
 }
 
 @keyframes spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /* ─── Security score ─────────────────────────────────────────────────────── */
@@ -1144,6 +1155,7 @@ button {
   background: rgba(16, 185, 129, 0.10);
   border-color: rgba(16, 185, 129, 0.24);
 }
+
 .risk-badge-low span {
   background: var(--green);
   box-shadow: 0 0 8px rgba(16, 185, 129, 0.6);
@@ -1155,6 +1167,7 @@ button {
   background: rgba(245, 158, 11, 0.10);
   border-color: rgba(245, 158, 11, 0.24);
 }
+
 .risk-badge-medium span,
 .risk-badge-high span {
   background: var(--amber);
@@ -1166,6 +1179,7 @@ button {
   background: rgba(239, 68, 68, 0.12);
   border-color: rgba(239, 68, 68, 0.30);
 }
+
 .risk-badge-critical span {
   background: var(--red);
   box-shadow: 0 0 8px rgba(239, 68, 68, 0.6);
@@ -3561,9 +3575,11 @@ body::after {
   * {
     @apply border-border outline-ring/50;
   }
+
   body {
     @apply bg-background text-foreground;
   }
+
   html {
     @apply font-sans;
   }

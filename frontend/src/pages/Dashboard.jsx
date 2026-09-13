@@ -104,8 +104,8 @@ export default function Dashboard({
                 <h1>
                   Network<br />
                   Security{" "}
-                  <span className="hero-title-accent">
-                    Dashboard.
+                  <span className="hero-title-accent italic">
+                    Dashboard
                   </span>
                 </h1>
               </div>
@@ -224,7 +224,7 @@ export default function Dashboard({
                 <div className="combo-divider" />
 
                 {/* Right Half: Recent Security Events */}
-                <div className="events-half">
+                <div className="events-half" id="events">
                   {/* TODO (backend adapter): events mapped via mapEvents() in backendAdapter.js */}
                   <EventFeed events={events} inline />
                 </div>
@@ -235,10 +235,12 @@ export default function Dashboard({
         </div>
 
         {/* Card 5 — Security Trend */}
-        <ScrollReveal>
-          {/* TODO (backend adapter): chartData.riskScore and security.riskLevel from adapter */}
-          <RiskChart history={chartData} level={security.riskLevel} />
-        </ScrollReveal>
+        <div id="trend">
+          <ScrollReveal>
+            {/* TODO (backend adapter): chartData.riskScore and security.riskLevel from adapter */}
+            <RiskChart history={chartData} level={security.riskLevel} />
+          </ScrollReveal>
+        </div>
 
         <footer>IPsec VPN Analyzer · SIH26 · Integration-ready telemetry layer</footer>
       </main>
