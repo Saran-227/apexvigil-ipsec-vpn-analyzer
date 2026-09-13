@@ -45,12 +45,12 @@ function VPNInner({ vpn }) {
         <Computer label={vpn.endpointB} ip={vpn.endpointBIp} />
       </div>
 
-      <div className="vpn-meta">
+      {/* <div className="vpn-meta">
         <span><Clock3 size={13} /> {fmt(vpn.uptimeSeconds)}</span>
         <span>{vpn.protocol}</span>
         <span>{vpn.encryption}</span>
         {vpn.authMethod && <span>{vpn.authMethod}</span>}
-      </div>
+      </div> */}
     </div>
   )
 }

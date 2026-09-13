@@ -3,11 +3,11 @@ import { Link, useLocation, useNavigate } from 'react-router-dom'
 import GlassSurface from './GlassSurface'
 
 const NAV_ITEMS = [
-  { label: 'HOME', href: '#top' },
+  { label: 'DASHBOARD', href: '#top' },
   { label: 'TELEMETRY', href: '#traffic' },
   { label: 'VPN', href: '#vpn' },
-  { label: 'EVENTS', href: '#events' },
-  { label: 'TREND', href: '#trend' },
+  // { label: 'EVENTS', href: '#events' },
+  { label: 'RISK', href: '#trend' },
 ]
 
 export default function Header() {
@@ -24,21 +24,27 @@ export default function Header() {
     const handleScroll = () => {
       if (isManualScroll.current) return
 
-      // If near top of page, home is active
+      // If at or near bottom of page, activate the last nav item (RISK / trend)
+      const isBottom = window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 50
+      if (isBottom) {
+        setActive(NAV_ITEMS[NAV_ITEMS.length - 1].href)
+        return
+      }
+
+      // If near top of page, DASHBOARD is active
       if (window.scrollY < 80) {
         setActive('#top')
         return
       }
 
-      const scrollPos = window.scrollY + 140
       const ids = NAV_ITEMS.map(n => n.href.slice(1))
 
       for (let i = ids.length - 1; i >= 0; i--) {
         const el = document.getElementById(ids[i])
         if (el) {
           const rect = el.getBoundingClientRect()
-          const top = rect.top + window.scrollY
-          if (scrollPos >= top) {
+          // Activates when section header/top enters the upper 65% of the viewport
+          if (rect.top <= window.innerHeight * 0.65) {
             setActive(`#${ids[i]}`)
             break
           }

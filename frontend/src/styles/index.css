@@ -403,7 +403,11 @@ button {
   -webkit-backdrop-filter: none !important;
   border: 1px solid rgba(255, 255, 255, 0.14) !important;
   border-radius: var(--card-radius);
-  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.25) !important;
+  box-shadow: 
+    0 18px 48px rgba(0, 0, 0, 0.40),
+    0 6px 18px rgba(0, 0, 0, 0.28),
+    inset 0 1px 0 rgba(255, 255, 255, 0.14) !important;
+
   color: var(--text-primary);
   transform: translate3d(0, 0, 0);
   -webkit-transform: translate3d(0, 0, 0);
@@ -431,7 +435,10 @@ button {
 
 .glass-card:hover {
   border-color: rgba(255, 255, 255, 0.25) !important;
-  box-shadow: 0 20px 48px rgba(0, 0, 0, 0.35) !important;
+  box-shadow: 
+    0 24px 60px rgba(0, 0, 0, 0.50),
+    0 8px 22px rgba(0, 0, 0, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.20) !important;
   transform: translate3d(0, -1px, 0);
 }
 
@@ -683,15 +690,20 @@ button {
 
 .hero-title-accent {
   display: inline-block;
-  font-size: clamp(24px, 2vw, 32px);
-  line-height: 1;
-  letter-spacing: -0.02em;
-  font-weight: 600;
+  font-family: 'Instrument Serif', 'Playfair Display', 'Cormorant Garamond', 'Bodoni 72', 'Didot', Georgia, serif;
+  font-size: clamp(38px, 4vw, 54px);
+  line-height: 0.9;
+  letter-spacing: -0.01em;
+  font-weight: 400;
   font-style: italic !important;
-  font-synthesis: style !important;
-  transform: skewX(-11deg);
-  transform-origin: left bottom;
   vertical-align: baseline;
+  margin-left: 6px;
+  color: #d4af37;
+  background: linear-gradient(135deg, #fae29c 0%, #d4af37 40%, #aa7c11 75%, #fce588 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 0 24px rgba(212, 175, 55, 0.3);
+  font-synthesis: weight style;
 }
 
 .hero-right {

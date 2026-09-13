@@ -172,7 +172,7 @@ export default function Dashboard({
                     <div className="section-kicker">GEO TELEMETRY</div>
                     <h3>Global Threat Map</h3>
                   </div>
-                  <span className="live-badge"><span className="live-dot" />LIVE</span>
+                  {/* <span className="live-badge"><span className="live-dot" />LIVE</span> */}
                 </div>
                 <div className="globe-wrap"><RotatingEarth size={260} /></div>
                 <div className="globe-hint">Drag to rotate · Scroll to zoom</div>
