@@ -1,6 +1,6 @@
 import json
 from pathlib import Path
-from typing import Dict, Any, List
+from typing import Dict, Any, List, Optional
 
 from app.models.schemas import SecurityFinding
 
@@ -45,7 +45,9 @@ SCORING = load_json_config(SCORING_PATH)
 
 def create_finding(
     indicator: str,
-    reason: str
+    reason: str,
+    severity: Optional[str] = None,
+    score: Optional[int] = None
 ) -> SecurityFinding:
     """
     Create a standardized SecurityFinding using the
@@ -61,8 +63,8 @@ def create_finding(
 
     return SecurityFinding(
         indicator=indicator,
-        severity=rule_config["severity"],
-        score=rule_config["score"],
+        severity=severity or rule_config["severity"],
+        score=rule_config["score"] if score is None else score,
         reason=reason
     )
 
@@ -264,6 +266,29 @@ def check_flow_duration(
 # Traffic imbalance rule
 # ---------------------------------------------------------
 
+def get_traffic_imbalance_band(
+    ratio: float
+) -> Optional[Dict[str, Any]]:
+    """Return the highest configured band reached by an imbalance ratio."""
+
+    bands = THRESHOLDS[
+        "traffic_imbalance_ratio"
+    ]["bands"]
+
+    matching_bands = [
+        band
+        for band in bands
+        if ratio >= band["minimum"]
+    ]
+
+    if not matching_bands:
+        return None
+
+    return max(
+        matching_bands,
+        key=lambda band: band["minimum"]
+    )
+
 def check_traffic_imbalance(
     features: Dict[str, Any]
 ) -> List[SecurityFinding]:
@@ -293,22 +318,23 @@ def check_traffic_imbalance(
             bytes_received / bytes_sent
         )
 
-    high_threshold = THRESHOLDS[
-        "traffic_imbalance_ratio"
-    ]["high"]
+    band = get_traffic_imbalance_band(ratio)
 
-    if ratio >= high_threshold:
+    if band is not None:
 
         create_reason = (
             f"Sent/received traffic ratio ({ratio:.2f}) "
-            f"exceeded the configured high threshold "
-            f"({high_threshold})."
+            f"reached the configured {band['severity'].lower()} "
+            f"imbalance band (minimum ratio "
+            f"{band['minimum']})."
         )
 
         findings.append(
             create_finding(
                 "INBOUND_OUTBOUND_IMBALANCE",
-                create_reason
+                create_reason,
+                severity=band["severity"],
+                score=band["score"]
             )
         )
 

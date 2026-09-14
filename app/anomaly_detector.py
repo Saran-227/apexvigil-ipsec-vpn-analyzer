@@ -83,41 +83,11 @@ def calculate_anomaly_indicators(
             }
         )
 
+    # Traffic imbalance is scored by the rule engine so the same
+    # signal is not counted in both rule and anomaly scores.
+
     # ---------------------------------------------------------
     # Indicator 4:
-    # Strong inbound/outbound imbalance
-    # ---------------------------------------------------------
-
-    if bytes_sent == 0 and bytes_received > 0:
-        ratio = float("inf")
-
-    elif bytes_received == 0 and bytes_sent > 0:
-        ratio = float("inf")
-
-    elif bytes_sent == 0 and bytes_received == 0:
-        ratio = 1
-
-    else:
-        ratio = max(
-            bytes_sent / bytes_received,
-            bytes_received / bytes_sent
-        )
-
-    if ratio >= 10:
-
-        indicators.append(
-            {
-                "indicator": "SEVERE_TRAFFIC_IMBALANCE",
-                "severity": "HIGH",
-                "reason": (
-                    "The ratio between inbound and outbound "
-                    "traffic is extremely high."
-                )
-            }
-        )
-
-    # ---------------------------------------------------------
-    # Indicator 5:
     # High packet rate but unusually small average packets
     # ---------------------------------------------------------
 

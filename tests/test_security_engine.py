@@ -88,6 +88,31 @@ def test_anomalous_traffic_is_detected():
     assert len(result["anomaly_indicators"]) > 0
 
 
+@pytest.mark.parametrize(
+    "ratio, expected_rule_score, expected_risk_score",
+    [
+        (1.47, 0, 0),
+        (5, 10, 7),
+        (10, 25, 18),
+        (23.27, 40, 28),
+        (227.56, 60, 42),
+    ]
+)
+def test_traffic_imbalance_increases_risk_by_band(
+    ratio, expected_rule_score, expected_risk_score
+):
+    engine = SecurityAssessmentEngine()
+    features = NORMAL_FEATURES.copy()
+    features["bytes_sent"] = int(ratio * 1000)
+    features["bytes_received"] = 1000
+
+    result = engine.assess(features)
+
+    assert result["rule_score"] == expected_rule_score
+    assert result["anomaly_score"] == 0
+    assert result["risk_score"] == expected_risk_score
+
+
 def test_result_contains_required_fields():
     engine = SecurityAssessmentEngine()
 

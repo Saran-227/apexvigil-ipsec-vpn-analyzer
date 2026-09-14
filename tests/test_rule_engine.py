@@ -1,3 +1,5 @@
+import pytest
+
 from app.rule_engine import (
     check_packet_rate,
     check_byte_rate,
@@ -112,6 +114,34 @@ def test_traffic_imbalance():
 
     assert len(findings) == 1
     assert findings[0].indicator == "INBOUND_OUTBOUND_IMBALANCE"
+
+
+@pytest.mark.parametrize(
+    "ratio, expected_score, expected_severity",
+    [
+        (1.47, None, None),
+        (5, 10, "MEDIUM"),
+        (10, 25, "HIGH"),
+        (23.27, 40, "HIGH"),
+        (227.56, 60, "CRITICAL"),
+    ]
+)
+def test_traffic_imbalance_uses_progressive_bands(
+    ratio, expected_score, expected_severity
+):
+    features = BASE_FEATURES.copy()
+    features["bytes_sent"] = int(ratio * 1000)
+    features["bytes_received"] = 1000
+
+    findings = check_traffic_imbalance(features)
+
+    if expected_score is None:
+        assert findings == []
+        return
+
+    assert len(findings) == 1
+    assert findings[0].score == expected_score
+    assert findings[0].severity == expected_severity
 
 
 def test_no_traffic_imbalance_when_balanced():

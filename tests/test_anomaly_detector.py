@@ -79,7 +79,7 @@ def test_large_average_packet_size():
     assert "LARGE_AVERAGE_PACKET_SIZE" in names
 
 
-def test_severe_traffic_imbalance():
+def test_traffic_imbalance_is_owned_by_rule_engine():
     features = BASE_FEATURES.copy()
 
     features["bytes_sent"] = 1000000
@@ -94,7 +94,7 @@ def test_severe_traffic_imbalance():
         for indicator in indicators
     }
 
-    assert "SEVERE_TRAFFIC_IMBALANCE" in names
+    assert "SEVERE_TRAFFIC_IMBALANCE" not in names
 
 
 def test_high_rate_small_packets():

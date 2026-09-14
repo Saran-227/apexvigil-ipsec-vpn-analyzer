@@ -73,7 +73,7 @@ This schema is temporary and may be updated when the final
 feature extraction schema is provided by Asim.
 
 ## 4. Project Structure
-security_assessment_engine/
+vpn/
 |
 ├── README.md
 ├── requirements.txt
@@ -486,3 +486,15 @@ INPUT
 engine.assess(features)
   ↓
 SECURITY ASSESSMENT
+
+
+
+## 16. Testing each file in dataset
+// code
+PS C:\Users\ASUS\Desktop\SIH\vpn> Get-ChildItem "C:\Users\ASUS\Desktop\SIH\sih26-dataset" -Recurse -Filter *.pcap | ForEach-Object {
+>>     Write-Host "`n========================================"
+>>     Write-Host "TESTING: $($_.FullName)"
+>>     Write-Host "========================================"
+>> 
+>>     python ".\examples\extract_features.py" "$($_.FullName)"
+>> } | Tee-Object -FilePath ".\data\dataset_test_results.txt"

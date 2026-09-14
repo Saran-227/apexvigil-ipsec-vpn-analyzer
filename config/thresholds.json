@@ -21,6 +21,27 @@
         "large": 1500
     },
     "traffic_imbalance_ratio": {
-        "high": 5
+        "bands": [
+            {
+                "minimum": 5,
+                "severity": "MEDIUM",
+                "score": 10
+            },
+            {
+                "minimum": 10,
+                "severity": "HIGH",
+                "score": 25
+            },
+            {
+                "minimum": 20,
+                "severity": "HIGH",
+                "score": 40
+            },
+            {
+                "minimum": 100,
+                "severity": "CRITICAL",
+                "score": 60
+            }
+        ]
     }
 }
