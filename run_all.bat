@@ -13,7 +13,7 @@ start "NTRO Frontend (:5173)" cmd /k "run_frontend.bat"
 
 echo.
 echo [+] Backend API: http://127.0.0.1:8000
-echo [+] Frontend Dashboard: http://127.0.0.1:5173
+echo [+] Frontend Dashboard: http://localhost:5173
 echo [+] Opening dashboard in browser...
 timeout /t 4 /nobreak >nul
-start http://127.0.0.1:5173
+start http://localhost:5173

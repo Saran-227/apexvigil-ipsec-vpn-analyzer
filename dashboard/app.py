@@ -18,36 +18,43 @@ if PROJECT_ROOT not in sys.path:
     sys.path.insert(0, PROJECT_ROOT)
 
 from fastapi import FastAPI, File, UploadFile, HTTPException
-from fastapi.responses import HTMLResponse, JSONResponse, FileResponse
-from fastapi.staticfiles import StaticFiles
+from fastapi.responses import JSONResponse, FileResponse
 from pydantic import BaseModel
 
 from analyzer.security_evaluator import NISTSecurityEvaluator
 
 app = FastAPI(
-    title="NTRO IPsec Intelligence & Security Assessment Platform",
-    description="SIH26160 Automated Cryptographic Audit & AI Encrypted Traffic Classifier",
+    title="NTRO IPsec Intelligence & Security Assessment Platform - API",
+    description="SIH26160 Automated Cryptographic Audit & AI Encrypted Traffic Classifier (REST API)",
     version="2.0.0"
 )
 
-STATIC_DIR = os.path.join(BASE_DIR, "static")
 DATASET_DIR = os.path.join(PROJECT_ROOT, "dataset", "raw_pcapng")
 MODELS_DIR = os.path.join(PROJECT_ROOT, "models")
 
 evaluator = NISTSecurityEvaluator()
 
-# Mount static files
-os.makedirs(STATIC_DIR, exist_ok=True)
-app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
 
-
-@app.get("/", response_class=HTMLResponse)
-async def serve_index():
-    index_path = os.path.join(STATIC_DIR, "index.html")
-    if os.path.exists(index_path):
-        with open(index_path, "r", encoding="utf-8") as f:
-            return f.read()
-    return "<h1>Dashboard index.html not found</h1>"
+@app.get("/")
+async def api_root():
+    """
+    Root API health and endpoint index.
+    The interactive dashboard UI runs independently via React Vite on http://localhost:5173.
+    """
+    return {
+        "service": "NTRO IPsec Intelligence Platform API",
+        "version": "2.0.0",
+        "status": "ONLINE",
+        "interactive_docs": "/docs",
+        "frontend_dashboard": "http://localhost:5173",
+        "endpoints": {
+            "health": "/api/health",
+            "samples": "/api/samples",
+            "analyze_sample": "/api/analyze/sample?id={sample_id}",
+            "analyze_upload": "/api/analyze/upload",
+            "tournament": "/api/tournament"
+        }
+    }
 
 
 @app.get("/api/health")

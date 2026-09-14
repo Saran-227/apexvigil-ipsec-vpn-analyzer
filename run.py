@@ -20,8 +20,9 @@ if __name__ == "__main__":
     print("      NATIONAL TECHNICAL RESEARCH ORGANISATION (NTRO) - CYBER DEFENSE")
     print("      IPsec VPN Protocol Analyzer & AI Intelligence Platform (SIH26160)")
     print("="*70)
-    print("  [+] Service starting on: http://127.0.0.1:8000")
-    print("  [+] Open the URL in your web browser (Chrome, Edge, Firefox, Brave)")
+    print("  [+] Backend REST API starting on : http://127.0.0.1:8000")
+    print("  [+] Interactive API Docs (Swagger): http://127.0.0.1:8000/docs")
+    print("  [+] Frontend Dashboard (React)    : http://localhost:5173")
     print("  [+] Press CTRL+C to stop the service")
     print("="*70 + "\n")
 
