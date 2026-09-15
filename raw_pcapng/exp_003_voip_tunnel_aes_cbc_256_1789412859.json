@@ -1,0 +1,45 @@
+{
+  "capture_id": "exp_003_voip_tunnel_aes_cbc_256_1789412859",
+  "pcap_file": "exp_003_voip_tunnel_aes_cbc_256_1789412859.pcapng",
+  "timestamp": "2026-09-14T19:07:50.875604+00:00",
+  "experiment_name": "[003/240] VOIP in TUNNEL Mode (AES-256-CBC HMAC-SHA256 (Enterprise Standard), wan_lossy)",
+  "protocol_stack": {
+    "ipsec_protocol": "ESP",
+    "ike_version": 2,
+    "operating_mode": "tunnel",
+    "nat_traversal": false,
+    "encapsulation": "IP_PROTO_50"
+  },
+  "crypto_suite": {
+    "ike_encryption": "AES_CBC_256",
+    "esp_encryption": "AES_CBC_256",
+    "integrity": "HMAC_SHA2_256_128",
+    "prf": "PRF_HMAC_SHA2_256",
+    "dh_group": 14,
+    "pfs_enabled": true
+  },
+  "traffic_profile": {
+    "primary_class": "voip",
+    "is_mixed": false
+  },
+  "network_imperfections": {
+    "has_handshake": true,
+    "latency_base_ms": 50,
+    "jitter_ms": 15,
+    "packet_loss_pct": 3.0,
+    "reorder_pct": 2.0,
+    "mtu": 1440,
+    "background_noise": false
+  },
+  "nist_sp800_77_compliance": {
+    "status": "PASS",
+    "score": 100,
+    "violations": []
+  },
+  "capture_statistics": {
+    "total_packets": 223,
+    "ike_packets": 14,
+    "esp_packets": 207,
+    "file_size_bytes": 75482
+  }
+}

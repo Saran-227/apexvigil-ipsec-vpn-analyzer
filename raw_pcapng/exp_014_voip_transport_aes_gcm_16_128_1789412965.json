@@ -1,0 +1,47 @@
+{
+  "capture_id": "exp_014_voip_transport_aes_gcm_16_128_1789412965",
+  "pcap_file": "exp_014_voip_transport_aes_gcm_16_128_1789412965.pcapng",
+  "timestamp": "2026-09-14T19:09:34.510820+00:00",
+  "experiment_name": "[014/240] VOIP in TRANSPORT Mode (AES-128-GCM (AEAD Modern High-Throughput), vpn_mss_clamped)",
+  "protocol_stack": {
+    "ipsec_protocol": "ESP",
+    "ike_version": 2,
+    "operating_mode": "transport",
+    "nat_traversal": false,
+    "encapsulation": "IP_PROTO_50"
+  },
+  "crypto_suite": {
+    "ike_encryption": "AES_CBC_128",
+    "esp_encryption": "AES_GCM_16_128",
+    "integrity": "HMAC_SHA2_256_128",
+    "prf": "PRF_HMAC_SHA2_256",
+    "dh_group": 14,
+    "pfs_enabled": false
+  },
+  "traffic_profile": {
+    "primary_class": "voip",
+    "is_mixed": false
+  },
+  "network_imperfections": {
+    "has_handshake": true,
+    "latency_base_ms": 30,
+    "jitter_ms": 8,
+    "packet_loss_pct": 1.5,
+    "reorder_pct": 1.0,
+    "mtu": 1280,
+    "background_noise": false
+  },
+  "nist_sp800_77_compliance": {
+    "status": "PASS",
+    "score": 85,
+    "violations": [
+      "Perfect Forward Secrecy (PFS) is disabled; compromise of long-term key compromises all past sessions."
+    ]
+  },
+  "capture_statistics": {
+    "total_packets": 254,
+    "ike_packets": 6,
+    "esp_packets": 248,
+    "file_size_bytes": 79104
+  }
+}

@@ -1,0 +1,45 @@
+{
+  "capture_id": "exp_099_chat_tunnel_aes_cbc_256_1789413782",
+  "pcap_file": "exp_099_chat_tunnel_aes_cbc_256_1789413782.pcapng",
+  "timestamp": "2026-09-14T19:23:14.074830+00:00",
+  "experiment_name": "[099/240] CHAT in TUNNEL Mode (AES-256-CBC HMAC-SHA256 (Enterprise Standard), vpn_mss_clamped)",
+  "protocol_stack": {
+    "ipsec_protocol": "ESP",
+    "ike_version": 2,
+    "operating_mode": "tunnel",
+    "nat_traversal": true,
+    "encapsulation": "UDP_4500"
+  },
+  "crypto_suite": {
+    "ike_encryption": "AES_CBC_256",
+    "esp_encryption": "AES_CBC_256",
+    "integrity": "HMAC_SHA2_256_128",
+    "prf": "PRF_HMAC_SHA2_256",
+    "dh_group": 14,
+    "pfs_enabled": true
+  },
+  "traffic_profile": {
+    "primary_class": "chat",
+    "is_mixed": false
+  },
+  "network_imperfections": {
+    "has_handshake": true,
+    "latency_base_ms": 30,
+    "jitter_ms": 8,
+    "packet_loss_pct": 1.5,
+    "reorder_pct": 1.0,
+    "mtu": 1280,
+    "background_noise": false
+  },
+  "nist_sp800_77_compliance": {
+    "status": "PASS",
+    "score": 100,
+    "violations": []
+  },
+  "capture_statistics": {
+    "total_packets": 15,
+    "ike_packets": 10,
+    "esp_packets": 0,
+    "file_size_bytes": 4577
+  }
+}

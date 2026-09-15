@@ -1,0 +1,47 @@
+{
+  "capture_id": "exp_184_icmp_transport_aes_cbc_128_1789414484",
+  "pcap_file": "exp_184_icmp_transport_aes_cbc_128_1789414484.pcapng",
+  "timestamp": "2026-09-14T19:34:53.681878+00:00",
+  "experiment_name": "[184/240] ICMP in TRANSPORT Mode (AES-128-CBC HMAC-SHA256 (PFS Disabled), vpn_mss_clamped)",
+  "protocol_stack": {
+    "ipsec_protocol": "ESP",
+    "ike_version": 2,
+    "operating_mode": "transport",
+    "nat_traversal": false,
+    "encapsulation": "IP_PROTO_50"
+  },
+  "crypto_suite": {
+    "ike_encryption": "AES_CBC_128",
+    "esp_encryption": "AES_CBC_128",
+    "integrity": "HMAC_SHA2_256_128",
+    "prf": "PRF_HMAC_SHA2_256",
+    "dh_group": 14,
+    "pfs_enabled": false
+  },
+  "traffic_profile": {
+    "primary_class": "icmp",
+    "is_mixed": false
+  },
+  "network_imperfections": {
+    "has_handshake": true,
+    "latency_base_ms": 30,
+    "jitter_ms": 8,
+    "packet_loss_pct": 1.5,
+    "reorder_pct": 1.0,
+    "mtu": 1280,
+    "background_noise": true
+  },
+  "nist_sp800_77_compliance": {
+    "status": "PASS",
+    "score": 85,
+    "violations": [
+      "Perfect Forward Secrecy (PFS) is disabled; compromise of long-term key compromises all past sessions."
+    ]
+  },
+  "capture_statistics": {
+    "total_packets": 54,
+    "ike_packets": 5,
+    "esp_packets": 47,
+    "file_size_bytes": 22580
+  }
+}
