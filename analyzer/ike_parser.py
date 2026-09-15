@@ -211,7 +211,17 @@ def parse_ipsec_pcap(pcap_path):
     if not os.path.exists(pcap_path):
         raise FileNotFoundError(f"File not found: {pcap_path}")
 
-    packets = rdpcap(pcap_path)
+    packets = []
+    try:
+        from scapy.all import PcapReader
+        with PcapReader(pcap_path) as piter:
+            for idx, pkt in enumerate(piter):
+                packets.append(pkt)
+                if idx >= 5000:
+                    break
+    except Exception:
+        packets = rdpcap(pcap_path)[:5000]
+
     if not packets:
         return {"error": "Empty PCAP"}
 

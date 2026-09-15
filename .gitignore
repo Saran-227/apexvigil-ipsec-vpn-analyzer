@@ -87,12 +87,3 @@ tmp/
 # (Keep metadata JSON and manifest tracked, ignore heavy binary captures by default)
 dataset/
 
-# Model Weights & Large ML Artifacts (Track checkpoints via HuggingFace or Git LFS)
-*.pt
-*.pth
-*.pkl
-*.joblib
-*.bin
-*.onnx
-models/*.pt
-models/*.pkl

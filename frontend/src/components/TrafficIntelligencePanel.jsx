@@ -42,7 +42,7 @@ export default function TrafficIntelligencePanel({ aiData }) {
           border: '1px solid rgba(52, 211, 153, 0.3)',
           fontFamily: 'monospace'
         }}>
-          HistGradientBoosting (80.5%)
+          LightGBM Champion (82.7%)
         </span>
       </div>
 
