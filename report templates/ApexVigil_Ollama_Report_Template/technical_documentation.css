@@ -1,0 +1,184 @@
+@page{size:A4 portrait;margin:0}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;background:#e9edf2}
+body{font-family:Arial,Helvetica,sans-serif;color:#10243e;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+:root{
+  --navy:#0d2139;
+  --navy2:#132c4a;
+  --text:#26364a;
+  --muted:#7a8797;
+  --line:#d7dde5;
+  --soft:#f4f6f9;
+  --blue:#2d679d;
+  --orange:#c95b17;
+  --green:#2e9b70;
+  --red:#b73737;
+  --yellow:#d79a28;
+}
+.page{
+  width:210mm;
+  height:297mm;
+  background:#fff;
+  margin:0 auto 10mm;
+  padding:14mm 16mm 12mm;
+  position:relative;
+  overflow:hidden;
+  page-break-after:always;
+}
+.page:last-child{page-break-after:auto}
+.header{height:22mm;border-bottom:1px solid #152b44;position:relative}
+.brand{position:absolute;left:0;top:0;display:flex;align-items:center;gap:2.5mm}
+.brand-logo{height:8.5mm;width:17mm;object-fit:contain;display:block}
+.brand-name{font-size:12px;font-weight:900;letter-spacing:-.4px;color:var(--navy)}
+.brand-sub{font-size:4.7px;letter-spacing:1.2px;color:#738092;margin-top:.7mm;font-weight:700}
+.header-meta{position:absolute;right:0;top:0;text-align:right;font-family:"Courier New",monospace;font-size:7px;line-height:1.55;letter-spacing:1px;color:var(--navy);font-weight:700}
+.report-kicker{font-size:6px;letter-spacing:1.5px;color:var(--blue);font-weight:800;margin-top:4.5mm}
+h1{font-size:20px;margin:1.5mm 0;line-height:1.15;letter-spacing:-.4px;color:var(--navy)}
+h2{font-size:11.5px;margin:0;color:var(--navy);letter-spacing:-.15px}
+.subtitle{font-size:8.5px;color:#6e7c8e;margin-bottom:3.5mm}
+.section-title{display:flex;align-items:baseline;justify-content:space-between;border-bottom:1px solid var(--line);padding-bottom:1.4mm;margin-top:3.2mm;margin-bottom:2.6mm}
+.section-title .hint{font-size:6.8px;color:#8993a0}
+
+/* Text Callout */
+.doc-callout{
+  border:1px solid #cbd9e6;
+  border-left:2.5px solid var(--blue);
+  background:#f1f6fa;
+  border-radius:1.5mm;
+  padding:2.8mm 3.8mm;
+  margin-bottom:2.8mm;
+  font-size:6.8px;
+  line-height:1.42;
+  color:#3b4d61;
+}
+.doc-callout b{color:var(--navy)}
+
+/* Architecture Diagram */
+.arch-diagram{
+  border:1px solid #d0d8e2;
+  border-radius:1.5mm;
+  background:#f9fafc;
+  padding:3.5mm;
+  height:44mm;
+  display:grid;
+  grid-template-columns:repeat(6,1fr);
+  gap:2.2mm;
+  align-items:stretch;
+  margin-bottom:3mm;
+}
+.arch-stage{
+  border:1px solid #ccd6e0;
+  background:#fff;
+  border-radius:1.2mm;
+  padding:2.2mm;
+  display:flex;
+  flex-direction:column;
+  justify-content:space-between;
+  border-top:2.2px solid var(--blue);
+}
+.stage-step{font-family:"Courier New",monospace;font-size:5.5px;font-weight:800;color:var(--blue);letter-spacing:.8px}
+.stage-title{font-size:6.6px;font-weight:800;color:var(--navy);line-height:1.2;margin-top:1mm}
+.stage-tech{font-family:"Courier New",monospace;font-size:5.4px;color:#6b7c8f;line-height:1.3;margin-top:1mm}
+.stage-badge{font-size:5.2px;background:#eef3f8;color:#2e445b;padding:.6mm 1.2mm;border-radius:.6mm;font-weight:700;display:inline-block;margin-top:auto}
+
+/* Tech Stack Grid */
+.tech-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:3mm;
+  margin-bottom:2.5mm;
+}
+.tech-card{
+  border:1px solid #d2dae4;
+  border-radius:1.4mm;
+  padding:3mm;
+  height:33mm;
+  background:#fff;
+  overflow:hidden;
+}
+.tech-card-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:1.2mm}
+.tech-layer{font-size:5.6px;font-weight:800;letter-spacing:1px;color:var(--blue);text-transform:uppercase}
+.tech-badge{font-family:"Courier New",monospace;font-size:5.4px;background:#f0f4f9;padding:.6mm 1.5mm;border-radius:.8mm;color:var(--navy);font-weight:700}
+.tech-title{font-size:7.2px;font-weight:800;color:var(--navy);margin-bottom:1mm}
+.tech-tools{font-family:"Courier New",monospace;font-size:5.8px;color:#2f6597;font-weight:700;margin-bottom:1.2mm}
+.tech-desc{font-size:6.1px;line-height:1.33;color:#4c5e73;max-height:14mm;overflow:hidden}
+
+/* Tables */
+.table-wrap{width:100%;overflow:hidden}
+table{width:100%;border-collapse:collapse;font-size:6.4px;table-layout:fixed}
+th{background:var(--navy);color:#fff;text-align:left;font-size:5.6px;letter-spacing:.7px;padding:2mm 2mm;font-weight:700}
+td{padding:1.6mm 2mm;border-bottom:1px solid #dce1e7;color:#3b4a5d;vertical-align:middle;overflow:hidden;text-overflow:ellipsis}
+tbody tr:nth-child(even) td{background:#f6f8fa}
+td:first-child{font-weight:700;color:#24364b}
+
+/* Specific Table Heights */
+.matrix-wrap{height:60mm}
+.feature-wrap{height:52mm}
+.benchmark-wrap{height:46mm}
+
+/* Code Snippet Box */
+.cli-doc-box{
+  border:1px solid #203144;
+  background:#0d1b2a;
+  border-radius:1.5mm;
+  padding:3.2mm 4mm;
+  height:44mm;
+  overflow:hidden;
+  color:#e0e6ed;
+  margin-bottom:3mm;
+}
+.cli-doc-title{font-family:"Courier New",monospace;font-size:5.8px;letter-spacing:1px;color:#64ffda;font-weight:800;margin-bottom:2mm}
+.cli-doc-code{font-family:"Courier New",monospace;font-size:5.8px;line-height:1.4;color:#abb9c9}
+.cli-doc-code .cmd{color:#48cae4;font-weight:700}
+.cli-doc-code .param{color:#f0a06a}
+.cli-doc-code .cmt{color:#6c829c;font-style:italic}
+
+/* Signoff Card */
+.doc-signoff{
+  border:1px solid #cbd7e4;
+  background:#f4f7fb;
+  border-radius:1.5mm;
+  padding:3mm 4.5mm;
+  height:24mm;
+  display:grid;
+  grid-template-columns:2fr 1fr 1fr;
+  gap:4mm;
+  align-items:center;
+  overflow:hidden;
+}
+.doc-signoff-desc{font-size:6px;line-height:1.35;color:#4c5e73}
+.doc-signoff-desc b{color:var(--navy);font-size:6.8px;display:block;margin-bottom:.8mm}
+.doc-signoff-col{
+  border-left:1px solid #d5dfea;
+  padding-left:3.5mm;
+  font-family:"Courier New",monospace;
+  font-size:5.6px;
+  color:#556679;
+}
+.doc-signoff-col b{font-family:Arial,sans-serif;font-size:6.8px;color:var(--navy);display:block}
+
+/* Footer */
+.footer{
+  position:absolute;
+  bottom:7mm;
+  left:16mm;
+  right:16mm;
+  border-top:1px solid #dce1e7;
+  padding-top:3mm;
+  display:grid;
+  grid-template-columns:1fr 1fr 1fr;
+  font-family:"Courier New",monospace;
+  font-size:5.8px;
+  color:#7d8794;
+  letter-spacing:.5px;
+}
+.footer div:nth-child(2){text-align:center;font-family:Arial,sans-serif;font-weight:700;color:#1f3046}
+.footer div:last-child{text-align:right}
+
+@media screen{
+  .page{box-shadow:0 4px 20px rgba(10,30,50,.12)}
+}
+@media print{
+  html,body{background:#fff}
+  .page{margin:0;box-shadow:none}
+}

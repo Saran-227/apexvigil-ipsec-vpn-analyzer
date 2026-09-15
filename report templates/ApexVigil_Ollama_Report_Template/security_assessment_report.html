@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>ApexVigil IPsec VPN Security Assessment Report</title>
+<link rel="stylesheet" href="security_assessment_report.css">
+</head>
+<body>
+<!-- FIXED ASSESSMENT TEMPLATE: Ollama must provide JSON values only. Never regenerate HTML/CSS. -->
+
+<!-- PAGE 1: WEIGHTED SCORING & DEDUCTION ANALYSIS -->
+<section class="page page-1">
+<header class="header">
+  <div class="brand">
+    <img src="logo.png" class="brand-logo" alt="ApexVigil Logo">
+    <div>
+      <div class="brand-name">ApexVigil</div>
+      <div class="brand-sub">SECURITY INTELLIGENCE</div>
+    </div>
+  </div>
+  <div class="header-meta">
+    SECURITY AUDIT &amp; ASSESSMENT<br>
+    Report ID: <span id="reportId"></span><br>
+    Generated: <span id="generated"></span>
+  </div>
+</header>
+
+<div class="report-kicker">IPSEC SECURITY AUDIT &amp; SCORING WEIGHTAGE ASSESSMENT</div>
+<h1>Security Assessment &amp; Weighted Scoring Audit</h1>
+<div class="subtitle">Quantitative cryptographic audit, explicit domain weightage, and root-cause penalty analysis</div>
+
+<div class="assessment-summary-box" id="auditSummaryBox">
+  <span class="summary-txt" id="auditSummary"></span>
+</div>
+
+<div class="section-title">
+  <h2>Quantitative Audit Score &amp; Penalty Overview</h2>
+  <span class="hint">Synthesized scoring derived from deterministic cryptographic verification</span>
+</div>
+
+<div class="audit-score-grid">
+  <!-- Gauge Card -->
+  <div class="audit-gauge-card">
+    <div class="audit-gauge-label">COMPOSITE AUDIT SCORE</div>
+    <div class="gauge-wrap">
+      <svg viewBox="0 0 200 90">
+        <path d="M25 75 A75 75 0 0 1 175 75" fill="none" stroke="#dfe4ea" stroke-width="8" stroke-linecap="round"/>
+        <path id="auditGaugeArc" d="M25 75 A75 75 0 0 1 175 75" fill="none" stroke="#c95b17" stroke-width="8" stroke-linecap="round" pathLength="100" stroke-dasharray="77 100"/>
+      </svg>
+      <div class="gauge-score-val" id="auditGaugeNumber">77</div>
+      <div class="gauge-score-grade" id="auditGaugeGrade">GRADE B+ · MODERATE RISK</div>
+    </div>
+  </div>
+
+  <!-- Score Cards -->
+  <div class="score-stat-cards">
+    <div class="score-stat-card">
+      <div class="s-lbl">CRYPTOGRAPHIC BASELINE</div>
+      <div class="s-num"><span id="cryptoScore">70</span>/100</div>
+      <div class="s-sub">Deterministic configuration audit</div>
+    </div>
+    <div class="score-stat-card">
+      <div class="s-lbl">TRAFFIC ANOMALY INTEGRITY</div>
+      <div class="s-num"><span id="anomalyScore">84</span>/100</div>
+      <div class="s-sub">Side-channel &amp; timing analysis</div>
+    </div>
+    <div class="score-stat-card penalty">
+      <div class="s-lbl">PENALTY DEDUCTIONS</div>
+      <div class="s-num" id="totalPenalty">-23 <span>pts</span></div>
+      <div class="s-sub">4 audit non-compliances</div>
+    </div>
+  </div>
+</div>
+
+<div class="section-title">
+  <h2>Scoring Weightage &amp; Domain Evaluation Rubric</h2>
+  <span class="hint">Pre-assigned mathematical weights and observed domain attainment</span>
+</div>
+
+<div class="table-wrap weightage-wrap">
+  <table>
+    <thead>
+      <tr>
+        <th>SECURITY AUDIT DOMAIN</th>
+        <th>DOMAIN WEIGHT</th>
+        <th>TARGET MAX</th>
+        <th>SCORED POINTS</th>
+        <th>ATTAINMENT &amp; PERFORMANCE</th>
+      </tr>
+    </thead>
+    <tbody id="weightageTable">
+      <!-- Populated by JS -->
+    </tbody>
+  </table>
+</div>
+
+<div class="section-title">
+  <h2>Penalty Analysis: Why Scores Were Deducted</h2>
+  <span class="hint">Evidence-backed rationale and technical justification for point subtractions</span>
+</div>
+
+<div class="deductions-grid" id="deductionsGrid">
+  <!-- 4 Deduction Cards Populated by JS -->
+</div>
+
+<div class="footer">
+  <div>CONFIDENTIAL · SECURITY ASSESSMENT</div>
+  <div>ApexVigil</div>
+  <div>Page 1 of 3</div>
+</div>
+</section>
+
+<!-- PAGE 2: RADAR/DOMAIN CHART & DEFECT INVENTORY -->
+<section class="page page-2">
+<header class="header">
+  <div class="brand">
+    <img src="logo.png" class="brand-logo" alt="ApexVigil Logo">
+    <div>
+      <div class="brand-name">ApexVigil</div>
+      <div class="brand-sub">SECURITY INTELLIGENCE</div>
+    </div>
+  </div>
+  <div class="header-meta">
+    SECURITY AUDIT &amp; ASSESSMENT<br>
+    Report ID: <span id="reportId2"></span><br>
+    Generated: <span id="generated2"></span>
+  </div>
+</header>
+
+<h1>Domain Posture Comparison &amp; Defect Register</h1>
+<div class="subtitle">Visual gap analysis across security domains and itemized cryptographic defect inventory</div>
+
+<div class="section-title">
+  <h2>Domain Posture Comparison</h2>
+  <span class="hint">Observed score versus hardened target baseline across evaluated audit domains</span>
+</div>
+
+<div class="chart-container-box">
+  <div class="domain-chart-head">
+    <div id="chartTitle">Domain Benchmark Variance Analysis</div>
+    <div class="domain-chart-legend">
+      <div class="d-legend-item"><span class="d-box-target"></span>Hardened Target</div>
+      <div class="d-legend-item"><span class="d-box-score"></span>Observed Scored Points</div>
+    </div>
+  </div>
+  <svg id="domainSvg" viewBox="0 0 720 210" preserveAspectRatio="none"></svg>
+</div>
+
+<div class="section-title">
+  <h2>Granular Defect &amp; Misconfiguration Register</h2>
+  <span class="hint">Detailed inspection findings mapped to international cryptographic guidelines</span>
+</div>
+
+<div class="table-wrap defect-wrap">
+  <table>
+    <thead>
+      <tr>
+        <th>FINDING ID</th>
+        <th>PARAMETER AUDITED</th>
+        <th>OBSERVED VALUE</th>
+        <th>PENALTY</th>
+        <th>ROOT CAUSE &amp; THREAT SCENARIO</th>
+      </tr>
+    </thead>
+    <tbody id="defectTable">
+      <!-- Populated by JS -->
+    </tbody>
+  </table>
+</div>
+
+<div class="section-title">
+  <h2>Vulnerability Summary by Severity</h2>
+</div>
+
+<div class="score-stat-cards" id="severitySummary" style="grid-template-columns: repeat(4, 1fr);">
+  <!-- Populated by JS -->
+</div>
+
+<div class="footer">
+  <div>CONFIDENTIAL · SECURITY ASSESSMENT</div>
+  <div>ApexVigil</div>
+  <div>Page 2 of 3</div>
+</div>
+</section>
+
+<!-- PAGE 3: REMEDIATION PLAYBOOK & NEXT STEPS -->
+<section class="page page-3">
+<header class="header">
+  <div class="brand">
+    <img src="logo.png" class="brand-logo" alt="ApexVigil Logo">
+    <div>
+      <div class="brand-name">ApexVigil</div>
+      <div class="brand-sub">SECURITY INTELLIGENCE</div>
+    </div>
+  </div>
+  <div class="header-meta">
+    SECURITY AUDIT &amp; ASSESSMENT<br>
+    Report ID: <span id="reportId3"></span><br>
+    Generated: <span id="generated3"></span>
+  </div>
+</header>
+
+<h1>Remediation Playbook &amp; Cybersec Next Steps</h1>
+<div class="subtitle">Step-by-step engineering directives, terminal verification commands, and score projection</div>
+
+<div class="section-title">
+  <h2>Actionable Engineering Directives &amp; Verification Commands</h2>
+  <span class="hint">What the cybersecurity team must execute to eliminate score deductions</span>
+</div>
+
+<div class="remed-playbook-grid">
+  <!-- Left Box: Remediation Steps -->
+  <div class="remed-steps-box" id="remedSteps">
+    <!-- Populated by JS -->
+  </div>
+
+  <!-- Right Box: CLI Verification Commands -->
+  <div class="cli-verify-box">
+    <div class="cli-header"># TERMINAL VALIDATION SYNTAX</div>
+    <div class="code-block">
+      <div class="comment"># 1. Verify Active Child SA Cipher &amp; PFS DH Group:</div>
+      <span class="cmd">$ swanctl --list-sas</span><br>
+      <span>&gt;&gt; child_sa: AES_GCM_16_256 / ECP_256 [PFS active]</span>
+    </div>
+    <div class="code-block">
+      <div class="comment"># 2. Inspect Kernel IPsec State &amp; Replay Window:</div>
+      <span class="cmd">$ ip xfrm state</span><br>
+      <span>&gt;&gt; proto esp spi 0xc0a80102 reqid 1 replay-window 32</span>
+    </div>
+    <div class="code-block">
+      <div class="comment"># 3. Monitor Encapsulated ESP Traffic Live:</div>
+      <span class="cmd">$ tcpdump -i any esp -nn -vv -c 5</span><br>
+      <span>&gt;&gt; IP 100.119.32.83 &gt; 100.127.207.119: ESP(spi=0x... seq=1)</span>
+    </div>
+  </div>
+</div>
+
+<div class="section-title">
+  <h2>AI-Synthesized Security Recommendation (Local Ollama)</h2>
+  <span class="hint">Evidence-grounded recommendations synthesized by local Ollama reasoning model</span>
+</div>
+
+<div style="border:1px solid #cbd9e6;border-left:2px solid var(--blue);background:#f1f6fa;border-radius:1.3mm;padding:3mm 4mm;margin-bottom:3mm;min-height:30mm;max-height:32mm;overflow:hidden;">
+  <div style="font-size:5.8px;letter-spacing:1px;font-weight:800;color:var(--blue);margin-bottom:1.5mm;">● LOCAL LLM AUDIT REASONING</div>
+  <div style="font-size:7px;font-weight:800;color:#2a3b50;margin-bottom:1mm;" id="aiPriorityTitle"></div>
+  <div style="font-size:6.4px;line-height:1.35;color:#526174;max-height:8mm;overflow:hidden;" id="aiPriorityText"></div>
+  <div style="font-size:7px;font-weight:800;color:#2a3b50;margin-top:1.8mm;margin-bottom:1mm;" id="aiActionTitle"></div>
+  <div style="font-size:6.4px;line-height:1.35;color:#526174;max-height:8mm;overflow:hidden;" id="aiActionText"></div>
+</div>
+
+<div class="section-title">
+  <h2>Projected Post-Remediation Posture</h2>
+  <span class="hint">Expected score and grade improvement following execution of remediation directives</span>
+</div>
+
+<div class="projection-card">
+  <div class="proj-metrics">
+    <div class="pm">
+      <div class="l">CURRENT AUDIT SCORE</div>
+      <div class="v" id="projCurrent">77 / 100</div>
+    </div>
+    <div class="pm gain">
+      <div class="l">PROJECTED GAIN</div>
+      <div class="v" id="projGain">+19 pts</div>
+    </div>
+    <div class="pm final-proj">
+      <div class="l">PROJECTED SCORE</div>
+      <div class="v" id="projFinal">96 / 100</div>
+    </div>
+    <div class="pm">
+      <div class="l">PROJECTED GRADE</div>
+      <div class="v" id="projGrade" style="color:#5ce6a1">GRADE A+</div>
+    </div>
+  </div>
+  <div class="proj-summary-lbl">AUDITOR'S CLOSING OPINION</div>
+  <div class="proj-summary-txt" id="projSummary">
+    Executing the top two priority directives (enabling PFS Diffie-Hellman Group 19 and migrating from PSK to X.509 enterprise certificates) will immediately eliminate 16 penalty points. This transforms the IPsec deployment from a conditionally acceptable posture into an enterprise-grade hardened state fully compliant with NIST SP 800-77 Rev 1.
+  </div>
+</div>
+
+<div class="footer">
+  <div>CONFIDENTIAL · SECURITY ASSESSMENT</div>
+  <div>ApexVigil</div>
+  <div>Page 3 of 3</div>
+</div>
+</section>
+
+<script src="security_assessment_report.js"></script>
+</body>
+</html>
