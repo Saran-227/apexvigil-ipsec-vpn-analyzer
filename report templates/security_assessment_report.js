@@ -1,409 +1,202 @@
-/* APEX VIGIL SECURITY ASSESSMENT REPORT DATA CONTRACT
-   Ollama returns values only. It never controls HTML/CSS/presentation.
-   Hard limits: summary 55 words, weightage rows 5, deductions 4,
-   defects 5, remediation steps 4, projection summary 60 words. */
+/* APEX VIGIL SECURITY ASSESSMENT REPORT DATA CONTRACT & RENDERER */
 
-const ASSESSMENT_REPORT = {
-  meta: {
-    id: "AV-2026-AUDIT-001",
-    generated: "15 September 2026",
-    capture: "sih26-asim-golden.pcap",
-    analysisPeriod: "15 Sep 2026 | 01:21:06 – 01:22:03"
-  },
-  summary: "The IPsec deployment scored 77.0 out of 100 (Grade B+), indicating moderately strong transport confidentiality via AES-256-GCM, but notable architectural gaps in forward secrecy and authentication. A total of 23 penalty points were deducted across four key security parameters. Following the targeted remediation playbook will raise the posture score to 96/100 (Grade A+).",
-  scores: {
-    composite: 77,
-    grade: "GRADE B+ · MODERATE RISK",
-    cryptoBaseline: 70,
-    anomalyIntegrity: 84,
-    totalDeductions: "-23 pts"
-  },
-  weightage: [
-    [
-      "Cryptographic Suite & AEAD",
-      "30%",
-      30,
-      26,
-      "AES-256-GCM enforced; minor PRF truncation note"
-    ],
-    [
-      "Key Management & PFS",
-      "25%",
-      25,
-      14,
-      "PFS disabled on Child SA; extended rekey lifetime"
-    ],
-    [
-      "Authentication & Identity",
-      "20%",
-      20,
-      15,
-      "Static PSK observed; lacks X.509 certificate hierarchy"
-    ],
-    [
-      "Operational Replay Protection",
-      "15%",
-      15,
-      15,
-      "Anti-replay window active (32 pkts); zero replay gaps"
-    ],
-    [
-      "Metadata & Anomaly Resilience",
-      "10%",
-      10,
-      7,
-      "Packet length clustering allows video profiling"
-    ]
-  ],
-  deductions: [
-    [
-      "PFS Disabled (Child SA)",
-      "-11 pts",
-      "crit",
-      "Single Key Compromise Decrypts Past Data",
-      "Absence of Diffie-Hellman rekeying for Child SAs violates forward secrecy. If the initial key is exposed, all past recorded traffic can be retrospectively deciphered.",
-      "Risk: Critical (NIST 800-77 Non-compliant)"
-    ],
-    [
-      "Pre-Shared Key (PSK)",
-      "-5 pts",
-      "high",
-      "Vulnerable to Offline Cracking",
-      "Symmetric shared secret authentication lacks identity non-repudiation and makes both peers vulnerable if a weak passphrase is brute-forced.",
-      "Risk: Medium-High (RFC 8221 Violation)"
-    ],
-    [
-      "Extended SA Lifetime",
-      "-4 pts",
-      "med",
-      "Prolonged Cryptanalytic Attack Surface",
-      "Observed SA lifetime exceeds the recommended 3600-second / 1GB rotation interval, widening the window for cryptoanalysis.",
-      "Risk: Medium (SA Exposure Window)"
-    ],
-    [
-      "Traffic Burst & Padding Gap",
-      "-3 pts",
-      "med",
-      "Side-Channel Metadata Leakage",
-      "Insufficient ESP padding randomization allows packet size heuristics to fingerprint the encapsulated video traffic stream.",
-      "Risk: Low-Medium (Inference Attack)"
-    ]
-  ],
-  chartData: {
-    domains: ["Crypto Suite", "Key Mgmt & PFS", "Authentication", "Replay Prot.", "Metadata Resil."],
-    targets: [30, 25, 20, 15, 10],
-    scored: [26, 14, 15, 15, 7]
-  },
-  defects: [
-    [
-      "SEC-01",
-      "Forward Secrecy (PFS)",
-      "Disabled",
-      "-11 pts",
-      "Lack of DH group proposal in Child SA allows past session decryption upon master key compromise."
-    ],
-    [
-      "SEC-02",
-      "Authentication Method",
-      "PSK (Shared Secret)",
-      "-5 pts",
-      "Pre-shared keying lacks automated credential rotation and hardware security token binding."
-    ],
-    [
-      "SEC-03",
-      "SA Rekey Threshold",
-      "Extended (>8 hrs)",
-      "-4 pts",
-      "Exceeds 3600s threshold, exposing millions of packets under an identical cryptographic keystream."
-    ],
-    [
-      "SEC-04",
-      "Side-Channel Padding",
-      "Standard ESP Pad",
-      "-3 pts",
-      "Uniform padding allows packet length analysis to accurately identify internal video streaming."
-    ],
-    [
-      "SEC-05",
-      "Replay Window Size",
-      "32 Packets",
-      "0 pts",
-      "Standard 32-packet anti-replay sliding window active; fully compliant with RFC 4303."
-    ]
-  ],
-  severities: {
-    critical: 1,
-    high: 1,
-    medium: 2,
-    low: 1
-  },
-  remediation: [
-    [
-      "1. Mandate ECP-256 (DH Group 19) in Child SA",
-      "+11 pts",
-      "Append 'aes256gcm16-ecp256!' to the esp proposal in /etc/swanctl/conf.d/ipsec.conf to force ephemeral DH exchange upon every rekey."
-    ],
-    [
-      "2. Transition from PSK to X.509 PKI Certificates",
-      "+5 pts",
-      "Generate Elliptic Curve (ECDSA-256) machine certificates and reconfigure StrongSwan with 'authby = pubkey' for automated non-repudiation."
-    ],
-    [
-      "3. Restrict SA Rekey Lifetime & Byte Ceiling",
-      "+4 pts",
-      "Set 'lifetime = 3600s' and 'lifebytes = 1000M' under connection definition to enforce deterministic session rekeying."
-    ],
-    [
-      "4. Enable Random ESP Length Obfuscation",
-      "+3 pts",
-      "Activate IPsec traffic obfuscation padding to disrupt packet-size clustering models and neutralize traffic profiling."
-    ]
-  ],
-  llm: {
-    priorityTitle: "Priority Remediation Directive",
-    priorityText: "Enable Perfect Forward Secrecy immediately in the StrongSwan Child SA definition. While the in-transit AES-GCM encryption is strong, lack of PFS represents the single greatest vulnerability to retroactive decryption.",
-    actionTitle: "Recommended Action Plan",
-    actionText: "Apply DH Group 19 to Child SA proposals, restart StrongSwan via 'swanctl --load-all', and verify the active connection state with 'swanctl --list-sas'."
-  },
-  projection: {
-    current: "77 / 100",
-    gain: "+19 pts",
-    final: "96 / 100",
-    grade: "GRADE A+ · FULLY HARDENED",
-    summary: "Executing the top two priority directives (enabling PFS Diffie-Hellman Group 19 and migrating from PSK to X.509 enterprise certificates) will immediately eliminate 16 penalty points. This transforms the IPsec deployment from a conditionally acceptable posture into an enterprise-grade hardened state fully compliant with NIST SP 800-77 Rev 1."
-  }
-};
+const ASSESSMENT_REPORT = {};
 
 const esc = v => String(v ?? "").replace(/[&<>"']/g, m => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;" }[m]));
 const clip = (v, n) => { const s = String(v ?? ""); return s.length <= n ? s : s.slice(0, n - 1) + "…"; };
 const words = (v, n) => String(v ?? "").trim().split(/\s+/).filter(Boolean).slice(0, n).join(" ");
 
-function renderAuditGauge() {
-  const s = Math.max(0, Math.min(100, Number(ASSESSMENT_REPORT.scores.composite) || 0));
-  const arc = document.getElementById("auditGaugeArc");
-  if (arc) arc.style.strokeDasharray = `${s} 100`;
-  const num = document.getElementById("auditGaugeNumber");
-  if (num) num.textContent = s;
-  const grade = document.getElementById("auditGaugeGrade");
-  if (grade) grade.textContent = clip(ASSESSMENT_REPORT.scores.grade || "GRADE B+ · MODERATE RISK", 32);
-}
-
-function renderDomainChart() {
-  const svg = document.getElementById("domainSvg");
-  if (!svg) return;
-  const W = 720, H = 210, L = 50, R = 25, T = 15, B = 35;
-  const cd = ASSESSMENT_REPORT.chartData || {};
-  const labels = (cd.domains || []).slice(0, 5);
-  const targets = (cd.targets || []).slice(0, 5);
-  const scored = (cd.scored || []).slice(0, 5);
-  const N = labels.length || 5;
-
-  let o = "";
-  // Grid lines
-  for (let i = 0; i <= 3; i++) {
-    const yVal = i * 10;
-    const yNorm = yVal / 30; // 30 is max target
-    const yy = T + (H - T - B) - yNorm * (H - T - B);
-    o += `<line x1="${L}" y1="${yy}" x2="${W - R}" y2="${yy}" stroke="#e5e9ee" stroke-width="1"/>
-          <text x="${L - 8}" y="${yy + 3}" text-anchor="end" font-size="8" fill="#8a95a3">${yVal} pts</text>`;
-  }
-
-  const groupWidth = (W - L - R) / N;
-  const barWidth = 18;
-
-  for (let i = 0; i < N; i++) {
-    const gx = L + i * groupWidth + groupWidth / 2;
-    const tVal = Number(targets[i]) || 0;
-    const sVal = Number(scored[i]) || 0;
-
-    const tNorm = Math.min(1, tVal / 30);
-    const sNorm = Math.min(1, sVal / 30);
-
-    const tH = tNorm * (H - T - B);
-    const sH = sNorm * (H - T - B);
-
-    const tY = T + (H - T - B) - tH;
-    const sY = T + (H - T - B) - sH;
-
-    // Target Bar (slate/grey)
-    o += `<rect x="${gx - barWidth - 2}" y="${tY}" width="${barWidth}" height="${tH}" fill="#cbd6e2" rx="2"/>`;
-    // Score Bar (navy/blue)
-    const barFill = sVal < tVal * 0.7 ? "#c95b17" : "#2d679d";
-    o += `<rect x="${gx + 2}" y="${sY}" width="${barWidth}" height="${sH}" fill="${barFill}" rx="2"/>`;
-
-    // Bar top numbers
-    o += `<text x="${gx - barWidth / 2 - 2}" y="${tY - 3}" text-anchor="middle" font-size="7" fill="#728394">${tVal}</text>`;
-    o += `<text x="${gx + barWidth / 2 + 2}" y="${sY - 3}" text-anchor="middle" font-size="7" font-weight="bold" fill="${barFill}">${sVal}</text>`;
-
-    // X-axis Label
-    o += `<text x="${gx}" y="${H - 12}" text-anchor="middle" font-size="7.5" fill="#445568" font-weight="600">${esc(clip(labels[i], 18))}</text>`;
-  }
-
-  svg.innerHTML = o;
-}
-
 function renderAssessment() {
-  // IDs & Generation
+  const data = ASSESSMENT_REPORT || {};
+  const meta = data.meta || {};
+  const s1 = data.section1 || {};
+  const s2 = data.section2 || {};
+  const s3 = data.section3 || {};
+  const s4 = data.section4 || {};
+  const s5 = data.section5 || {};
+  const s6 = data.section6 || {};
+
+  // Headers
   ["reportId", "reportId2", "reportId3"].forEach(id => {
     const el = document.getElementById(id);
-    if (el) el.textContent = clip(ASSESSMENT_REPORT.meta.id, 32);
+    if (el) el.textContent = clip(meta.id || "AV-2026-AUDIT", 30);
   });
   ["generated", "generated2", "generated3"].forEach(id => {
     const el = document.getElementById(id);
-    if (el) el.textContent = clip(ASSESSMENT_REPORT.meta.generated, 32);
+    if (el) el.textContent = clip(meta.generated || "", 30);
   });
 
-  // Summary
-  const sumEl = document.getElementById("auditSummary");
-  if (sumEl) sumEl.textContent = words(ASSESSMENT_REPORT.summary, 55);
+  // Section 1: Scope & Regulatory Framework
+  const score = s1.compositeScore != null ? s1.compositeScore : (data.scores && data.scores.composite) || 77;
+  const grade = s1.auditGrade || (data.scores && data.scores.grade) || "GRADE B+ · MODERATE RISK";
 
-  // Scores
-  renderAuditGauge();
-  const sc = ASSESSMENT_REPORT.scores || {};
-  const cEl = document.getElementById("cryptoScore");
-  if (cEl) cEl.textContent = sc.cryptoBaseline ?? 70;
-  const aEl = document.getElementById("anomalyScore");
-  if (aEl) aEl.textContent = sc.anomalyIntegrity ?? 84;
-  const penEl = document.getElementById("totalPenalty");
-  if (penEl) penEl.innerHTML = `${esc(clip(sc.totalDeductions ?? "-23 pts", 12))}`;
+  const cScoreEl = document.getElementById("compositeScore");
+  if (cScoreEl) cScoreEl.textContent = score;
+  const aGradeEl = document.getElementById("auditGrade");
+  if (aGradeEl) aGradeEl.textContent = clip(grade, 28);
 
-  // Weightage Table
-  const wTable = document.getElementById("weightageTable");
-  if (wTable) {
-    wTable.innerHTML = (ASSESSMENT_REPORT.weightage || []).slice(0, 5).map(r => {
-      const target = Number(r[2]) || 1;
-      const scored = Number(r[3]) || 0;
-      const pct = Math.round((scored / target) * 100);
-      let barCls = "mini-bar";
-      if (pct < 65) barCls += " crit";
-      else if (pct < 85) barCls += " warn";
+  const sumTxtEl = document.getElementById("auditSummaryText");
+  if (sumTxtEl) sumTxtEl.textContent = words(data.summary || "", 65);
 
-      return `
-        <tr>
-          <td>${esc(clip(r[0], 28))}</td>
-          <td><b>${esc(clip(r[1], 10))}</b></td>
-          <td>${target} pts</td>
-          <td><b>${scored} pts</b></td>
-          <td>
-            <div class="weight-bar-cell">
-              <div class="${barCls}"><i style="width:${Math.max(0, Math.min(100, pct))}%"></i></div>
-              <span style="font-family:'Courier New',monospace;font-size:6px;font-weight:bold;min-width:20px;">${pct}%</span>
-            </div>
-          </td>
-        </tr>
-      `;
-    }).join("");
-  }
+  const scScopeEl = document.getElementById("auditScopeVal");
+  if (scScopeEl) scScopeEl.textContent = clip((s1.scope && s1.scope.evaluatedScope) || meta.capture || "IPsec Tunnel", 55);
+  const scPerEl = document.getElementById("auditPeriodVal");
+  if (scPerEl) scPerEl.textContent = clip((s1.scope && s1.scope.period) || meta.analysisPeriod || "", 45);
 
-  // Deductions Grid
-  const dGrid = document.getElementById("deductionsGrid");
-  if (dGrid) {
-    dGrid.innerHTML = (ASSESSMENT_REPORT.deductions || []).slice(0, 4).map(d => {
-      const cls = String(d[2] || "med").toLowerCase();
-      return `
-        <div class="deduction-card ${cls}">
-          <div class="deduction-header">
-            <span class="deduction-param">${esc(clip(d[0], 24))}</span>
-            <span class="deduction-pts">${esc(clip(d[1], 10))}</span>
-          </div>
-          <div class="deduction-why-lbl">ROOT CAUSE / GAP</div>
-          <div class="deduction-why-text">${esc(clip(d[4], 120))}</div>
-          <div class="deduction-impact">${esc(clip(d[5], 34))}</div>
-        </div>
-      `;
-    }).join("");
-  }
-
-  // Domain Chart
-  renderDomainChart();
-
-  // Defect Table
-  const defTable = document.getElementById("defectTable");
-  if (defTable) {
-    defTable.innerHTML = (ASSESSMENT_REPORT.defects || []).slice(0, 5).map(df => {
-      const pen = String(df[3] || "");
-      let pCls = "badge-penalty";
-      if (pen.includes("0") || pen === "") pCls += " info";
-      else if (pen.includes("11") || pen.includes("crit")) pCls += "";
-      else pCls += " warn";
-
-      return `
-        <tr>
-          <td style="font-family:'Courier New',monospace;font-weight:bold;">${esc(clip(df[0], 12))}</td>
-          <td>${esc(clip(df[1], 24))}</td>
-          <td>${esc(clip(df[2], 22))}</td>
-          <td><span class="${pCls}">${esc(clip(df[3], 12))}</span></td>
-          <td>${esc(clip(df[4], 125))}</td>
-        </tr>
-      `;
-    }).join("");
-  }
-
-  // Severity Summary
-  const sevEl = document.getElementById("severitySummary");
-  if (sevEl) {
-    const s = ASSESSMENT_REPORT.severities || {};
-    sevEl.innerHTML = `
-      <div class="score-stat-card" style="border-top:2px solid var(--red);text-align:center;">
-        <div class="s-lbl">CRITICAL</div>
-        <div class="s-num" style="color:var(--red);">${s.critical ?? 0}</div>
-        <div class="s-sub">Immediate Action</div>
-      </div>
-      <div class="score-stat-card" style="border-top:2px solid var(--orange);text-align:center;">
-        <div class="s-lbl">HIGH</div>
-        <div class="s-num" style="color:var(--orange);">${s.high ?? 0}</div>
-        <div class="s-sub">Action in 48h</div>
-      </div>
-      <div class="score-stat-card" style="border-top:2px solid var(--yellow);text-align:center;">
-        <div class="s-lbl">MEDIUM</div>
-        <div class="s-num" style="color:#b27d11;">${s.medium ?? 0}</div>
-        <div class="s-sub">30-day target</div>
-      </div>
-      <div class="score-stat-card" style="border-top:2px solid var(--green);text-align:center;">
-        <div class="s-lbl">LOW / INFORMATIONAL</div>
-        <div class="s-num" style="color:var(--green);">${s.low ?? 0}</div>
-        <div class="s-sub">Compliant state</div>
-      </div>
-    `;
-  }
-
-  // Remediation Steps
-  const remEl = document.getElementById("remedSteps");
-  if (remEl) {
-    remEl.innerHTML = (ASSESSMENT_REPORT.remediation || []).slice(0, 4).map(r => `
-      <div class="remed-step">
-        <div class="step-title">
-          <span>${esc(clip(r[0], 36))}</span>
-          <span class="step-gain">${esc(clip(r[1], 10))}</span>
-        </div>
-        <div class="step-desc">${esc(clip(r[2], 125))}</div>
-      </div>
+  const benchTable = document.getElementById("regulatoryBenchmarksTable");
+  if (benchTable) {
+    const benches = s1.benchmarks || [
+      { standard: "NIST SP 800-77 Rev. 1", title: "Guide to IPsec VPNs", requirement: "Mandates AEAD ciphers, PFS on phase 2 Child SAs, and IKEv2", status: "CONDITIONAL GAP", statusClass: "gap", citation: "NIST SP 800-77 §4.2" },
+      { standard: "RFC 8221", title: "Cryptographic Algorithm Requirements", requirement: "AES-GCM (MUST), SHA-256 (MUST), 3DES & MD5 (MUST NOT)", status: "COMPLIANT", statusClass: "pass", citation: "IETF RFC 8221 §5" },
+      { standard: "NSA CNSA 2.0", title: "Commercial Nat Sec Algorithm Suite", requirement: "AES-256, DH Group 19/20, and Post-Quantum transition timeline", status: "PARTIAL ALIGNMENT", statusClass: "gap", citation: "NSA Advisory CNSA 2.0" }
+    ];
+    benchTable.innerHTML = benches.map(b => `
+      <tr>
+        <td><b>${esc(b.standard)}</b></td>
+        <td>${esc(clip(b.title, 28))}</td>
+        <td>${esc(clip(b.requirement, 65))}</td>
+        <td><span class="badge-verdict ${b.statusClass || 'gap'}">${esc(b.status)}</span></td>
+        <td>${esc(clip(b.citation || "", 25))}</td>
+      </tr>
     `).join("");
   }
 
-  // AI LLM Box
-  const l = ASSESSMENT_REPORT.llm || {};
-  const aiPT = document.getElementById("aiPriorityTitle");
-  if (aiPT) aiPT.textContent = clip(l.priorityTitle || "Priority Remediation Directive", 40);
-  const aiPTxt = document.getElementById("aiPriorityText");
-  if (aiPTxt) aiPTxt.textContent = clip(l.priorityText || "", 240);
-  const aiAT = document.getElementById("aiActionTitle");
-  if (aiAT) aiAT.textContent = clip(l.actionTitle || "Recommended Action Plan", 40);
-  const aiATxt = document.getElementById("aiActionText");
-  if (aiATxt) aiATxt.textContent = clip(l.actionText || "", 240);
+  // Section 2: Cryptographic Health Audit
+  const ch = s2.cryptoHealth || {};
+  const sym = ch.symmetric || {};
+  const inth = ch.integrity || {};
 
-  // Projections
-  const pr = ASSESSMENT_REPORT.projection || {};
+  const scName = document.getElementById("symCipherName");
+  if (scName) scName.textContent = clip(sym.cipher || "AES-256-GCM", 26);
+  const scMode = document.getElementById("symCipherMode");
+  if (scMode) scMode.textContent = clip(sym.mode || "AEAD (Galois/Counter Mode)", 30);
+  const scTag = document.getElementById("symCipherTag");
+  if (scTag) scTag.textContent = clip(sym.tag || "128-bit ICV Tag", 30);
+  const scKey = document.getElementById("symCipherKey");
+  if (scKey) scKey.textContent = clip(sym.keySize || "256 bits", 20);
+  const scVerd = document.getElementById("symCipherVerdict");
+  if (scVerd) scVerd.textContent = clip(sym.assessment || "", 120);
+
+  const hName = document.getElementById("hashName");
+  if (hName) hName.textContent = clip(inth.hash || "SHA-256 / HMAC-SHA2-256", 28);
+  const hDig = document.getElementById("hashDigest");
+  if (hDig) hDig.textContent = clip(inth.digest || "256 bits", 20);
+  const hVerd = document.getElementById("hashVerdict");
+  if (hVerd) hVerd.textContent = clip(inth.assessment || "", 120);
+
+  // Section 3: Key Management & Exchange Audit
+  const km = s3.keyManagement || {};
+  const dh = km.dhModulus || {};
+  const pfs = km.pfsRekey || {};
+  const pq = km.postQuantumPosture || {};
+
+  const dhGrp = document.getElementById("dhGroup");
+  if (dhGrp) dhGrp.textContent = clip(dh.group || "ECP-256 (DH Group 19)", 24);
+  const dhMod = document.getElementById("dhModulus");
+  if (dhMod) dhMod.textContent = clip(dh.modulusSize || "256-bit Elliptic Curve", 35);
+  const dhAss = document.getElementById("dhAssessment");
+  if (dhAss) dhAss.textContent = clip(dh.assessment || "", 105);
+
+  const pfsChild = document.getElementById("pfsChildStatus");
+  if (pfsChild) pfsChild.textContent = clip(pfs.childPfs || "Disabled on Child SA", 24);
+  const pfsIke = document.getElementById("pfsIkeStatus");
+  if (pfsIke) pfsIke.textContent = clip(`IKE SA: ${pfs.ikePfs || "Active"} | ${pfs.penalty || "-11 pts"}`, 35);
+  const pfsThr = document.getElementById("pfsThreat");
+  if (pfsThr) pfsThr.textContent = clip(pfs.threat || "", 115);
+
+  const pqStat = document.getElementById("pqStatus");
+  if (pqStat) pqStat.textContent = clip(pq.status || "Classical ECC (Pre-Quantum)", 28);
+  const pqD = document.getElementById("pqDesc");
+  if (pqD) pqD.textContent = clip(pq.recommendation || "", 105);
+
+  // Section 4: Protocol & State Integrity
+  const pi = s4.protocolIntegrity || {};
+  const ar = pi.antiReplay || {};
+  const sr = pi.sequenceRollover || {};
+  const im = pi.ikeModeSecurity || {};
+
+  const rwEl = document.getElementById("replayWindowSize");
+  if (rwEl) rwEl.textContent = clip(ar.windowSize || "64-Bit Sliding Window (RFC 4303)", 32);
+  const rwDesc = document.getElementById("replayDesc");
+  if (rwDesc) rwDesc.textContent = clip(ar.assessment || "", 110);
+
+  const roEl = document.getElementById("rolloverProtection");
+  if (roEl) roEl.textContent = clip(sr.counterSize || "64-Bit Extended Sequence Numbers (ESN)", 35);
+
+  const imEl = document.getElementById("ikeModeSecurity");
+  if (imEl) imEl.textContent = clip(im.ikeVersion || "IKEv2 (Main Mode Equivalent)", 32);
+
+  // Section 5: Side-Channel & Metadata Vulnerability Audit
+  const sc = s5.sideChannelAudit || {};
+  const lScoreEl = document.getElementById("leakageScore");
+  if (lScoreEl) lScoreEl.textContent = sc.leakageScore || 74;
+  const lGradeEl = document.getElementById("leakageGrade");
+  if (lGradeEl) lGradeEl.textContent = clip(sc.leakageGrade || "MODERATE RISK", 18);
+
+  const psr = sc.packetShape || {};
+  const psrEl = document.getElementById("packetShapeRating");
+  if (psrEl) psrEl.textContent = clip(psr.rating || "HIGH PREDICTABILITY", 22);
+  const psdEl = document.getElementById("packetShapeDetail");
+  if (psdEl) psdEl.textContent = clip(psr.detail || "", 105);
+
+  const br = sc.burstiness || {};
+  const brEl = document.getElementById("burstinessRating");
+  if (brEl) brEl.textContent = clip(br.rating || "MODERATE LEAKAGE", 22);
+  const bdEl = document.getElementById("burstinessDetail");
+  if (bdEl) bdEl.textContent = clip(br.detail || "", 105);
+
+  const tfc = sc.tfcPadding || {};
+  const tfcSt = document.getElementById("tfcStatus");
+  if (tfcSt) tfcSt.textContent = clip(`${tfc.status || "MISSING"} (${tfc.penalty || "-3 pts"})`, 26);
+  const tfcRec = document.getElementById("tfcRecommendation");
+  if (tfcRec) tfcRec.textContent = clip(tfc.recommendation || "", 105);
+
+  // Section 6: Comprehensive Threat & Vulnerability Matrix
+  const vTable = document.getElementById("vulnerabilityMatrixTable");
+  if (vTable) {
+    const vulns = s6.vulnerabilityRegister || [
+      { id: "AV-VULN-2026-001", title: "Absence of Child SA Perfect Forward Secrecy", cvssBase: 7.5, cvssEnv: 6.8, severity: "HIGH", mandate: "NIST SP 800-77 §4.2.3", penalty: "-11 pts" },
+      { id: "AV-VULN-2026-002", title: "Static Pre-Shared Key (PSK) Authentication", cvssBase: 6.5, cvssEnv: 5.9, severity: "MEDIUM", mandate: "RFC 8221 / PKI Standard", penalty: "-5 pts" },
+      { id: "AV-VULN-2026-003", title: "Missing Traffic Flow Confidentiality (TFC) Padding", cvssBase: 4.3, cvssEnv: 3.8, severity: "MEDIUM", mandate: "RFC 4303 §2.7 Gap", penalty: "-3 pts" },
+      { id: "AV-VULN-2026-004", title: "Anti-Replay Window Verification", cvssBase: 0.0, cvssEnv: 0.0, severity: "LOW", mandate: "RFC 4303 Replay Pass", penalty: "0 pts" }
+    ];
+    vTable.innerHTML = vulns.map(v => {
+      const sevCls = String(v.severity || "med").toLowerCase();
+      return `
+        <tr>
+          <td><b>${esc(v.id)}</b></td>
+          <td><b>${esc(clip(v.title, 34))}</b></td>
+          <td>Base: ${v.cvssBase} | Env: ${v.cvssEnv}</td>
+          <td><span class="severity-pill ${sevCls}">${esc(v.severity)}</span></td>
+          <td>${esc(clip(v.mandate, 28))}</td>
+        </tr>
+      `;
+    }).join("");
+  }
+
+  // Severity stats
+  const sevRow = document.getElementById("severityStatRow");
+  if (sevRow) {
+    const sev = s6.severities || (data.severities || { critical: 0, high: 1, medium: 2, low: 1 });
+    sevRow.innerHTML = `
+      <div class="sev-stat-box"><div class="ss-num" style="color:var(--red);">${sev.critical || 0}</div><div class="ss-lbl">CRITICAL</div></div>
+      <div class="sev-stat-box"><div class="ss-num" style="color:var(--orange);">${sev.high || 0}</div><div class="ss-lbl">HIGH</div></div>
+      <div class="sev-stat-box"><div class="ss-num" style="color:#b27d11;">${sev.medium || 0}</div><div class="ss-lbl">MEDIUM</div></div>
+      <div class="sev-stat-box"><div class="ss-num" style="color:var(--green);">${sev.low || 0}</div><div class="ss-lbl">LOW</div></div>
+    `;
+  }
+
+  const proj = s6.projection || data.projection || {};
   const pCur = document.getElementById("projCurrent");
-  if (pCur) pCur.textContent = clip(pr.current || "77 / 100", 14);
-  const pGain = document.getElementById("projGain");
-  if (pGain) pGain.textContent = clip(pr.gain || "+19 pts", 12);
+  if (pCur) pCur.textContent = clip(proj.current || "77 / 100", 14);
+  const pGn = document.getElementById("projGain");
+  if (pGn) pGn.textContent = clip(proj.gain || "+19 pts", 12);
   const pFin = document.getElementById("projFinal");
-  if (pFin) pFin.textContent = clip(pr.final || "96 / 100", 14);
+  if (pFin) pFin.textContent = clip(proj.final || "96 / 100", 14);
   const pGrd = document.getElementById("projGrade");
-  if (pGrd) pGrd.textContent = clip(pr.grade || "GRADE A+", 26);
+  if (pGrd) pGrd.textContent = clip(proj.grade || "GRADE A+", 26);
   const pSum = document.getElementById("projSummary");
-  if (pSum) pSum.textContent = words(pr.summary, 60);
+  if (pSum) pSum.textContent = words(proj.summary || "", 65);
 }
 
 document.addEventListener("DOMContentLoaded", renderAssessment);

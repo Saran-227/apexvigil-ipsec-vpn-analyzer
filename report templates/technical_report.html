@@ -1,35 +1,320 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>ApexVigil IPsec VPN Technical Assessment Report</title><link rel="stylesheet" href="style.css">
-</head><body>
-<!-- FIXED TEMPLATE: Ollama must provide JSON values only. Never regenerate HTML/CSS. -->
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>ApexVigil IPsec VPN Technical Assessment Report</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- ==========================================
+     PAGE 1: SECTIONS 1 AND 2
+     ========================================== -->
 <section class="page page-1">
-<header class="header"><div class="brand"><img src="logo.png" class="brand-logo" alt="ApexVigil Logo"><div><div class="brand-name">ApexVigil</div><div class="brand-sub">SECURITY INTELLIGENCE</div></div></div><div class="header-meta">TECHNICAL ASSESSMENT REPORT<br>Report ID: <span id="reportId"></span><br>Generated: <span id="generated"></span></div></header>
-<div class="report-kicker">IPSEC VPN TECHNICAL ASSESSMENT REPORT</div><h1>Encrypted Traffic Analysis &amp; Security Evaluation</h1><div class="subtitle">Technical protocol and deep cryptographic security assessment of the analyzed VPN session</div>
-<div class="executive-summary" id="executiveSummary"></div>
-<div class="capture-row"><div><div class="eyebrow">ANALYZED CAPTURE</div><div class="value" id="capture"></div></div><div><div class="eyebrow">ANALYSIS PERIOD</div><div class="value" id="analysisPeriod"></div></div></div>
-<div class="section-title"><h2>Overall Risk Score</h2><span class="hint">Composite rule &amp; anomaly evidence model</span></div>
-<div class="risk-grid"><div class="risk-card"><div class="risk-label">RISK INSTRUMENT</div><div class="gauge"><svg viewBox="0 0 200 90"><path d="M25 75 A75 75 0 0 1 175 75" fill="none" stroke="#dfe4ea" stroke-width="8" stroke-linecap="round"/><path id="gaugeArc" d="M25 75 A75 75 0 0 1 175 75" fill="none" stroke="#c95b17" stroke-width="8" stroke-linecap="round" pathLength="100" stroke-dasharray="62 100"/></svg><div class="gauge-number" id="gaugeNumber"></div><div class="gauge-risk" id="gaugeRisk"></div></div></div><div><div class="score-cards"><div class="score-card"><div class="label">RULE SCORE</div><div class="num"><span id="ruleScore"></span>/100</div></div><div class="score-card"><div class="label">ANOMALY SCORE</div><div class="num"><span id="anomalyScore"></span>/100</div></div><div class="score-card final"><div class="label">FINAL RISK</div><div class="num"><span id="finalScore"></span>/100</div></div></div><div class="weight-note">The final score combines deterministic security evidence with traffic-anomaly evidence. Presentation remains controlled by ApexVigil, not the local LLM.</div></div></div>
-<div class="section-title"><h2>Network Topology &amp; Endpoints</h2><span class="hint">Encrypted tunnel path observed during analysis</span></div>
-<div class="topology"><div class="endpoint" id="sourceEndpoint"></div><div class="tunnel"><div class="tunnel-line"></div><div class="lock">▣</div><div class="tunnel-name">StrongSwan IPsec VPN</div><div class="tunnel-sub" id="tunnelSub">Encrypted tunnel</div></div><div class="endpoint" id="receiverEndpoint"></div></div>
-<div class="section-title"><h2>VPN Configuration Summary</h2><span class="hint">Technical value + plain-language explanation</span></div>
-<div class="table-wrap vpn-wrap"><table><thead><tr><th>PROPERTY</th><th>OBSERVED VALUE</th><th>WHAT IT DOES</th></tr></thead><tbody id="vpnTable"></tbody></table></div>
-<div class="footer"><div>CONFIDENTIAL · TECHNICAL ASSESSMENT</div><div>ApexVigil</div><div>Page 1 of 3</div></div></section>
+<header class="header">
+  <div class="brand">
+    <img src="logo.png" class="brand-logo" alt="ApexVigil Logo">
+    <div>
+      <div class="brand-name">ApexVigil</div>
+      <div class="brand-sub">SECURITY INTELLIGENCE</div>
+    </div>
+  </div>
+  <div class="header-meta">
+    TECHNICAL ASSESSMENT REPORT<br>
+    Report ID: <span id="reportId"></span><br>
+    Generated: <span id="generated"></span>
+  </div>
+</header>
 
-<section class="page page-2"><header class="header"><div class="brand"><img src="logo.png" class="brand-logo" alt="ApexVigil Logo"><div><div class="brand-name">ApexVigil</div><div class="brand-sub">SECURITY INTELLIGENCE</div></div></div><div class="header-meta">TECHNICAL ASSESSMENT REPORT<br>Report ID: <span id="reportId2"></span><br>Generated: <span id="generated2"></span></div></header>
-<h1>Packet-Level Traffic Analysis</h1><div class="subtitle">Temporal analysis of encrypted network activity in fixed analysis windows</div>
-<div class="section-title"><h2>Traffic Timeline</h2><span class="hint">Packet rate over capture duration</span></div><div class="chart-box"><div class="chart-head"><div id="chartMetricLabel">Packet rate</div><div class="chart-legend"><div class="legend-item"><span class="legend-line"></span>Activity</div><div class="legend-item"><span class="legend-dot"></span>Detected event</div></div></div><svg id="timelineSvg" viewBox="0 0 720 250" preserveAspectRatio="none"></svg><div class="event-grid" id="eventGrid"></div></div>
-<div class="section-title"><h2>Connection Statistics</h2><span class="hint">Aggregate capture metrics</span></div><div class="stat-grid" id="statGrid"></div>
-<div class="lower-grid"><div><div class="section-title"><h2>Detected Traffic Profile</h2></div><div class="panel traffic-profile"><div class="profile-main"><div class="profile-title" id="classTitle"></div><div class="profile-confidence" id="classConfidence"></div></div><div id="confidenceBars"></div></div></div><div><div class="section-title"><h2>Packet Characteristics</h2></div><div class="panel packet-panel"><div class="char-list" id="characteristics"></div></div></div></div>
-<div class="footer"><div>CONFIDENTIAL · TECHNICAL ASSESSMENT</div><div>ApexVigil</div><div>Page 2 of 3</div></div></section>
+<div class="report-kicker">IPSEC TECHNICAL AUDIT &amp; CONTROL-PLANE DISSECTION</div>
+<h1>IPsec VPN Technical Dissection &amp; Stream Telemetry</h1>
+<div class="subtitle">Deterministic protocol evaluation, IKE negotiation transforms, ESP telemetry, and gateway configuration patches</div>
 
-<section class="page page-3"><header class="header"><div class="brand"><img src="logo.png" class="brand-logo" alt="ApexVigil Logo"><div><div class="brand-name">ApexVigil</div><div class="brand-sub">SECURITY INTELLIGENCE</div></div></div><div class="header-meta">TECHNICAL ASSESSMENT REPORT<br>Report ID: <span id="reportId3"></span><br>Generated: <span id="generated3"></span></div></header>
-<h1>Security Findings &amp; Recommendations</h1><div class="subtitle">Observed configuration compared with the defined security baseline</div>
-<div class="section-title"><h2>Security Comparison</h2><span class="hint">Evidence-based baseline review</span></div><div class="table-wrap findings-wrap"><table class="findings"><thead><tr><th>SECURITY PARAMETER</th><th>OBSERVED</th><th>EXPECTED / RECOMMENDED</th><th>SEVERITY</th><th>ACTION</th></tr></thead><tbody id="findingsTable"></tbody></table></div>
-<div class="section-title"><h2>Findings Summary</h2></div><div class="finding-summary"><div class="finding-box crit"><div class="n" id="criticalCount"></div><div class="l">CRITICAL</div></div><div class="finding-box highbox"><div class="n" id="highCount"></div><div class="l">HIGH</div></div><div class="finding-box medbox"><div class="n" id="mediumCount"></div><div class="l">MEDIUM</div></div><div class="finding-box"><div class="n" id="lowCount"></div><div class="l">LOW</div></div></div>
-<div class="section-title"><h2>AI-Generated Security Recommendation</h2><span class="hint">Generated by local Ollama model</span></div><div class="llm-box"><div class="llm-label">● LOCAL LLM RECOMMENDATION</div><div class="llm-head" id="llmPriorityTitle"></div><div class="llm-text" id="llmPriorityText"></div><div class="llm-head action-head" id="llmActionTitle"></div><div class="llm-text" id="llmActionText"></div><div class="ai-recommendations" id="aiRecommendations"></div></div>
-<div class="section-title"><h2>Final Security Assessment</h2></div><div class="final-card"><div class="final-metrics"><div class="fm"><div class="l">RISK SCORE</div><div class="v" id="finalScore3"></div></div><div class="fm risk"><div class="l">RISK LEVEL</div><div class="v" id="riskLevel3"></div></div><div class="fm"><div class="l">RULE SCORE</div><div class="v" id="ruleScore3"></div></div><div class="fm"><div class="l">ANOMALY SCORE</div><div class="v" id="anomalyScore3"></div></div></div><div class="assessment-title">Overall Assessment</div><div class="assessment-text" id="overallAssessment"></div></div>
-<div class="footer"><div>CONFIDENTIAL · TECHNICAL ASSESSMENT</div><div>ApexVigil</div><div>Page 3 of 3</div></div></section>
-<script src="report.js"></script></body></html>
+<!-- SECTION 1: CAPTURE & INTERFACE METADATA -->
+<div class="section-title">
+  <h2>Section 1: Capture &amp; Interface Metadata</h2>
+  <span class="hint">Capture source (live tap br-ipsec or uploaded PCAP), interface stats, total packet counts, and flow volume</span>
+</div>
+
+<div class="capture-source-banner">
+  <div class="cs-item">
+    <span class="cs-lbl">CAPTURE SOURCE / INGESTION INTERFACE</span>
+    <span class="cs-val" id="capSource">--</span>
+  </div>
+  <div class="cs-item" style="text-align:right;">
+    <span class="cs-lbl">ANALYSIS TIMEFRAME WINDOW</span>
+    <span class="cs-val" id="capPeriod">--</span>
+  </div>
+</div>
+
+<div class="endpoints-grid">
+  <div class="endpoint-card" id="sourceEndpointCard">
+    <!-- Populated by JS -->
+  </div>
+  <div class="tunnel-mid-card">
+    <div class="t-line"></div>
+    <div class="t-badge">IPsec ESP</div>
+    <div class="t-sub" id="tunnelMiddleSub">UDP 4500 (NAT-T) · Tunnel Mode</div>
+  </div>
+  <div class="endpoint-card" id="receiverEndpointCard">
+    <!-- Populated by JS -->
+  </div>
+</div>
+
+<div class="stats-hex-grid" id="statsGrid">
+  <!-- 6 Stat Cards Populated by JS -->
+</div>
+
+<!-- SECTION 2: DETERMINISTIC CONTROL-PLANE DISSECTION -->
+<div class="section-title">
+  <h2>Section 2: Deterministic Control-Plane Dissection</h2>
+  <span class="hint">Exact IKEv1/IKEv2 exchange breakdown, SA proposals, negotiated encryption/PRF transforms, and active SPI pairs</span>
+</div>
+
+<div class="control-plane-container">
+  <div class="ike-exchanges-box">
+    <div class="cp-head">IKE PROTOCOL EXCHANGES &amp; HANDSHAKE SEQUENCE</div>
+    <div class="exchange-list" id="ikeExchangesList">
+      <!-- Populated by JS -->
+    </div>
+  </div>
+
+  <div class="spi-pairs-box">
+    <div class="cp-head">ACTIVE SECURITY ASSOCIATION (SPI) PAIRS</div>
+    <div class="spi-grid" id="spiGrid">
+      <!-- Populated by JS -->
+    </div>
+  </div>
+</div>
+
+<div class="table-wrap sa-wrap">
+  <div class="cp-head" style="margin-bottom:1.5mm;">NEGOTIATED TRANSFORMS &amp; SECURITY ASSOCIATION PROPOSALS</div>
+  <table class="tech-table">
+    <thead>
+      <tr>
+        <th>TRANSFORM TYPE</th>
+        <th>IKE SA NEGOTIATED</th>
+        <th>CHILD SA NEGOTIATED</th>
+        <th>COMPLIANCE STATUS</th>
+        <th>BENCHMARK STANDARD</th>
+      </tr>
+    </thead>
+    <tbody id="saProposalsTable">
+      <!-- Populated by JS -->
+    </tbody>
+  </table>
+</div>
+
+<div class="footer">
+  <div>CONFIDENTIAL · TECHNICAL DISSECTION</div>
+  <div>ApexVigil Intelligence</div>
+  <div>Page 1 of 3</div>
+</div>
+</section>
+
+<!-- ==========================================
+     PAGE 2: SECTIONS 3 AND 4
+     ========================================== -->
+<section class="page page-2">
+<header class="header">
+  <div class="brand">
+    <img src="logo.png" class="brand-logo" alt="ApexVigil Logo">
+    <div>
+      <div class="brand-name">ApexVigil</div>
+      <div class="brand-sub">SECURITY INTELLIGENCE</div>
+    </div>
+  </div>
+  <div class="header-meta">
+    TECHNICAL ASSESSMENT REPORT<br>
+    Report ID: <span id="reportId2"></span><br>
+    Generated: <span id="generated2"></span>
+  </div>
+</header>
+
+<div class="report-kicker">DATA-PLANE TELEMETRY &amp; AI/ML PAYLOAD CLASSIFICATION</div>
+<h1>Data-Plane Stream Telemetry &amp; Inference</h1>
+<div class="subtitle">Packet size distribution histograms, timing analysis, sequence progression, and inner encrypted traffic classification</div>
+
+<!-- SECTION 3: DATA-PLANE (ESP) STREAM TELEMETRY -->
+<div class="section-title">
+  <h2>Section 3: Data-Plane (ESP) Stream Telemetry</h2>
+  <span class="hint">Packet size histograms, Inter-Arrival Time (IAT) statistics, and sequence counter progression</span>
+</div>
+
+<div class="telemetry-top-grid">
+  <!-- Packet Size Histogram Card -->
+  <div class="telemetry-card">
+    <div class="card-head">
+      <span class="card-title">PACKET SIZE DISTRIBUTION HISTOGRAM</span>
+      <span class="card-tag">BINNED MTU</span>
+    </div>
+    <div class="hist-bars" id="histogramBars">
+      <!-- Populated by JS -->
+    </div>
+  </div>
+
+  <!-- IAT & Sequence Progression Card -->
+  <div class="telemetry-card">
+    <div class="card-head">
+      <span class="card-title">INTER-ARRIVAL TIME &amp; SEQUENCE INTEGRITY</span>
+      <span class="card-tag">RFC 4303</span>
+    </div>
+    <div class="iat-metrics-grid" id="iatMetricsGrid">
+      <!-- Populated by JS -->
+    </div>
+    <div class="seq-progression-box" id="seqProgressionBox">
+      <!-- Populated by JS -->
+    </div>
+  </div>
+</div>
+
+<!-- Timeline Chart -->
+<div class="chart-container">
+  <div class="chart-head">
+    <div id="chartMetricLabel" style="font-size:6.5px;font-weight:800;color:var(--navy);">Throughput &amp; Packet Velocity Timeline</div>
+    <div class="chart-legend">
+      <div class="legend-item"><span class="legend-line"></span>Observed Rate (pkt/s)</div>
+      <div class="legend-item"><span class="legend-dot"></span>Identified Burst / Window Event</div>
+    </div>
+  </div>
+  <svg id="timelineSvg" viewBox="0 0 720 180" preserveAspectRatio="none"></svg>
+  <div class="event-row" id="eventRow">
+    <!-- Populated by JS -->
+  </div>
+</div>
+
+<!-- SECTION 4: AI/ML INFERENCE ANALYSIS -->
+<div class="section-title">
+  <h2>Section 4: AI/ML Inference Analysis</h2>
+  <span class="hint">Operating mode determination (Tunnel vs. Transport) and inner encrypted traffic classification with model confidence intervals</span>
+</div>
+
+<div class="aiml-grid">
+  <!-- Operating Mode Card -->
+  <div class="mode-inference-card">
+    <div class="card-head">
+      <span class="card-title">OPERATING MODE DETERMINATION</span>
+      <span class="card-tag safe" id="modeConfidence">99.4% CONFIDENCE</span>
+    </div>
+    <div class="mode-title" id="operatingModeTitle">IPsec Tunnel Mode</div>
+    <div class="mode-desc" id="operatingModeDesc">
+      Outer IP header encapsulates ESP header with internal private subnet routing addresses. Transport mode payload encapsulation is ruled out.
+    </div>
+    <div class="fingerprint-row" id="fingerprintRow">
+      <!-- Populated by JS -->
+    </div>
+  </div>
+
+  <!-- Inner Traffic Classification Card -->
+  <div class="classification-card">
+    <div class="card-head">
+      <span class="card-title">INNER ENCRYPTED TRAFFIC CLASSIFICATION</span>
+      <span class="card-tag" id="primaryClassTag">94.2% CONFIDENCE</span>
+    </div>
+    <div class="class-distribution" id="classDistribution">
+      <!-- Populated by JS -->
+    </div>
+  </div>
+</div>
+
+<div class="footer">
+  <div>CONFIDENTIAL · TECHNICAL DISSECTION</div>
+  <div>ApexVigil Intelligence</div>
+  <div>Page 2 of 3</div>
+</div>
+</section>
+
+<!-- ==========================================
+     PAGE 3: SECTIONS 5 AND 6
+     ========================================== -->
+<section class="page page-3">
+<header class="header">
+  <div class="brand">
+    <img src="logo.png" class="brand-logo" alt="ApexVigil Logo">
+    <div>
+      <div class="brand-name">ApexVigil</div>
+      <div class="brand-sub">SECURITY INTELLIGENCE</div>
+    </div>
+  </div>
+  <div class="header-meta">
+    TECHNICAL ASSESSMENT REPORT<br>
+    Report ID: <span id="reportId3"></span><br>
+    Generated: <span id="generated3"></span>
+  </div>
+</header>
+
+<div class="report-kicker">ENGINEERING REMEDIATION &amp; RAW FORENSIC EVIDENCE</div>
+<h1>Implementation Patches &amp; Trace Index</h1>
+<div class="subtitle">Actionable gateway configuration blocks ready for deployment, and raw packet trace appendix with flow JSON dumps</div>
+
+<!-- SECTION 5: IMPLEMENTATION REMEDIATION PATCHES -->
+<div class="section-title">
+  <h2>Section 5: Implementation Remediation Patches</h2>
+  <span class="hint">Actionable configuration blocks ready to apply on target gateways (e.g., swanctl.conf, Cisco CLI)</span>
+</div>
+
+<div class="patches-container">
+  <div class="patch-box">
+    <div class="patch-head"># 1. StrongSwan Gateway Patch (/etc/swanctl/conf.d/apex_hardened.conf)</div>
+    <pre class="code-pre" id="swanctlPatchCode"></pre>
+  </div>
+  <div class="patch-box">
+    <div class="patch-head">! 2. Cisco IOS-XE / ASA Enterprise CLI Configuration Block</div>
+    <pre class="code-pre" id="ciscoPatchCode"></pre>
+  </div>
+</div>
+
+<div class="cli-verify-row">
+  <div class="cli-lbl">VALIDATION COMMANDS:</div>
+  <div class="cli-cmds" id="validationCmds"></div>
+</div>
+
+<!-- SECTION 6: RAW SESSION TRACE INDEX -->
+<div class="section-title">
+  <h2>Section 6: Raw Session Trace Index</h2>
+  <span class="hint">Appendix listing individual packet indices, exchange types, and flow JSON dumps</span>
+</div>
+
+<div class="table-wrap trace-wrap">
+  <table class="tech-table">
+    <thead>
+      <tr>
+        <th>PKT #</th>
+        <th>OFFSET</th>
+        <th>LAYER / PROTO</th>
+        <th>TYPE / EXCHANGE</th>
+        <th>SPI IDENTIFIER</th>
+        <th>LENGTH</th>
+        <th>DISSECTION SUMMARY</th>
+      </tr>
+    </thead>
+    <tbody id="traceIndexTable">
+      <!-- Populated by JS -->
+    </tbody>
+  </table>
+</div>
+
+<div class="flow-json-box">
+  <div class="flow-json-head">
+    <span>RAW FLOW TELEMETRY JSON DUMP</span>
+    <span style="font-family:monospace;font-size:5.5px;">RFC 8221 &amp; SIEM COMPATIBLE</span>
+  </div>
+  <pre class="flow-json-pre" id="flowJsonDumpPre"></pre>
+</div>
+
+<div class="final-assessment-banner">
+  <div class="fa-title">OVERALL TECHNICAL VERDICT</div>
+  <div class="fa-text" id="technicalOverallAssessment"></div>
+</div>
+
+<div class="footer">
+  <div>CONFIDENTIAL · TECHNICAL DISSECTION</div>
+  <div>ApexVigil Intelligence</div>
+  <div>Page 3 of 3</div>
+</div>
+</section>
+
+<script src="report.js"></script>
+</body>
+</html>

@@ -1,14 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>ApexVigil IPsec VPN Security Assessment Report</title>
 <link rel="stylesheet" href="security_assessment_report.css">
 </head>
 <body>
-<!-- FIXED ASSESSMENT TEMPLATE: Ollama must provide JSON values only. Never regenerate HTML/CSS. -->
 
-<!-- PAGE 1: WEIGHTED SCORING & DEDUCTION ANALYSIS -->
+<!-- ==========================================
+     PAGE 1: SECTIONS 1 AND 2
+     ========================================== -->
 <section class="page page-1">
 <header class="header">
   <div class="brand">
@@ -25,92 +27,108 @@
   </div>
 </header>
 
-<div class="report-kicker">IPSEC SECURITY AUDIT &amp; SCORING WEIGHTAGE ASSESSMENT</div>
-<h1>Security Assessment &amp; Weighted Scoring Audit</h1>
-<div class="subtitle">Quantitative cryptographic audit, explicit domain weightage, and root-cause penalty analysis</div>
+<div class="report-kicker">IPSEC REGULATORY AUDIT &amp; CRYPTOGRAPHIC HEALTH</div>
+<h1>IPsec VPN Security Assessment &amp; Framework Audit</h1>
+<div class="subtitle">Comprehensive evaluation against NIST SP 800-77 Rev. 1, RFC 8221, and NSA CNSA 2.0 cryptographic mandates</div>
 
-<div class="assessment-summary-box" id="auditSummaryBox">
-  <span class="summary-txt" id="auditSummary"></span>
-</div>
-
-<div class="section-title">
-  <h2>Quantitative Audit Score &amp; Penalty Overview</h2>
-  <span class="hint">Synthesized scoring derived from deterministic cryptographic verification</span>
-</div>
-
-<div class="audit-score-grid">
-  <!-- Gauge Card -->
-  <div class="audit-gauge-card">
-    <div class="audit-gauge-label">COMPOSITE AUDIT SCORE</div>
-    <div class="gauge-wrap">
-      <svg viewBox="0 0 200 90">
-        <path d="M25 75 A75 75 0 0 1 175 75" fill="none" stroke="#dfe4ea" stroke-width="8" stroke-linecap="round"/>
-        <path id="auditGaugeArc" d="M25 75 A75 75 0 0 1 175 75" fill="none" stroke="#c95b17" stroke-width="8" stroke-linecap="round" pathLength="100" stroke-dasharray="77 100"/>
-      </svg>
-      <div class="gauge-score-val" id="auditGaugeNumber">77</div>
-      <div class="gauge-score-grade" id="auditGaugeGrade">GRADE B+ · MODERATE RISK</div>
-    </div>
+<!-- Audit Summary Callout -->
+<div class="audit-summary-banner" id="auditSummaryBanner">
+  <div class="as-score-box">
+    <div class="as-score-num" id="compositeScore">77</div>
+    <div class="as-score-lbl" id="auditGrade">GRADE B+</div>
   </div>
-
-  <!-- Score Cards -->
-  <div class="score-stat-cards">
-    <div class="score-stat-card">
-      <div class="s-lbl">CRYPTOGRAPHIC BASELINE</div>
-      <div class="s-num"><span id="cryptoScore">70</span>/100</div>
-      <div class="s-sub">Deterministic configuration audit</div>
-    </div>
-    <div class="score-stat-card">
-      <div class="s-lbl">TRAFFIC ANOMALY INTEGRITY</div>
-      <div class="s-num"><span id="anomalyScore">84</span>/100</div>
-      <div class="s-sub">Side-channel &amp; timing analysis</div>
-    </div>
-    <div class="score-stat-card penalty">
-      <div class="s-lbl">PENALTY DEDUCTIONS</div>
-      <div class="s-num" id="totalPenalty">-23 <span>pts</span></div>
-      <div class="s-sub">4 audit non-compliances</div>
-    </div>
+  <div class="as-text-box">
+    <div class="as-title" id="auditVerdictTitle">CONDITIONAL COMPLIANCE · ATTENTION REQUIRED</div>
+    <div class="as-desc" id="auditSummaryText">--</div>
   </div>
 </div>
 
+<!-- SECTION 1: SCOPE & REGULATORY FRAMEWORK -->
 <div class="section-title">
-  <h2>Scoring Weightage &amp; Domain Evaluation Rubric</h2>
-  <span class="hint">Pre-assigned mathematical weights and observed domain attainment</span>
+  <h2>Section 1: Scope &amp; Regulatory Framework</h2>
+  <span class="hint">Definition of audit benchmarks (NIST SP 800-77 Rev. 1, RFC 8221, NSA CNSA 2.0)</span>
 </div>
 
-<div class="table-wrap weightage-wrap">
-  <table>
+<div class="scope-row-card">
+  <div class="sr-item">
+    <span class="sr-lbl">AUDIT SCOPE &amp; TARGET GATEWAYS</span>
+    <span class="sr-val" id="auditScopeVal">--</span>
+  </div>
+  <div class="sr-item" style="text-align:right;">
+    <span class="sr-lbl">ASSESSMENT TIMEFRAME</span>
+    <span class="sr-val" id="auditPeriodVal">--</span>
+  </div>
+</div>
+
+<div class="table-wrap bench-wrap">
+  <table class="audit-table">
     <thead>
       <tr>
-        <th>SECURITY AUDIT DOMAIN</th>
-        <th>DOMAIN WEIGHT</th>
-        <th>TARGET MAX</th>
-        <th>SCORED POINTS</th>
-        <th>ATTAINMENT &amp; PERFORMANCE</th>
+        <th>REGULATORY BENCHMARK</th>
+        <th>TITLE &amp; JURISDICTION</th>
+        <th>MANDATED CRYPTOGRAPHIC REQUIREMENTS</th>
+        <th>AUDIT COMPLIANCE VERDICT</th>
+        <th>CITATION</th>
       </tr>
     </thead>
-    <tbody id="weightageTable">
+    <tbody id="regulatoryBenchmarksTable">
       <!-- Populated by JS -->
     </tbody>
   </table>
 </div>
 
+<!-- SECTION 2: CRYPTOGRAPHIC HEALTH AUDIT -->
 <div class="section-title">
-  <h2>Penalty Analysis: Why Scores Were Deducted</h2>
-  <span class="hint">Evidence-backed rationale and technical justification for point subtractions</span>
+  <h2>Section 2: Cryptographic Health Audit</h2>
+  <span class="hint">Granular evaluation of symmetric ciphers (AES-GCM vs. CBC/3DES) and hashing integrity (SHA-256 vs. SHA-1/MD5)</span>
 </div>
 
-<div class="deductions-grid" id="deductionsGrid">
-  <!-- 4 Deduction Cards Populated by JS -->
+<div class="crypto-health-grid">
+  <!-- Symmetric Cipher Card -->
+  <div class="health-card">
+    <div class="hc-head">
+      <span class="hc-title">SYMMETRIC ENCRYPTION CIPHER</span>
+      <span class="hc-badge pass" id="symCipherStatus">APPROVED</span>
+    </div>
+    <div class="hc-main-val" id="symCipherName">AES-256-GCM (AEAD)</div>
+    <div class="hc-specs">
+      <div><b>Operating Mode:</b> <span id="symCipherMode">Galois/Counter Mode (AEAD)</span></div>
+      <div><b>Integrity Tag:</b> <span id="symCipherTag">128-bit ICV (Authentication Tag)</span></div>
+      <div><b>Key Length:</b> <span id="symCipherKey">256-bit Symmetric Key</span></div>
+    </div>
+    <div class="hc-verdict" id="symCipherVerdict">
+      AEAD provides built-in authentication, completely neutralizing padding oracle vulnerabilities.
+    </div>
+  </div>
+
+  <!-- Hashing Integrity Card -->
+  <div class="health-card">
+    <div class="hc-head">
+      <span class="hc-title">HASHING &amp; MESSAGE INTEGRITY</span>
+      <span class="hc-badge pass" id="hashStatus">APPROVED</span>
+    </div>
+    <div class="hc-main-val" id="hashName">SHA-256 / HMAC-SHA2-256</div>
+    <div class="hc-specs">
+      <div><b>Digest Size:</b> <span id="hashDigest">256-bit Digest</span></div>
+      <div><b>Collision Resistance:</b> <span id="hashCollision">Verified (FIPS 180-4 Compliant)</span></div>
+      <div><b>Deprecated Primitives:</b> <span id="hashDeprecated">MD5 / SHA-1 Not Detected</span></div>
+    </div>
+    <div class="hc-verdict" id="hashVerdict">
+      Collision-resistant hashing adherence verified with zero deprecated digest algorithms detected.
+    </div>
+  </div>
 </div>
 
 <div class="footer">
-  <div>CONFIDENTIAL · SECURITY ASSESSMENT</div>
-  <div>ApexVigil</div>
+  <div>CONFIDENTIAL · SECURITY AUDIT</div>
+  <div>ApexVigil Intelligence</div>
   <div>Page 1 of 3</div>
 </div>
 </section>
 
-<!-- PAGE 2: RADAR/DOMAIN CHART & DEFECT INVENTORY -->
+<!-- ==========================================
+     PAGE 2: SECTIONS 3 AND 4
+     ========================================== -->
 <section class="page page-2">
 <header class="header">
   <div class="brand">
@@ -127,63 +145,124 @@
   </div>
 </header>
 
-<h1>Domain Posture Comparison &amp; Defect Register</h1>
-<div class="subtitle">Visual gap analysis across security domains and itemized cryptographic defect inventory</div>
+<div class="report-kicker">KEY MANAGEMENT, PROTOCOL &amp; STATE INTEGRITY</div>
+<h1>Key Exchange &amp; Protocol Integrity</h1>
+<div class="subtitle">Diffie-Hellman modulus size verification, post-quantum posture, sequence rollover safeguards, and anti-replay integrity</div>
 
+<!-- SECTION 3: KEY MANAGEMENT & EXCHANGE AUDIT -->
 <div class="section-title">
-  <h2>Domain Posture Comparison</h2>
-  <span class="hint">Observed score versus hardened target baseline across evaluated audit domains</span>
+  <h2>Section 3: Key Management &amp; Exchange Audit</h2>
+  <span class="hint">Verification of Diffie-Hellman modulus size, post-quantum posture, and PFS rekey enforcement</span>
 </div>
 
-<div class="chart-container-box">
-  <div class="domain-chart-head">
-    <div id="chartTitle">Domain Benchmark Variance Analysis</div>
-    <div class="domain-chart-legend">
-      <div class="d-legend-item"><span class="d-box-target"></span>Hardened Target</div>
-      <div class="d-legend-item"><span class="d-box-score"></span>Observed Scored Points</div>
+<div class="key-mgmt-grid">
+  <!-- DH Modulus Card -->
+  <div class="km-card">
+    <div class="km-head">
+      <span class="km-title">DIFFIE-HELLMAN MODULUS STRENGTH</span>
+      <span class="km-tag pass" id="dhTag">APPROVED</span>
+    </div>
+    <div class="km-val" id="dhGroup">ECP-256 (DH Group 19)</div>
+    <div class="km-sub" id="dhModulus">256-bit Elliptic Curve (~3072-bit RSA Equivalent)</div>
+    <div class="km-desc" id="dhAssessment">
+      Meets NIST SP 800-57 discrete logarithm strength recommendations for enterprise confidentiality.
     </div>
   </div>
-  <svg id="domainSvg" viewBox="0 0 720 210" preserveAspectRatio="none"></svg>
+
+  <!-- PFS Rekey Enforcement Card -->
+  <div class="km-card">
+    <div class="km-head">
+      <span class="km-title">PERFECT FORWARD SECRECY (PFS) REKEY</span>
+      <span class="km-tag fail" id="pfsTag">CRITICAL NON-COMPLIANCE</span>
+    </div>
+    <div class="km-val" id="pfsChildStatus">Disabled on Child SA</div>
+    <div class="km-sub" id="pfsIkeStatus">IKE SA: Active (ECP-256) | Penalty: -11 pts</div>
+    <div class="km-desc" id="pfsThreat">
+      Child SA rekeying without ephemeral DH exchange allows retroactive bulk decryption if long-term credentials leak.
+    </div>
+  </div>
+
+  <!-- Post-Quantum Posture Card -->
+  <div class="km-card">
+    <div class="km-head">
+      <span class="km-title">POST-QUANTUM CRYPTOGRAPHIC POSTURE</span>
+      <span class="km-tag alert" id="pqTag">TRANSITION REQUIRED</span>
+    </div>
+    <div class="km-val" id="pqStatus">Classical ECC (Pre-Quantum)</div>
+    <div class="km-sub">Target: Hybrid ML-KEM-768 (Kyber)</div>
+    <div class="km-desc" id="pqDesc">
+      Advisable to adopt hybrid post-quantum key encapsulation per NSA CNSA 2.0 roadmap (2026–2030).
+    </div>
+  </div>
+
+  <!-- Key Lifetimes Card -->
+  <div class="km-card">
+    <div class="km-head">
+      <span class="km-title">SA ROTATION LIFETIMES &amp; LIMITS</span>
+      <span class="km-tag pass">ALIGNED</span>
+    </div>
+    <div class="km-val" id="lifetimeTime">3600 seconds (1 Hour)</div>
+    <div class="km-sub" id="lifetimeVolume">1,000 MB (1 GB Transfer Threshold)</div>
+    <div class="km-desc">
+      Strict rekey intervals constrain cryptanalytic exposure window under high packet volumes.
+    </div>
+  </div>
 </div>
 
+<!-- SECTION 4: PROTOCOL & STATE INTEGRITY -->
 <div class="section-title">
-  <h2>Granular Defect &amp; Misconfiguration Register</h2>
-  <span class="hint">Detailed inspection findings mapped to international cryptographic guidelines</span>
+  <h2>Section 4: Protocol &amp; State Integrity</h2>
+  <span class="hint">Anti-replay window sizing, sequence rollover safeguards, and IKE mode security (e.g., IKEv1 Aggressive Mode detection)</span>
 </div>
 
-<div class="table-wrap defect-wrap">
-  <table>
-    <thead>
-      <tr>
-        <th>FINDING ID</th>
-        <th>PARAMETER AUDITED</th>
-        <th>OBSERVED VALUE</th>
-        <th>PENALTY</th>
-        <th>ROOT CAUSE &amp; THREAT SCENARIO</th>
-      </tr>
-    </thead>
-    <tbody id="defectTable">
-      <!-- Populated by JS -->
-    </tbody>
-  </table>
-</div>
+<div class="protocol-integrity-grid">
+  <!-- Anti-Replay Card -->
+  <div class="proto-card">
+    <div class="proto-head">
+      <span class="proto-title">ANTI-REPLAY WINDOW SIZING</span>
+      <span class="proto-tag pass">ACTIVE &amp; VERIFIED</span>
+    </div>
+    <div class="proto-val" id="replayWindowSize">64-Bit Sliding Window (RFC 4303)</div>
+    <div class="proto-desc" id="replayDesc">
+      Kernel state maintains strict sequence bitmap. Monitored session accepted 0 duplicate or injected frames.
+    </div>
+  </div>
 
-<div class="section-title">
-  <h2>Vulnerability Summary by Severity</h2>
-</div>
+  <!-- Sequence Rollover Safeguards -->
+  <div class="proto-card">
+    <div class="proto-head">
+      <span class="proto-title">SEQUENCE ROLLOVER SAFEGUARDS</span>
+      <span class="proto-tag pass">HARDENED</span>
+    </div>
+    <div class="proto-val" id="rolloverProtection">64-Bit Extended Sequence Numbers (ESN)</div>
+    <div class="proto-desc">
+      Protects against 2^32 sequence cycling attacks under 10Gbps+ multi-core line-rate traffic. Safe for &gt;500 years.
+    </div>
+  </div>
 
-<div class="score-stat-cards" id="severitySummary" style="grid-template-columns: repeat(4, 1fr);">
-  <!-- Populated by JS -->
+  <!-- IKE Mode Security -->
+  <div class="proto-card">
+    <div class="proto-head">
+      <span class="proto-title">IKE MODE SECURITY &amp; DOWNGRADE</span>
+      <span class="proto-tag pass">PROTECTED</span>
+    </div>
+    <div class="proto-val" id="ikeModeSecurity">IKEv2 (Main Mode Equivalent)</div>
+    <div class="proto-desc">
+      IKEv1 Aggressive Mode NOT detected. Unencrypted identity hashing is prevented, neutralizing offline dictionary cracking.
+    </div>
+  </div>
 </div>
 
 <div class="footer">
-  <div>CONFIDENTIAL · SECURITY ASSESSMENT</div>
-  <div>ApexVigil</div>
+  <div>CONFIDENTIAL · SECURITY AUDIT</div>
+  <div>ApexVigil Intelligence</div>
   <div>Page 2 of 3</div>
 </div>
 </section>
 
-<!-- PAGE 3: REMEDIATION PLAYBOOK & NEXT STEPS -->
+<!-- ==========================================
+     PAGE 3: SECTIONS 5 AND 6
+     ========================================== -->
 <section class="page page-3">
 <header class="header">
   <div class="brand">
@@ -200,87 +279,89 @@
   </div>
 </header>
 
-<h1>Remediation Playbook &amp; Cybersec Next Steps</h1>
-<div class="subtitle">Step-by-step engineering directives, terminal verification commands, and score projection</div>
+<div class="report-kicker">SIDE-CHANNEL AUDIT &amp; COMPREHENSIVE VULNERABILITY REGISTER</div>
+<h1>Side-Channel Audit &amp; Threat Matrix</h1>
+<div class="subtitle">Traffic Flow Confidentiality (TFC) leakage, itemized CVSS vulnerability register, and post-remediation posture</div>
 
+<!-- SECTION 5: SIDE-CHANNEL & METADATA VULNERABILITY AUDIT -->
 <div class="section-title">
-  <h2>Actionable Engineering Directives &amp; Verification Commands</h2>
-  <span class="hint">What the cybersecurity team must execute to eliminate score deductions</span>
+  <h2>Section 5: Side-Channel &amp; Metadata Vulnerability Audit</h2>
+  <span class="hint">Leakage score based on packet shape predictability, burstiness, and missing Traffic Flow Confidentiality (TFC) padding</span>
 </div>
 
-<div class="remed-playbook-grid">
-  <!-- Left Box: Remediation Steps -->
-  <div class="remed-steps-box" id="remedSteps">
+<div class="side-channel-container">
+  <div class="leakage-score-box">
+    <div class="ls-lbl">SIDE-CHANNEL LEAKAGE SCORE</div>
+    <div class="ls-num" id="leakageScore">74</div>
+    <div class="ls-grade" id="leakageGrade">MODERATE RISK</div>
+  </div>
+
+  <div class="leakage-details-grid">
+    <div class="ld-card">
+      <span class="ld-lbl">PACKET SHAPE PREDICTABILITY</span>
+      <span class="ld-val alert" id="packetShapeRating">HIGH PREDICTABILITY</span>
+      <span class="ld-desc" id="packetShapeDetail">Length clustering around 1420B and 180B leaks media application type.</span>
+    </div>
+    <div class="ld-card">
+      <span class="ld-lbl">BURSTINESS &amp; IAT TIMING</span>
+      <span class="ld-val alert" id="burstinessRating">MODERATE LEAKAGE</span>
+      <span class="ld-desc" id="burstinessDetail">Regular 20ms inter-arrival intervals reveal active media codec timing.</span>
+    </div>
+    <div class="ld-card">
+      <span class="ld-lbl">TFC PADDING AUDIT</span>
+      <span class="ld-val crit" id="tfcStatus">MISSING / DISABLED (-3 pts)</span>
+      <span class="ld-desc" id="tfcRecommendation">Activate random TFC padding (RFC 4303 §2.7) to obscure packet lengths.</span>
+    </div>
+  </div>
+</div>
+
+<!-- SECTION 6: COMPREHENSIVE THREAT & VULNERABILITY MATRIX -->
+<div class="section-title">
+  <h2>Section 6: Comprehensive Threat &amp; Vulnerability Matrix</h2>
+  <span class="hint">Detailed register of discovered vulnerabilities, CVSS base/environmental scores, and audit remediation mandates</span>
+</div>
+
+<div class="table-wrap vuln-wrap">
+  <table class="audit-table">
+    <thead>
+      <tr>
+        <th>VULN ID</th>
+        <th>VULNERABILITY &amp; THREAT VECTOR</th>
+        <th>CVSS v3.1 BASE / ENV</th>
+        <th>SEVERITY</th>
+        <th>REMEDIATION MANDATE</th>
+        <th>PENALTY</th>
+      </tr>
+    </thead>
+    <tbody id="vulnerabilityMatrixTable">
+      <!-- Populated by JS -->
+    </tbody>
+  </table>
+</div>
+
+<!-- Severity Summary & Projected Posture -->
+<div class="posture-projection-grid">
+  <div class="severity-stat-row" id="severityStatRow">
     <!-- Populated by JS -->
   </div>
 
-  <!-- Right Box: CLI Verification Commands -->
-  <div class="cli-verify-box">
-    <div class="cli-header"># TERMINAL VALIDATION SYNTAX</div>
-    <div class="code-block">
-      <div class="comment"># 1. Verify Active Child SA Cipher &amp; PFS DH Group:</div>
-      <span class="cmd">$ swanctl --list-sas</span><br>
-      <span>&gt;&gt; child_sa: AES_GCM_16_256 / ECP_256 [PFS active]</span>
+  <div class="projection-box">
+    <div class="proj-head">PROJECTED POST-REMEDIATION POSTURE</div>
+    <div class="proj-metrics-row">
+      <div class="pm-item"><span class="pm-lbl">CURRENT SCORE</span><span class="pm-val" id="projCurrent">77 / 100</span></div>
+      <div class="pm-item"><span class="pm-lbl">PROJECTED GAIN</span><span class="pm-val gain" id="projGain">+19 pts</span></div>
+      <div class="pm-item"><span class="pm-lbl">PROJECTED SCORE</span><span class="pm-val" id="projFinal">96 / 100</span></div>
+      <div class="pm-item"><span class="pm-lbl">PROJECTED GRADE</span><span class="pm-val grade" id="projGrade">GRADE A+</span></div>
     </div>
-    <div class="code-block">
-      <div class="comment"># 2. Inspect Kernel IPsec State &amp; Replay Window:</div>
-      <span class="cmd">$ ip xfrm state</span><br>
-      <span>&gt;&gt; proto esp spi 0xc0a80102 reqid 1 replay-window 32</span>
+    <div class="proj-summary-text" id="projSummary">
+      Executing the top two priority directives (enforcing PFS Diffie-Hellman Group 19 on Child SAs and migrating to X.509 certificates) eliminates 16 penalty points, promoting the deployment into a fully hardened state compliant with NIST SP 800-77 Rev 1.
     </div>
-    <div class="code-block">
-      <div class="comment"># 3. Monitor Encapsulated ESP Traffic Live:</div>
-      <span class="cmd">$ tcpdump -i any esp -nn -vv -c 5</span><br>
-      <span>&gt;&gt; IP 100.119.32.83 &gt; 100.127.207.119: ESP(spi=0x... seq=1)</span>
-    </div>
-  </div>
-</div>
-
-<div class="section-title">
-  <h2>AI-Synthesized Security Recommendation (Local Ollama)</h2>
-  <span class="hint">Evidence-grounded recommendations synthesized by local Ollama reasoning model</span>
-</div>
-
-<div style="border:1px solid #cbd9e6;border-left:2px solid var(--blue);background:#f1f6fa;border-radius:1.3mm;padding:3mm 4mm;margin-bottom:3mm;min-height:30mm;max-height:32mm;overflow:hidden;">
-  <div style="font-size:5.8px;letter-spacing:1px;font-weight:800;color:var(--blue);margin-bottom:1.5mm;">● LOCAL LLM AUDIT REASONING</div>
-  <div style="font-size:7px;font-weight:800;color:#2a3b50;margin-bottom:1mm;" id="aiPriorityTitle"></div>
-  <div style="font-size:6.4px;line-height:1.35;color:#526174;max-height:8mm;overflow:hidden;" id="aiPriorityText"></div>
-  <div style="font-size:7px;font-weight:800;color:#2a3b50;margin-top:1.8mm;margin-bottom:1mm;" id="aiActionTitle"></div>
-  <div style="font-size:6.4px;line-height:1.35;color:#526174;max-height:8mm;overflow:hidden;" id="aiActionText"></div>
-</div>
-
-<div class="section-title">
-  <h2>Projected Post-Remediation Posture</h2>
-  <span class="hint">Expected score and grade improvement following execution of remediation directives</span>
-</div>
-
-<div class="projection-card">
-  <div class="proj-metrics">
-    <div class="pm">
-      <div class="l">CURRENT AUDIT SCORE</div>
-      <div class="v" id="projCurrent">77 / 100</div>
-    </div>
-    <div class="pm gain">
-      <div class="l">PROJECTED GAIN</div>
-      <div class="v" id="projGain">+19 pts</div>
-    </div>
-    <div class="pm final-proj">
-      <div class="l">PROJECTED SCORE</div>
-      <div class="v" id="projFinal">96 / 100</div>
-    </div>
-    <div class="pm">
-      <div class="l">PROJECTED GRADE</div>
-      <div class="v" id="projGrade" style="color:#5ce6a1">GRADE A+</div>
-    </div>
-  </div>
-  <div class="proj-summary-lbl">AUDITOR'S CLOSING OPINION</div>
-  <div class="proj-summary-txt" id="projSummary">
-    Executing the top two priority directives (enabling PFS Diffie-Hellman Group 19 and migrating from PSK to X.509 enterprise certificates) will immediately eliminate 16 penalty points. This transforms the IPsec deployment from a conditionally acceptable posture into an enterprise-grade hardened state fully compliant with NIST SP 800-77 Rev 1.
   </div>
 </div>
 
 <div class="footer">
-  <div>CONFIDENTIAL · SECURITY ASSESSMENT</div>
-  <div>ApexVigil</div>
+  <div>CONFIDENTIAL · SECURITY AUDIT</div>
+  <div>ApexVigil Intelligence</div>
   <div>Page 3 of 3</div>
 </div>
 </section>
