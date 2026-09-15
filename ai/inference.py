@@ -37,7 +37,17 @@ class IPsecClassifier:
         if not os.path.exists(pcap_path):
             raise FileNotFoundError(f"PCAP file not found: {pcap_path}")
 
-        packets = rdpcap(pcap_path)
+        packets = []
+        try:
+            from scapy.all import PcapReader
+            with PcapReader(pcap_path) as piter:
+                for idx, pkt in enumerate(piter):
+                    packets.append(pkt)
+                    if idx >= 5000:
+                        break
+        except Exception:
+            packets = rdpcap(pcap_path)[:5000]
+
         if not packets:
             return {"error": "Empty PCAP file"}
 
@@ -95,94 +105,31 @@ class IPsecClassifier:
         small_ratio = len(small_voice_pkts) / total_esp if total_esp > 0 else 0.0
         large_ratio = len(large_mtu_pkts) / total_esp if total_esp > 0 else 0.0
 
-        is_pure_voip = False
-        is_bimodal_concurrent_voip = False
-        reconciliation_diagnostic = None
+        # Rely on the trained ML champion model predictions
+        prob_dist = {}
+        for cls_name, prob in zip(self.le_class.classes_, class_probs):
+            prob_dist[cls_name] = round(float(prob), 4)
 
-        if total_esp >= 20:
-            # Pure VoIP: strictly small frames (~60-200B with ESP header, low std, 0% MTU)
-            if small_ratio >= 0.85 and large_ratio <= 0.05 and std_len < 60:
-                is_pure_voip = True
-            # Bimodal Concurrent VoIP: co-existence of audio frames and large MTU frames (e.g. golden PCAP 38.7% / 61.3%)
-            elif small_ratio >= 0.20 and large_ratio >= 0.20 and std_len > 150:
-                is_bimodal_concurrent_voip = True
-
-        if is_bimodal_concurrent_voip:
-            # Reconcile Flow Dynamics vs. Payload Profile discrepancy:
-            # Mark as CONCURRENT MULTI-APPLICATION FLOW rather than assigning 100% confidence to pure VoIP
-            is_concurrent = True
-            concurrent_apps = ["voip", "bulk"]
-            predicted_class = "mixed"
-            display_profile = "VOIP + BULK / DATA (Concurrent Bimodal Flow)"
-
-            # Apportion probability distribution across the decomposed sub-streams
-            p_voice = round(small_ratio, 3)
-            p_bulk = round(large_ratio, 3)
-            p_mixed = round(max(0.0, 1.0 - (p_voice + p_bulk)), 3)
-
-            prob_dist = {cls_name: 0.0 for cls_name in self.le_class.classes_}
-            prob_dist["voip"] = p_voice
-            prob_dist["bulk"] = p_bulk
-            prob_dist["mixed"] = p_mixed
-            class_conf = round(max(p_voice, p_bulk), 3)
-
-            reconciliation_diagnostic = {
-                "discrepancy_resolved": True,
-                "status": "BIMODAL_CONCURRENCY_IDENTIFIED",
-                "issue_description": "Statistical modeling discrepancy resolved: Classifier avoids assigning 100% confidence to pure VoIP when bimodal packet dynamics (Mean: 832.8B, Std: ±563.3B, MTU: 61.3%) indicate concurrent payload streams.",
-                "real_world_voip_baseline": "Strictly small frames (~60–200 B, std ≈ 0 B, 0% large MTU frames)",
-                "observed_wiretap_dynamics": {
-                    "mean_packet_size_b": round(mean_len, 1),
-                    "size_dispersion_std_b": round(std_len, 1),
-                    "small_voice_frames_pct": round(small_ratio * 100, 1),
-                    "large_mtu_frames_pct": round(large_ratio * 100, 1)
-                },
-                "resolution": "Decomposed bimodal flow into concurrent multi-application streams: Active Voice RTP Sub-stream (38.7%) concurrent with High-MTU Bulk/Data Stream or Tunnel Padding (61.3%). Marked as CONCURRENT (VoIP + Bulk/Data).",
-                "substreams": {
-                    "voice_substream": {
-                        "packet_count": len(small_voice_pkts),
-                        "percentage": round(small_ratio * 100, 1),
-                        "frame_size_range": "116–128 B",
-                        "traffic_type": "VoIP RTP Audio Codec"
-                    },
-                    "data_substream": {
-                        "packet_count": len(large_mtu_pkts),
-                        "percentage": round(large_ratio * 100, 1),
-                        "frame_size_range": "1280 B (MTU Saturation)",
-                        "traffic_type": "Bulk Data / Video Screenshare / Tunnel Padding"
-                    }
-                }
-            }
-        elif is_pure_voip:
-            predicted_class = "voip"
-            display_profile = "VOIP"
-            class_conf = 0.998
-            is_concurrent = False
-            concurrent_apps = ["voip"]
-            prob_dist = {cls_name: (0.998 if cls_name == "voip" else 0.0) for cls_name in self.le_class.classes_}
-        else:
-            prob_dist = {}
-            for cls_name, prob in zip(self.le_class.classes_, class_probs):
-                prob_dist[cls_name] = round(float(prob), 4)
-            predicted_class = raw_predicted_class
-            display_profile = predicted_class.upper()
-            class_conf = raw_class_conf
-
-            ranked_classes = sorted(prob_dist.items(), key=lambda x: x[1], reverse=True)
-            top1_class, top1_prob = ranked_classes[0]
-            top2_class, top2_prob = ranked_classes[1]
-
-            if top1_class == 'mixed':
-                is_concurrent = True
-                concurrent_apps = [ranked_classes[1][0], ranked_classes[2][0]]
-            elif top2_prob >= 0.20:
-                is_concurrent = True
-                concurrent_apps = [top1_class, top2_class]
-            else:
-                is_concurrent = False
-                concurrent_apps = [top1_class]
+        predicted_class = raw_predicted_class
+        display_profile = predicted_class.upper()
+        class_conf = raw_class_conf
 
         ranked_classes = sorted(prob_dist.items(), key=lambda x: x[1], reverse=True)
+        top1_class, top1_prob = ranked_classes[0]
+        top2_class, top2_prob = ranked_classes[1]
+
+        if top1_class == 'mixed':
+            is_concurrent = True
+            concurrent_apps = [ranked_classes[1][0], ranked_classes[2][0]]
+        elif top2_prob >= 0.25 and top1_prob < 0.70:
+            is_concurrent = True
+            concurrent_apps = [top1_class, top2_class]
+        else:
+            is_concurrent = False
+            concurrent_apps = [top1_class]
+
+        reconciliation_diagnostic = None
+        ranked_classes = [{'class': c, 'probability': p} for c, p in ranked_classes]
 
         # 3. Windowed Temporal Breakdown (Timeline Slices)
         # Cleanly separates initial IKE handshake window from subsequent ESP windows!
@@ -202,34 +149,17 @@ class IPsecClassifier:
 
                 if len(w_esp) >= 3:
                     # True encrypted ESP application traffic
-                    if is_bimodal_concurrent_voip:
-                        w_lens = [r[1] for r in w_esp]
-                        w_sm = sum(1 for l in w_lens if l < 250)
-                        w_lg = sum(1 for l in w_lens if l > 900)
-                        if w_sm > 0 and w_lg > 0:
-                            w_pred = "voip+bulk"
-                            w_conf = 0.95
-                        elif w_lg > 0:
-                            w_pred = "bulk"
-                            w_conf = round(w_lg / len(w_lens), 3)
-                        else:
-                            w_pred = "voip"
-                            w_conf = round(w_sm / len(w_lens), 3)
-                    elif is_pure_voip:
-                        w_pred = "voip"
-                        w_conf = 1.0
+                    w_feat = compute_window_features(w_esp, window_idx=w_idx, is_full_session=False, labels=dummy_labels)
+                    if w_feat:
+                        x_win = np.array([[w_feat.get(col, 0.0) for col in self.features]], dtype=np.float64)
+                        x_win = np.nan_to_num(x_win, nan=0.0, posinf=0.0, neginf=0.0)
+                        w_cls_idx = self.traffic_model.predict(x_win)[0]
+                        w_cls_probs = self.traffic_model.predict_proba(x_win)[0]
+                        w_pred = self.le_class.inverse_transform([w_cls_idx])[0]
+                        w_conf = float(w_cls_probs[w_cls_idx])
                     else:
-                        w_feat = compute_window_features(w_esp, window_idx=w_idx, is_full_session=False, labels=dummy_labels)
-                        if w_feat:
-                            x_win = np.array([[w_feat.get(col, 0.0) for col in self.features]], dtype=np.float64)
-                            x_win = np.nan_to_num(x_win, nan=0.0, posinf=0.0, neginf=0.0)
-                            w_cls_idx = self.traffic_model.predict(x_win)[0]
-                            w_cls_probs = self.traffic_model.predict_proba(x_win)[0]
-                            w_pred = self.le_class.inverse_transform([w_cls_idx])[0]
-                            w_conf = float(w_cls_probs[w_cls_idx])
-                        else:
-                            w_pred = predicted_class
-                            w_conf = class_conf
+                        w_pred = predicted_class
+                        w_conf = class_conf
 
                     timeline.append({
                         "window_idx": w_idx,

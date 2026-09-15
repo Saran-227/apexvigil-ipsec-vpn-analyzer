@@ -52,10 +52,18 @@ def extract_packet_metadata(packets):
     """
     Extract raw lightweight metadata array from Scapy packets:
     (timestamp, wire_len, is_forward, is_esp, spi, seq_num)
+    Dynamically identifies endpoint IPs so directional features work on any network.
     """
     records = []
     if not packets:
         return records
+
+    # Determine dominant forward endpoint dynamically from the first valid IP packet
+    fwd_ip = None
+    for p in packets:
+        if IP in p:
+            fwd_ip = p[IP].src
+            break
 
     first_time = float(packets[0].time)
 
@@ -70,13 +78,10 @@ def extract_packet_metadata(packets):
 
             if IP in pkt:
                 ip = pkt[IP]
-                # Check if traffic originates from initiator 172.28.0.2
-                if ip.src == "172.28.0.2":
-                    is_fwd = 1
-                elif ip.dst == "172.28.0.2":
-                    is_fwd = 0
+                if fwd_ip is not None:
+                    is_fwd = 1 if ip.src == fwd_ip else 0
 
-            # Detect ESP layer directly or inside UDP 4500
+            # 1. Native ESP layer (IP proto 50)
             if ESP in pkt:
                 is_esp = 1
                 try:
@@ -86,6 +91,18 @@ def extract_packet_metadata(packets):
                     pass
             elif IP in pkt and pkt[IP].proto == 50:
                 is_esp = 1
+            # 2. NAT-Traversal ESP encapsulated in UDP 4500
+            elif UDP in pkt and (pkt[UDP].dport == 4500 or pkt[UDP].sport == 4500):
+                is_esp = 1
+                try:
+                    raw_load = bytes(pkt[UDP].payload)
+                    if len(raw_load) >= 8:
+                        potential_spi = int.from_bytes(raw_load[:4], 'big')
+                        if potential_spi != 0:  # Non-zero SPI means ESP, not IKE keepalive
+                            spi = potential_spi
+                            seq_num = int.from_bytes(raw_load[4:8], 'big')
+                except Exception:
+                    pass
 
             records.append((t, wire_len, is_fwd, is_esp, spi, seq_num))
         except Exception:
@@ -340,36 +357,97 @@ def compute_window_features(records, window_idx, is_full_session, labels):
     return row
 
 
-def process_capture_file(pcap_path, window_size=1.5, step_size=0.75):
+def infer_label_from_path(pcap_path):
+    """Infers category label from file path and folder name."""
+    p_lower = pcap_path.lower().replace('\\', '/')
+    for cat in ['bulk_transfer', 'bulk', 'fragmented']:
+        if cat in p_lower:
+            return 'bulk'
+    for cat in ['voip_audio', 'audio', 'voip']:
+        if cat in p_lower:
+            return 'voip'
+    for cat in ['video']:
+        if cat in p_lower:
+            return 'video'
+    for cat in ['chat']:
+        if cat in p_lower:
+            return 'chat'
+    for cat in ['email', 'mail']:
+        if cat in p_lower:
+            return 'email'
+    for cat in ['icmp', 'ping']:
+        if cat in p_lower:
+            return 'icmp'
+    for cat in ['web', 'http']:
+        if cat in p_lower:
+            return 'web'
+    for cat in ['mixed']:
+        if cat in p_lower:
+            return 'mixed'
+    return 'unknown'
+
+
+def process_capture_file(pcap_path, window_size=1.5, step_size=0.75, max_packets=5000):
     """
-    Processes one pcapng file and its associated JSON metadata.
+    Processes one pcap/pcapng file and its associated JSON metadata (or infers labels if standalone).
+    Uses streaming PcapReader to safely process large captures.
     """
-    json_path = pcap_path.replace('.pcapng', '.json')
-    if not os.path.exists(json_path):
-        return []
+    # Look for matching metadata JSON
+    json_path = os.path.splitext(pcap_path)[0] + '.json'
+    base_name = os.path.basename(pcap_path).replace('.pcapng', '').replace('.pcap', '')
 
+    if os.path.exists(json_path):
+        try:
+            with open(json_path, 'r') as jf:
+                meta = json.load(jf)
+            labels = {
+                'capture_id': meta.get('capture_id', base_name),
+                'primary_class': meta.get('traffic_profile', {}).get('primary_class', 'unknown'),
+                'is_mixed': meta.get('traffic_profile', {}).get('is_mixed', False),
+                'operating_mode': meta.get('protocol_stack', {}).get('operating_mode', 'unknown'),
+                'ike_version': f"ikev{meta.get('protocol_stack', {}).get('ike_version', 2)}",
+                'crypto_suite': meta.get('crypto_suite', {}).get('esp_encryption', 'unknown'),
+                'nist_status': meta.get('nist_sp800_77_compliance', {}).get('status', 'PASS')
+            }
+        except Exception:
+            primary_class = infer_label_from_path(pcap_path)
+            labels = {
+                'capture_id': base_name,
+                'primary_class': primary_class,
+                'is_mixed': (primary_class == 'mixed'),
+                'operating_mode': 'tunnel',
+                'ike_version': 'ikev2',
+                'crypto_suite': 'AES_GCM_16_256',
+                'nist_status': 'PASS'
+            }
+    else:
+        primary_class = infer_label_from_path(pcap_path)
+        labels = {
+            'capture_id': base_name,
+            'primary_class': primary_class,
+            'is_mixed': (primary_class == 'mixed'),
+            'operating_mode': 'tunnel',
+            'ike_version': 'ikev2',
+            'crypto_suite': 'AES_GCM_16_256',
+            'nist_status': 'PASS'
+        }
+
+    packets = []
     try:
-        with open(json_path, 'r') as jf:
-            meta = json.load(jf)
-    except Exception as e:
-        print(f"[-] Error reading {json_path}: {e}")
-        return []
-
-    labels = {
-        'capture_id': meta.get('capture_id', os.path.basename(pcap_path).replace('.pcapng', '')),
-        'primary_class': meta.get('traffic_profile', {}).get('primary_class', 'unknown'),
-        'is_mixed': meta.get('traffic_profile', {}).get('is_mixed', False),
-        'operating_mode': meta.get('protocol_stack', {}).get('operating_mode', 'unknown'),
-        'ike_version': f"ikev{meta.get('protocol_stack', {}).get('ike_version', 2)}",
-        'crypto_suite': meta.get('crypto_suite', {}).get('esp_encryption', 'unknown'),
-        'nist_status': meta.get('nist_sp800_77_compliance', {}).get('status', 'PASS')
-    }
-
-    try:
-        packets = rdpcap(pcap_path)
-    except Exception as e:
-        print(f"[-] Error parsing packets from {pcap_path}: {e}")
-        return []
+        from scapy.all import PcapReader
+        with PcapReader(pcap_path) as piter:
+            for idx, pkt in enumerate(piter):
+                packets.append(pkt)
+                if max_packets and idx >= max_packets:
+                    break
+    except Exception:
+        try:
+            packets = rdpcap(pcap_path)
+            if max_packets:
+                packets = packets[:max_packets]
+        except Exception as e:
+            print(f"[-] Error reading {pcap_path}: {e}")
+            return []
 
     if not packets:
         return []
@@ -408,10 +486,15 @@ def process_capture_file(pcap_path, window_size=1.5, step_size=0.75):
 
 def extract_features_from_dataset(dataset_dir, output_csv, window_size=1.5, step_size=0.75, max_workers=4):
     """
-    Iterates through all .pcapng files in dataset_dir and exports features.csv
+    Iterates through all .pcap and .pcapng files in dataset_dir and exports features.csv
     """
-    pcap_files = sorted(glob.glob(os.path.join(dataset_dir, "*.pcapng")))
-    print(f"[*] Found {len(pcap_files)} PCAPNG captures in {dataset_dir}")
+    pcap_files = sorted(
+        glob.glob(os.path.join(dataset_dir, "*.pcapng")) +
+        glob.glob(os.path.join(dataset_dir, "*.pcap")) +
+        glob.glob(os.path.join(dataset_dir, "*", "*.pcap")) +
+        glob.glob(os.path.join(dataset_dir, "*", "*.pcapng"))
+    )
+    print(f"[*] Found {len(pcap_files)} captures in {dataset_dir}")
     if not pcap_files:
         print("[-] No captures found!")
         return
@@ -427,7 +510,7 @@ def extract_features_from_dataset(dataset_dir, output_csv, window_size=1.5, step
             rows = process_capture_file(pf, window_size, step_size)
             all_rows.extend(rows)
             completed += 1
-            if completed % 15 == 0 or completed == total:
+            if completed % 10 == 0 or completed == total:
                 print(f"[+] Processed [{completed:3d}/{total:3d}] files -> {len(all_rows)} total feature windows")
         except Exception as e:
             print(f"[-] Failed processing {pf}: {e}")

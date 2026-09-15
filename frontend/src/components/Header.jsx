@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
-import { ShieldCheck, Trophy, Printer, SunMoon, Radio } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
+import { ShieldCheck, Trophy, Printer, SunMoon, Radio, ArrowLeft, Layers } from 'lucide-react'
 
 const NAV_ITEMS = [
   { label: 'OVERVIEW', href: '#top' },
@@ -10,6 +11,7 @@ const NAV_ITEMS = [
 ]
 
 export default function Header({ connection = 'LIVE', mode = 'OFFLINE SECURE', onOpenTournament }) {
+  const navigate = useNavigate()
   const [active, setActive] = useState('#top')
 
   useEffect(() => {
@@ -36,11 +38,22 @@ export default function Header({ connection = 'LIVE', mode = 'OFFLINE SECURE', o
 
   return (
     <header className="topbar">
-      <div className="brand" onClick={() => handleNav('#top')} style={{ cursor: 'pointer' }}>
-        <div className="brand-mark"><ShieldCheck size={21} /></div>
-        <div>
-          <div className="brand-title">NTRO IPsec <em>Intelligence</em></div>
-          <div className="brand-sub">SIH26160 · Automated Cryptographic Audit &amp; AI Classifier</div>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+        <button
+          onClick={() => navigate('/')}
+          className="header-hub-btn"
+          title="Return to Workspace Hub mode selector"
+        >
+          <ArrowLeft size={14} />
+          <span>Hub</span>
+        </button>
+        <div className="topbar-divider" />
+        <div className="brand" onClick={() => handleNav('#top')} style={{ cursor: 'pointer' }}>
+          <div className="brand-mark"><ShieldCheck size={21} /></div>
+          <div>
+            <div className="brand-title">NTRO IPsec <em>Intelligence</em></div>
+            <div className="brand-sub">SIH26160 · Forensic PCAP Workspace</div>
+          </div>
         </div>
       </div>
 
@@ -57,6 +70,15 @@ export default function Header({ connection = 'LIVE', mode = 'OFFLINE SECURE', o
       </nav>
 
       <div className="top-actions">
+        <button
+          onClick={() => navigate('/realtime')}
+          className="header-mode-switch-btn"
+          title="Switch to Real-Time Live Stream Cockpit"
+        >
+          <Radio size={13} color="var(--accent-cyan)" />
+          <span>Real-Time Mode</span>
+        </button>
+
         {onOpenTournament && (
           <button
             onClick={onOpenTournament}

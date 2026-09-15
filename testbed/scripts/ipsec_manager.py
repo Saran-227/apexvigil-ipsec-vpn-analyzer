@@ -80,15 +80,20 @@ conn vpn-link
     print(f"[{role.capitalize()}] Wrote /etc/ipsec.conf for {ike_version}, {mode}, IKE:{ike_cipher}, ESP:{esp_cipher}")
 
 def restart_strongswan():
-    """Flushes existing kernel SAs and restarts strongSwan."""
+    """Flushes existing kernel SAs and reloads strongSwan configuration instantly."""
     run_cmd("ipsec down vpn-link 2>/dev/null")
-    run_cmd("ipsec stop 2>/dev/null")
     run_cmd("ip xfrm state flush 2>/dev/null")
     run_cmd("ip xfrm policy flush 2>/dev/null")
-    time.sleep(1)
-    ok, out, err = run_cmd("ipsec start")
-    time.sleep(1.5)
-    return ok
+    
+    # Check if charon daemon is alive
+    ok, out, _ = run_cmd("ipsec status 2>/dev/null")
+    if not ok or "Security Associations" not in out:
+        run_cmd("ipsec start 2>/dev/null")
+        time.sleep(0.3)
+    else:
+        run_cmd("ipsec update 2>/dev/null")
+        run_cmd("ipsec rereadsecrets 2>/dev/null")
+    return True
 
 def bring_up_tunnel():
     """Initiates the IPsec connection."""
@@ -103,9 +108,8 @@ def bring_up_tunnel():
     return False
 
 def bring_down_tunnel():
-    """Terminates active connections and flushes kernel states."""
+    """Terminates active connections and flushes kernel states without killing daemon."""
     run_cmd("ipsec down vpn-link 2>/dev/null")
-    run_cmd("ipsec stop 2>/dev/null")
     run_cmd("ip xfrm state flush 2>/dev/null")
     run_cmd("ip xfrm policy flush 2>/dev/null")
 

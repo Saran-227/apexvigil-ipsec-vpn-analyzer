@@ -304,20 +304,121 @@ def run_tournament(X, y, classes, output_dir="models"):
             "classes": classes
         }, f, indent=2)
 
-    return champion_model, final_ranked
+    return champion_model, final_ranked, fitted_models
+
+
+def test_external_dataset(fitted_models, test_csv, le, classes):
+    """
+    Rigorously tests all tournament models on an out-of-distribution real-world dataset.
+    """
+    print("\n" + "="*85)
+    print("      REAL-WORLD EXTERNAL DATASET BENCHMARK (SIH26-DATASET PCAPS)")
+    print("="*85)
+    df_rw = pd.read_csv(test_csv)
+    print(f"[*] Loaded external dataset: {len(df_rw)} samples across {df_rw['label_class'].nunique()} classes: {sorted(df_rw['label_class'].unique())}")
+
+    # Preprocess numeric features
+    for col in NUMERIC_FEATURES:
+        if col in df_rw.columns:
+            df_rw[col] = pd.to_numeric(df_rw[col], errors='coerce').fillna(0.0)
+            df_rw[col] = df_rw[col].replace([np.inf, -np.inf], 0.0)
+        else:
+            df_rw[col] = 0.0
+
+    X_rw = df_rw[NUMERIC_FEATURES].values
+    valid_mask = df_rw['label_class'].isin(classes)
+    if not valid_mask.all():
+        print(f"[-] Filtered {(~valid_mask).sum()} samples with unmapped labels.")
+        df_rw = df_rw[valid_mask]
+        X_rw = X_rw[valid_mask]
+
+    y_rw = le.transform(df_rw['label_class'].values)
+
+    results = []
+    for name, model in fitted_models.items():
+        try:
+            y_pred = model.predict(X_rw)
+            acc = accuracy_score(y_rw, y_pred)
+            f1 = f1_score(y_rw, y_pred, average='weighted')
+            results.append({
+                "model_name": name,
+                "real_world_accuracy": round(float(acc), 4),
+                "real_world_f1": round(float(f1), 4),
+                "predictions": y_pred
+            })
+        except Exception as e:
+            print(f"[-] Evaluation failed for {name}: {e}")
+
+    results = sorted(results, key=lambda x: (x['real_world_accuracy'], x['real_world_f1']), reverse=True)
+    print("\n" + "="*85)
+    print(f"{'RANK':4s} | {'MODEL ARCHITECTURE':32s} | {'REAL-WORLD ACC':15s} | {'F1-SCORE':8s}")
+    print("="*85)
+    for rank, r in enumerate(results, 1):
+        crown = " (BEST RW)" if rank == 1 else ""
+        print(f"{rank:4d} | {r['model_name']:32s} | {r['real_world_accuracy']*100:6.2f}%{crown:10s} | {r['real_world_f1']:6.4f}")
+    print("="*85 + "\n")
+
+    best_r = results[0]
+    best_name = best_r['model_name']
+    best_pred = best_r['predictions']
+    print(f"[+] Top Performer on Real-World PCAP Data: {best_name} ({best_r['real_world_accuracy']*100:.2f}%)")
+    
+    unique_present = sorted(list(set(df_rw['label_class'].values)))
+    target_labels = [le.transform([c])[0] for c in unique_present]
+    print("\nReal-World Classification Report:")
+    print(classification_report(y_rw, best_pred, labels=target_labels, target_names=unique_present, zero_division=0))
+
+    return results
 
 
 def main():
     parser = argparse.ArgumentParser(description="SIH26160 AI Model Tournament")
     parser.add_argument("--features", default="dataset/features.csv", help="Path to features.csv")
+    parser.add_argument("--test-dataset", default=None, help="Path to out-of-distribution real-world features CSV")
+    parser.add_argument("--combine-real-world", action="store_true", help="Augment training with real-world features")
     parser.add_argument("--output-dir", default="models", help="Output directory")
     args = parser.parse_args()
 
+    os.makedirs(args.output_dir, exist_ok=True)
+
+    if args.combine_real_world and args.test_dataset:
+        print("[*] Running in COMBINED AUGMENTED TRAINING & HELD-OUT REAL-WORLD TEST mode...")
+        df_syn = pd.read_csv(args.features)
+        df_real = pd.read_csv(args.test_dataset)
+
+        # Hold out 30% of real-world captures for purely real-world evaluation
+        real_train, real_test = train_test_split(df_real, test_size=0.3, random_state=42, stratify=df_real['label_class'])
+        print(f"[*] Synthetic samples: {len(df_syn)} | Real-world train: {len(real_train)} | Held-out Real-world test: {len(real_test)}")
+
+        df_combined = pd.concat([df_syn, real_train], ignore_index=True)
+        # Clean
+        for col in NUMERIC_FEATURES:
+            df_combined[col] = pd.to_numeric(df_combined[col], errors='coerce').fillna(0.0)
+            df_combined[col] = df_combined[col].replace([np.inf, -np.inf], 0.0)
+
+        X = df_combined[NUMERIC_FEATURES].values
+        le = LabelEncoder()
+        y = le.fit_transform(df_combined['label_class'].values)
+        classes = list(le.classes_)
+
+        joblib.dump(le, os.path.join(args.output_dir, "label_encoder_class.joblib"))
+
+        # Save held-out real test set to temporary file for evaluation
+        held_out_path = os.path.join(args.output_dir, "held_out_real_test.csv")
+        real_test.to_csv(held_out_path, index=False)
+
+        champ, ranked, fitted_models = run_tournament(X, y, classes, output_dir=args.output_dir)
+        test_external_dataset(fitted_models, held_out_path, le, classes)
+        return
+
+    # Standard training mode
     df, X, y, le, classes = load_dataset(args.features)
-    # Save label encoder
     joblib.dump(le, os.path.join(args.output_dir, "label_encoder_class.joblib"))
 
-    run_tournament(X, y, classes, output_dir=args.output_dir)
+    champ, ranked, fitted_models = run_tournament(X, y, classes, output_dir=args.output_dir)
+
+    if args.test_dataset and os.path.exists(args.test_dataset):
+        test_external_dataset(fitted_models, args.test_dataset, le, classes)
 
 
 if __name__ == "__main__":

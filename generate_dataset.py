@@ -38,8 +38,8 @@ def run_docker_exec(container, cmd):
 def ensure_testbed_running():
     """Builds and launches testbed containers if not already active."""
     print("[Orchestrator] Checking Docker testbed containers...")
-    _, out, _ = run_cmd("docker ps --format '{{.Names}}'", check=False)
-    running = out.strip().split("\n")
+    _, out, _ = run_cmd("docker ps --format {{.Names}}", check=False)
+    running = [r.strip("'\" \r\n") for r in out.strip().split()]
     
     if "vpn-initiator" not in running or "vpn-responder" not in running:
         print("[Orchestrator] Starting IPsec testbed containers via docker compose...")
@@ -151,23 +151,22 @@ def run_single_capture_experiment(experiment):
     if not experiment["has_handshake"]:
         print("[Orchestrator] Establishing tunnel prior to capture (ESP-only wiretap simulation)...")
         run_docker_exec("vpn-initiator", "ipsec up vpn-link")
-        time.sleep(2)
+        time.sleep(1.0)
 
     # 6. Start Packet Capture on Initiator interface
     print(f"[Orchestrator] Starting capture to {pcap_container_path}...")
     run_cmd(f"docker exec -d vpn-initiator tcpdump -i eth0 -s 0 -w {pcap_container_path} -Z root", check=False)
-    time.sleep(1)
+    time.sleep(0.4)
 
     # If has_handshake is True, bring up tunnel NOW so handshake is recorded in capture
     if experiment["has_handshake"]:
         print("[Orchestrator] Initiating IKE handshake across active capture...")
         run_docker_exec("vpn-initiator", "ipsec up vpn-link")
-        time.sleep(2)
-
+        time.sleep(1.0)
 
     # 7. Generate Inner Encrypted Application Traffic
     noise_flag = "--noise" if experiment.get("background_noise") else ""
-    duration = experiment.get("duration", 8)
+    duration = experiment.get("duration", 4)
     print(f"[Orchestrator] Injecting {experiment['traffic']} traffic for {duration}s...")
     run_docker_exec("vpn-initiator", 
         f"python3 /scripts/traffic_generator.py --mode client --target-ip 172.28.0.3 "
@@ -175,9 +174,9 @@ def run_single_capture_experiment(experiment):
     )
 
     # 8. Stop Packet Capture
-    time.sleep(1)
+    time.sleep(0.3)
     run_docker_exec("vpn-initiator", "pkill -2 tcpdump") # SIGINT to flush cleanly
-    time.sleep(1)
+    time.sleep(0.4)
 
     # 9. Verify and Read Stats
     _, stats_out, _ = run_docker_exec("vpn-initiator", f"python3 /scripts/capture_worker.py --action stats --output {pcap_container_path}")
@@ -343,26 +342,27 @@ def build_massive_matrix():
         {"name": "clean", "delay_ms": 0, "jitter_ms": 0, "loss_pct": 0.0, "reorder_pct": 0.0, "mtu": 1500},
         {"name": "wan_standard", "delay_ms": 25, "jitter_ms": 6, "loss_pct": 1.0, "reorder_pct": 1.0, "mtu": 1500},
         {"name": "wan_lossy", "delay_ms": 50, "jitter_ms": 15, "loss_pct": 3.0, "reorder_pct": 2.0, "mtu": 1440},
-        {"name": "mobile_degraded", "delay_ms": 80, "jitter_ms": 25, "loss_pct": 4.5, "reorder_pct": 2.5, "mtu": 1380}
+        {"name": "vpn_mss_clamped", "delay_ms": 30, "jitter_ms": 8, "loss_pct": 1.5, "reorder_pct": 1.0, "mtu": 1280},
+        {"name": "mobile_degraded", "delay_ms": 75, "jitter_ms": 22, "loss_pct": 4.0, "reorder_pct": 2.5, "mtu": 1380}
     ]
 
     experiments = []
     exp_idx = 1
 
-    # 15 variations per traffic class = 120 total runs
+    # 30 variations per traffic class = 240 total runs
     for traffic in traffic_classes:
-        for i in range(15):
+        for i in range(30):
             crypto = crypto_suites[i % len(crypto_suites)]
-            netem = netem_profiles[(i // 2) % len(netem_profiles)]
+            netem = netem_profiles[i % len(netem_profiles)]
             mode = "tunnel" if (i % 2 == 0) else "transport"
             # 20% of flows have mid-stream capture (handshake missing)
             has_handshake = (i % 5 != 0)
-            # 20% of flows use NAT-Traversal
+            # 25% of flows use NAT-Traversal
             nat_t = (i % 4 == 0) and (mode == "tunnel")
-            duration = random.choice([6, 7, 8])
+            duration = random.choice([4, 5])
 
             exp_id = f"exp_{exp_idx:03d}_{traffic}_{mode}_{crypto['crypto']['esp_encryption'].lower()}"
-            name = f"[{exp_idx:03d}/120] {traffic.upper()} in {mode.upper()} Mode ({crypto['name']}, {netem['name']})"
+            name = f"[{exp_idx:03d}/240] {traffic.upper()} in {mode.upper()} Mode ({crypto['name']}, {netem['name']})"
 
             experiments.append({
                 "id": exp_id,
@@ -625,7 +625,7 @@ def main():
                 "captures": results
             }, f, indent=2)
 
-        time.sleep(1.5)
+        time.sleep(0.4)
 
     total_time = int(time.time() - start_time)
     print("\n==========================================================================")

@@ -42,9 +42,15 @@ def run_responder_server():
         while True:
             try:
                 data, addr = sock.recvfrom(65535)
-                # Echo back small acknowledgment for bidirectional realism
-                if name in ["VOIP", "CHAT"] and random.random() < 0.3:
-                    sock.sendto(b"ACK:" + data[:16], addr)
+                # Echo back realistic acknowledgment or RTCP receiver report for bidirectional asymmetry
+                if name == "VOIP" and random.random() < 0.45:
+                    # RTCP Receiver Report or audio return stream (~120-220B)
+                    sock.sendto(b"\x81\xc9\x00\x07" + os.urandom(random.randint(90, 200)), addr)
+                elif name == "VIDEO" and random.random() < 0.20:
+                    # RTCP compound report (~80-140B)
+                    sock.sendto(b"\x80\xc8\x00\x06" + os.urandom(random.randint(60, 120)), addr)
+                elif name == "CHAT" and random.random() < 0.50:
+                    sock.sendto(b"ACK:" + data[:24], addr)
             except Exception:
                 break
 

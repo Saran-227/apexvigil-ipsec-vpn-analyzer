@@ -209,6 +209,38 @@ async def get_tournament_leaderboard():
         return json.load(f)
 
 
+# ─── Multi-Link Network Simulation & Live Stream Audit Endpoints ───────────────
+from analyzer.simulator import simulate_network_topology, get_default_topology, TRAFFIC_PROFILES
+
+
+class SimulationRequest(BaseModel):
+    links: list
+
+
+@app.get("/api/simulate/presets")
+async def get_simulation_presets():
+    """Returns curated multi-link topology presets and supported traffic profiles."""
+    return {
+        "default": get_default_topology(),
+        "traffic_profiles": TRAFFIC_PROFILES
+    }
+
+
+@app.post("/api/simulate/run")
+async def run_simulation(req: SimulationRequest):
+    """
+    Executes real-time multi-link IPsec network simulation and security assessment.
+    """
+    if not req.links:
+        raise HTTPException(status_code=400, detail="At least one link configuration is required")
+    try:
+        results = simulate_network_topology(req.links)
+        return results
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Simulation failed: {str(e)}")
+
+
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="127.0.0.1", port=8000)
