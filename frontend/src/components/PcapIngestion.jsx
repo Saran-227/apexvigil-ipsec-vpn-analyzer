@@ -1,18 +1,29 @@
 import React, { useState, useRef } from 'react'
 import GlassCard from './GlassCard'
-import { Upload, FileCode, CheckCircle, AlertTriangle, Play, Loader2 } from 'lucide-react'
+import { Upload, FileCode, Loader2, AlertCircle } from 'lucide-react'
 
 export default function PcapIngestion({
-  samples = [],
-  selectedSample,
-  onSelectSample,
   onUploadFile,
   isAnalyzing = false,
   activeFilename = ''
 }) {
   const [dragActive, setDragActive] = useState(false)
   const [selectedFile, setSelectedFile] = useState(null)
+  const [fileError, setFileError] = useState(null)
   const fileInputRef = useRef(null)
+
+  const processFile = (file) => {
+    setFileError(null)
+    const ext = file.name.toLowerCase()
+    if (!ext.endsWith('.pcap') && !ext.endsWith('.pcapng')) {
+      setFileError('Invalid file format. Only .pcap and .pcapng files are permitted.')
+      return
+    }
+    setSelectedFile(file)
+    if (onUploadFile) {
+      onUploadFile(file)
+    }
+  }
 
   const handleDrag = (e) => {
     e.preventDefault()
@@ -29,186 +40,134 @@ export default function PcapIngestion({
     e.stopPropagation()
     setDragActive(false)
     if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-      const file = e.dataTransfer.files[0]
-      if (file.name.endsWith('.pcap') || file.name.endsWith('.pcapng')) {
-        setSelectedFile(file)
-        if (onUploadFile) onUploadFile(file)
-      } else {
-        alert('Please upload a .pcap or .pcapng file')
-      }
+      processFile(e.dataTransfer.files[0])
     }
   }
 
   const handleFileChange = (e) => {
     if (e.target.files && e.target.files[0]) {
-      const file = e.target.files[0]
-      setSelectedFile(file)
-      if (onUploadFile) onUploadFile(file)
+      processFile(e.target.files[0])
     }
   }
 
   return (
-    <GlassCard className="pcap-ingestion-card">
-      <div className="card-title-row">
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-          <div className="icon-wrapper" style={{ width: 32, height: 32 }}>
-            <Upload size={16} color="var(--accent-blue)" />
+    <GlassCard className="pcap-ingestion-card" style={{ padding: '1.75rem' }}>
+      <div className="card-title-row" style={{ marginBottom: '1.25rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
+          <div className="icon-wrapper" style={{ width: 34, height: 34, borderRadius: 8 }}>
+            <Upload size={18} color="var(--accent-blue)" />
           </div>
           <div>
-            <h3 style={{ margin: 0, fontSize: '0.95rem', fontWeight: 600 }}>Capture Ingestion &amp; Testbed Scenarios</h3>
-            <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
-              Evaluate unencrypted IKE handshakes &amp; encrypted ESP application flows
+            <h3 style={{ margin: 0, fontSize: '1.02rem', fontWeight: 700, color: 'var(--text-primary)' }}>
+              Capture Ingestion
+            </h3>
+            <span style={{ fontSize: '0.78rem', color: 'var(--text-secondary)' }}>
+              Upload an IPsec packet capture (.pcap / .pcapng) to perform audit
             </span>
           </div>
         </div>
+
         {activeFilename && (
           <div style={{
-            fontSize: '0.75rem',
+            fontSize: '0.78rem',
             fontFamily: 'monospace',
-            padding: '4px 10px',
-            background: 'var(--glass-inner)',
-            border: '1px solid var(--border)',
-            borderRadius: 'var(--radius-xs)',
-            color: 'var(--accent-blue)'
+            padding: '4px 12px',
+            background: 'rgba(56, 189, 248, 0.1)',
+            border: '1px solid rgba(56, 189, 248, 0.3)',
+            borderRadius: '6px',
+            color: 'var(--accent-blue)',
+            fontWeight: 700
           }}>
             Active: {activeFilename}
           </div>
         )}
       </div>
 
-      <div className="ingestion-grid" style={{
-        display: 'grid',
-        gridTemplateColumns: 'minmax(280px, 1fr) minmax(320px, 1.4fr)',
-        gap: '1.25rem',
-        marginTop: '1rem'
-      }}>
-        {/* Drop Zone */}
-        <div
-          className={`drop-zone ${dragActive ? 'drag-active' : ''}`}
-          onDragEnter={handleDrag}
-          onDragLeave={handleDrag}
-          onDragOver={handleDrag}
-          onDrop={handleDrop}
-          onClick={() => fileInputRef.current?.click()}
-          style={{
-            border: `1.5px dashed ${dragActive ? 'var(--accent-blue)' : 'var(--glass-border)'}`,
-            borderRadius: 'var(--radius-inner)',
-            padding: '1.5rem 1rem',
-            textAlign: 'center',
-            cursor: 'pointer',
-            background: dragActive ? 'rgba(147, 197, 253, 0.08)' : 'var(--glass-inner)',
-            transition: 'all 0.2s ease',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: '0.5rem'
-          }}
-        >
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept=".pcap,.pcapng"
-            style={{ display: 'none' }}
-            onChange={handleFileChange}
-          />
-          <div style={{
-            width: 44,
-            height: 44,
-            borderRadius: '50%',
-            background: 'var(--icon-bg)',
-            border: '1px solid var(--icon-border)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center'
-          }}>
-            {isAnalyzing ? (
-              <Loader2 size={22} className="spin" color="var(--accent-blue)" />
-            ) : (
-              <FileCode size={22} color="var(--accent-blue)" />
-            )}
-          </div>
-          <div style={{ fontWeight: 600, fontSize: '0.88rem', color: 'var(--text-primary)' }}>
-            {selectedFile ? selectedFile.name : 'Drop .pcap / .pcapng capture here'}
-          </div>
-          <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-            {selectedFile ? `${(selectedFile.size / 1024).toFixed(1)} KB · Click to change` : 'or click to browse local files'}
-          </div>
+      {/* Clean Drag & Drop Upload Zone */}
+      <div
+        className={`drop-zone ${dragActive ? 'drag-active' : ''}`}
+        onDragEnter={handleDrag}
+        onDragLeave={handleDrag}
+        onDragOver={handleDrag}
+        onDrop={handleDrop}
+        onClick={() => fileInputRef.current?.click()}
+        style={{
+          border: `2px dashed ${dragActive ? 'var(--accent-blue)' : 'rgba(255, 255, 255, 0.15)'}`,
+          borderRadius: '12px',
+          padding: '2.5rem 1.5rem',
+          textAlign: 'center',
+          cursor: isAnalyzing ? 'wait' : 'pointer',
+          background: dragActive ? 'rgba(56, 189, 248, 0.08)' : 'rgba(255, 255, 255, 0.02)',
+          transition: 'all 0.2s ease',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: '0.75rem'
+        }}
+      >
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept=".pcap,.pcapng"
+          style={{ display: 'none' }}
+          onChange={handleFileChange}
+          disabled={isAnalyzing}
+        />
+
+        <div style={{
+          width: 52,
+          height: 52,
+          borderRadius: '50%',
+          background: isAnalyzing ? 'rgba(56, 189, 248, 0.12)' : 'rgba(255, 255, 255, 0.05)',
+          border: '1px solid rgba(255, 255, 255, 0.1)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center'
+        }}>
+          {isAnalyzing ? (
+            <Loader2 size={26} className="spin" color="var(--accent-blue)" />
+          ) : (
+            <FileCode size={26} color="var(--accent-blue)" />
+          )}
         </div>
 
-        {/* Curated Scenarios */}
         <div>
-          <div style={{
-            fontSize: '0.75rem',
-            fontWeight: 700,
-            textTransform: 'uppercase',
-            letterSpacing: '0.08em',
-            color: 'var(--text-muted)',
-            marginBottom: '0.6rem'
-          }}>
-            1-Click Benchmark Scenarios (Testbed Captures)
+          <div style={{ fontWeight: 700, fontSize: '1rem', color: '#ffffff' }}>
+            {isAnalyzing
+              ? 'Analyzing Capture File...'
+              : selectedFile
+                ? selectedFile.name
+                : 'Drop .pcap or .pcapng capture file here'}
           </div>
-
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))',
-            gap: '0.5rem'
-          }}>
-            {samples.map((sample) => {
-              const isSelected = selectedSample?.id === sample.id || activeFilename === sample.pcap
-              const isVuln = sample.tag === 'CRITICAL_FAIL'
-              const isWiretap = sample.tag === 'WIRETAP'
-              const isMixed = sample.tag === 'CONCURRENT'
-
-              return (
-                <button
-                  key={sample.id}
-                  disabled={isAnalyzing}
-                  onClick={() => onSelectSample(sample)}
-                  style={{
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'flex-start',
-                    padding: '0.65rem 0.75rem',
-                    borderRadius: 'var(--radius-sm)',
-                    background: isSelected ? 'rgba(147, 197, 253, 0.15)' : 'var(--glass-inner)',
-                    border: `1px solid ${isSelected ? 'var(--border-strong)' : 'var(--glass-inner-border)'}`,
-                    color: 'var(--text-primary)',
-                    textAlign: 'left',
-                    transition: 'all 0.18s ease',
-                    boxShadow: isSelected ? '0 0 16px rgba(147,197,253,0.2)' : 'none'
-                  }}
-                >
-                  <div style={{ display: 'flex', width: '100%', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <span style={{ fontSize: '0.8rem', fontWeight: 600 }}>{sample.title.split('(')[0]}</span>
-                    <span style={{
-                      fontSize: '0.65rem',
-                      fontWeight: 700,
-                      padding: '2px 6px',
-                      borderRadius: '4px',
-                      background: isVuln ? 'var(--red-soft)' : isMixed ? 'rgba(192, 132, 252, 0.15)' : isWiretap ? 'var(--amber-soft)' : 'var(--green-soft)',
-                      color: isVuln ? 'var(--accent-red)' : isMixed ? '#c084fc' : isWiretap ? 'var(--accent-amber)' : 'var(--accent-green)'
-                    }}>
-                      {sample.tag}
-                    </span>
-                  </div>
-                  <span style={{
-                    fontSize: '0.7rem',
-                    color: 'var(--text-muted)',
-                    marginTop: '4px',
-                    display: '-webkit-box',
-                    WebkitLineClamp: 1,
-                    WebkitBoxOrient: 'vertical',
-                    overflow: 'hidden'
-                  }}>
-                    {sample.description}
-                  </span>
-                </button>
-              )
-            })}
+          <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '4px' }}>
+            {isAnalyzing
+              ? 'Executing cryptographic audit & flow inference'
+              : selectedFile
+                ? `${(selectedFile.size / 1024).toFixed(1)} KB • Click to change file`
+                : 'or click to browse local files (strictly .pcap / .pcapng)'}
           </div>
         </div>
       </div>
+
+      {fileError && (
+        <div style={{
+          marginTop: '1rem',
+          padding: '0.65rem 1rem',
+          borderRadius: '8px',
+          background: 'var(--red-soft)',
+          border: '1px solid var(--accent-red)',
+          color: 'var(--accent-red)',
+          fontSize: '0.82rem',
+          fontWeight: 600,
+          display: 'flex',
+          alignItems: 'center',
+          gap: '0.5rem'
+        }}>
+          <AlertCircle size={16} />
+          <span>{fileError}</span>
+        </div>
+      )}
     </GlassCard>
   )
 }

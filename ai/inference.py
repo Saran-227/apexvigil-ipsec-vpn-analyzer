@@ -205,7 +205,7 @@ class IPsecClassifier:
                 "is_concurrent_traffic": is_concurrent,
                 "active_applications": concurrent_apps,
                 "probability_distribution": prob_dist,
-                "ranked_classes": [{"class": c, "probability": p} for c, p in ranked_classes]
+                "ranked_classes": ranked_classes
             },
             "flow_dynamics_reconciliation": reconciliation_diagnostic,
             "operational_mode": {

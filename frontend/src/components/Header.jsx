@@ -1,19 +1,19 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Trophy, Printer, Radio, ArrowLeft } from 'lucide-react'
+import { Radio, ArrowLeft } from 'lucide-react'
 import logoIcon from '../public/icon.png'
 
 const NAV_ITEMS = [
-  { label: 'OVERVIEW', href: '#top' },
   { label: 'INGESTION', href: '#ingestion' },
-  { label: 'SECURITY AUDIT', href: '#audit' },
+  { label: 'SECURITY SCORE', href: '#security' },
+  { label: 'CRYPTO AUDIT', href: '#audit' },
   { label: 'AI TELEMETRY', href: '#ai-telemetry' },
   { label: 'TIMELINE', href: '#timeline' },
 ]
 
-export default function Header({ connection = 'LIVE', mode = 'OFFLINE SECURE', onOpenTournament }) {
+export default function Header({ connection = 'LIVE' }) {
   const navigate = useNavigate()
-  const [active, setActive] = useState('#top')
+  const [active, setActive] = useState('#ingestion')
 
   useEffect(() => {
     const ids = NAV_ITEMS.map(n => n.href.slice(1))
@@ -49,7 +49,7 @@ export default function Header({ connection = 'LIVE', mode = 'OFFLINE SECURE', o
           <span>Hub</span>
         </button>
         <div className="topbar-divider" />
-        <div className="brand" onClick={() => handleNav('#top')} style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
+        <div className="brand" onClick={() => handleNav('#ingestion')} style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
           <div
             style={{
               width: 32,
@@ -97,49 +97,6 @@ export default function Header({ connection = 'LIVE', mode = 'OFFLINE SECURE', o
         >
           <Radio size={13} color="var(--accent-cyan)" />
           <span>Real-Time Mode</span>
-        </button>
-
-        {onOpenTournament && (
-          <button
-            onClick={onOpenTournament}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.35rem',
-              padding: '0.4rem 0.75rem',
-              borderRadius: 'var(--radius-xs)',
-              background: 'linear-gradient(135deg, rgba(251,191,36,0.15), rgba(251,191,36,0.05))',
-              border: '1px solid rgba(251,191,36,0.3)',
-              color: 'var(--accent-amber)',
-              fontSize: '0.75rem',
-              fontWeight: 600,
-              cursor: 'pointer'
-            }}
-          >
-            <Trophy size={14} />
-            <span>AI Tournament</span>
-          </button>
-        )}
-
-        <button
-          onClick={() => window.print()}
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '0.35rem',
-            padding: '0.4rem 0.75rem',
-            borderRadius: 'var(--radius-xs)',
-            background: 'var(--glass-inner)',
-            border: '1px solid var(--border)',
-            color: 'var(--text-primary)',
-            fontSize: '0.75rem',
-            fontWeight: 600,
-            cursor: 'pointer'
-          }}
-          title="Print or export advisory report"
-        >
-          <Printer size={14} />
-          <span>Export Advisory</span>
         </button>
       </div>
     </header>

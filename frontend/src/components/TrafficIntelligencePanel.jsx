@@ -1,6 +1,6 @@
 import React from 'react'
 import GlassCard from './GlassCard'
-import { Cpu, Activity, Zap, Layers, BarChart3, AlertCircle } from 'lucide-react'
+import { Cpu, Zap } from 'lucide-react'
 
 export default function TrafficIntelligencePanel({ aiData }) {
   const tc = aiData?.traffic_classification || {}
@@ -16,7 +16,33 @@ export default function TrafficIntelligencePanel({ aiData }) {
   const mode = op.predicted_mode || 'UNKNOWN'
   const modeConf = (op.confidence_score || 0) * 100
 
-  const rankedClasses = tc.ranked_classes || []
+  // Normalize rankedClasses to ensure classes and percentage scores render without NaN
+  const rankedClasses = (() => {
+    let raw = tc.ranked_classes
+    if (!raw && tc.probability_distribution) {
+      raw = Object.entries(tc.probability_distribution).map(([cls, prob]) => ({ class: cls, probability: prob }))
+    }
+    if (!Array.isArray(raw)) return []
+    return raw.map((item, idx) => {
+      let cName = ''
+      let prob = 0
+      if (Array.isArray(item)) {
+        cName = item[0]
+        prob = Number(item[1]) || 0
+      } else if (item && typeof item === 'object') {
+        cName = item.class || item.name || item.label || `Class ${idx + 1}`
+        prob = item.probability !== undefined && !isNaN(Number(item.probability))
+          ? Number(item.probability)
+          : (item.score !== undefined ? Number(item.score) : 0)
+      } else {
+        cName = String(item)
+      }
+      return {
+        class: String(cName).toUpperCase(),
+        probability: Math.max(0, Math.min(1, prob))
+      }
+    }).sort((a, b) => b.probability - a.probability)
+  })()
 
   return (
     <GlassCard className="traffic-intelligence-card">
@@ -26,16 +52,16 @@ export default function TrafficIntelligencePanel({ aiData }) {
             <Cpu size={16} color="var(--accent-blue)" />
           </div>
           <div>
-            <h3 style={{ margin: 0, fontSize: '0.95rem', fontWeight: 600 }}>AI Encrypted Traffic Intelligence</h3>
+            <h3 style={{ margin: 0, fontSize: '0.98rem', fontWeight: 700 }}>AI Encrypted Traffic Intelligence</h3>
             <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
               Statistical &amp; behavioral inference without decrypting ESP payloads
             </span>
           </div>
         </div>
         <span style={{
-          fontSize: '0.7rem',
+          fontSize: '0.72rem',
           fontWeight: 700,
-          padding: '4px 8px',
+          padding: '4px 10px',
           borderRadius: 'var(--radius-xs)',
           background: 'rgba(52, 211, 153, 0.15)',
           color: 'var(--accent-green)',
@@ -46,132 +72,64 @@ export default function TrafficIntelligencePanel({ aiData }) {
         </span>
       </div>
 
-      {/* Hero Prediction Cards */}
+      {/* Dual Predictor Banner */}
       <div style={{
         display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
-        gap: '0.85rem',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+        gap: '0.75rem',
         marginTop: '1rem'
       }}>
         {/* Application Profile */}
         <div style={{
-          padding: '1rem',
+          padding: '1.1rem 1.25rem',
           background: 'var(--glass-inner)',
           border: '1px solid var(--glass-inner-border)',
           borderRadius: 'var(--radius-sm)'
         }}>
-          <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+          <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
             Predicted Application Profile
           </span>
-          <div style={{ fontSize: '1.2rem', fontWeight: 700, color: 'var(--text-primary)', marginTop: '4px' }}>
+          <div style={{ fontSize: '1.35rem', fontWeight: 800, color: 'var(--text-primary)', marginTop: '4px' }}>
             {predProfile.toUpperCase()}
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginTop: '6px' }}>
-            <span style={{ fontSize: '0.78rem', color: 'var(--accent-blue)', fontWeight: 600 }}>
+            <span style={{ fontSize: '0.85rem', color: 'var(--accent-blue)', fontWeight: 700 }}>
               {confidence.toFixed(1)}% Confidence
             </span>
             {isConcurrent && (
               <span style={{
-                fontSize: '0.68rem',
+                fontSize: '0.65rem',
+                fontWeight: 700,
                 padding: '2px 6px',
-                borderRadius: '4px',
-                background: 'rgba(192, 132, 252, 0.2)',
-                color: '#c084fc',
-                fontWeight: 700
+                borderRadius: '3px',
+                background: 'rgba(56, 189, 248, 0.15)',
+                color: 'var(--accent-blue)',
+                border: '1px solid rgba(56, 189, 248, 0.3)'
               }}>
                 CONCURRENT MULTI-APP
               </span>
             )}
           </div>
-          {isConcurrent && (
-            <div style={{ fontSize: '0.72rem', color: 'var(--text-secondary)', marginTop: '4px' }}>
-              Decomposed Sub-streams: <strong>{activeApps.join(' + ')}</strong>
-            </div>
-          )}
         </div>
 
         {/* Operational Mode */}
         <div style={{
-          padding: '1rem',
+          padding: '1.1rem 1.25rem',
           background: 'var(--glass-inner)',
           border: '1px solid var(--glass-inner-border)',
           borderRadius: 'var(--radius-sm)'
         }}>
-          <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+          <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
             Operational Encapsulation Mode
           </span>
-          <div style={{ fontSize: '1.2rem', fontWeight: 700, color: 'var(--text-primary)', marginTop: '4px' }}>
+          <div style={{ fontSize: '1.35rem', fontWeight: 800, color: 'var(--text-primary)', marginTop: '4px' }}>
             {mode.toUpperCase()}
           </div>
-          <div style={{ fontSize: '0.78rem', color: 'var(--accent-green)', fontWeight: 600, marginTop: '6px' }}>
+          <div style={{ fontSize: '0.85rem', color: 'var(--accent-green)', fontWeight: 700, marginTop: '6px' }}>
             {modeConf.toFixed(1)}% Confidence (ExtraTrees Classifier)
-          </div>
-          <div style={{ fontSize: '0.72rem', color: 'var(--text-secondary)', marginTop: '4px' }}>
-            {op.evidence || 'Distinguishes Gateway-to-Gateway vs Host-to-Host'}
           </div>
         </div>
       </div>
-
-      {/* Flow Dynamics vs Payload Profile Reconciliation Alert Card */}
-      {fdr && (
-        <div style={{
-          marginTop: '1rem',
-          padding: '1rem',
-          background: 'rgba(147, 197, 253, 0.08)',
-          border: '1px solid rgba(147, 197, 253, 0.3)',
-          borderRadius: 'var(--radius-sm)'
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
-            <span style={{ fontSize: '0.82rem', fontWeight: 700, color: 'var(--accent-blue)', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-              <Zap size={15} color="var(--accent-blue)" /> Flow Dynamics &amp; Payload Reconciliation
-            </span>
-            <span style={{
-              fontSize: '0.65rem',
-              fontWeight: 700,
-              padding: '2px 6px',
-              borderRadius: '4px',
-              background: 'rgba(147, 197, 253, 0.2)',
-              color: 'var(--accent-blue)',
-              fontFamily: 'monospace'
-            }}>
-              BIMODAL CONCURRENCY RESOLVED
-            </span>
-          </div>
-
-          <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', lineHeight: 1.45 }}>
-            {fdr.resolution || fdr.issue_description}
-          </div>
-
-          {fdr.substreams && (
-            <div style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-              gap: '0.5rem',
-              marginTop: '0.75rem'
-            }}>
-              <div style={{ padding: '0.6rem 0.8rem', background: 'rgba(255,255,255,0.03)', borderRadius: 'var(--radius-xs)' }}>
-                <span style={{ fontSize: '0.68rem', color: 'var(--text-muted)' }}>VoIP Voice Sub-stream</span>
-                <div style={{ fontSize: '0.95rem', fontWeight: 700, color: 'var(--accent-green)' }}>
-                  {fdr.substreams.voice_substream?.percentage}% ({fdr.substreams.voice_substream?.packet_count} pkts)
-                </div>
-                <div style={{ fontSize: '0.68rem', color: 'var(--text-secondary)' }}>
-                  {fdr.substreams.voice_substream?.frame_size_range} • {fdr.substreams.voice_substream?.traffic_type}
-                </div>
-              </div>
-
-              <div style={{ padding: '0.6rem 0.8rem', background: 'rgba(255,255,255,0.03)', borderRadius: 'var(--radius-xs)' }}>
-                <span style={{ fontSize: '0.68rem', color: 'var(--text-muted)' }}>MTU Data / Padding Sub-stream</span>
-                <div style={{ fontSize: '0.95rem', fontWeight: 700, color: 'var(--accent-blue)' }}>
-                  {fdr.substreams.data_substream?.percentage}% ({fdr.substreams.data_substream?.packet_count} pkts)
-                </div>
-                <div style={{ fontSize: '0.68rem', color: 'var(--text-secondary)' }}>
-                  {fdr.substreams.data_substream?.frame_size_range} • {fdr.substreams.data_substream?.traffic_type}
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
-      )}
 
       {/* Multi-Class Probability Vector */}
       <div style={{ marginTop: '1.25rem' }}>
@@ -181,34 +139,35 @@ export default function TrafficIntelligencePanel({ aiData }) {
           textTransform: 'uppercase',
           letterSpacing: '0.08em',
           color: 'var(--text-muted)',
-          marginBottom: '0.6rem'
+          marginBottom: '0.75rem'
         }}>
-          Multi-Class Probability Distribution (8 Classes)
+          Multi-Class Probability Distribution ({rankedClasses.length || 8} Classes)
         </div>
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.45rem' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.55rem' }}>
           {rankedClasses.map((item) => {
             const pct = (item.probability * 100).toFixed(1)
+            const isTop = Number(pct) > 30
             return (
-              <div key={item.class} style={{ display: 'grid', gridTemplateColumns: '70px 1fr 50px', alignItems: 'center', gap: '0.75rem' }}>
-                <span style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', textTransform: 'capitalize' }}>
+              <div key={item.class} style={{ display: 'grid', gridTemplateColumns: '80px 1fr 65px', alignItems: 'center', gap: '0.85rem' }}>
+                <span style={{ fontSize: '0.82rem', fontWeight: 700, color: isTop ? 'var(--text-primary)' : 'var(--text-secondary)' }}>
                   {item.class}
                 </span>
                 <div style={{
-                  height: 6,
-                  borderRadius: 3,
+                  height: 7,
+                  borderRadius: 4,
                   background: 'rgba(255, 255, 255, 0.08)',
                   overflow: 'hidden'
                 }}>
                   <div style={{
                     width: `${pct}%`,
                     height: '100%',
-                    background: Number(pct) > 30 ? 'var(--accent-blue)' : 'rgba(147, 197, 253, 0.45)',
-                    borderRadius: 3,
+                    background: isTop ? 'var(--accent-blue)' : 'rgba(56, 189, 248, 0.45)',
+                    borderRadius: 4,
                     transition: 'width 0.4s ease'
                   }} />
                 </div>
-                <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textAlign: 'right', fontFamily: 'monospace' }}>
+                <span style={{ fontSize: '0.82rem', fontWeight: 700, color: isTop ? 'var(--accent-blue)' : 'var(--text-muted)', textAlign: 'right', fontFamily: 'monospace' }}>
                   {pct}%
                 </span>
               </div>
@@ -217,7 +176,7 @@ export default function TrafficIntelligencePanel({ aiData }) {
         </div>
       </div>
 
-      {/* Flow Dynamics Grid (48 Signal Features) */}
+      {/* Flow Dynamics Grid (Pure Facts, Larger Numbers) */}
       <div style={{ marginTop: '1.25rem' }}>
         <div style={{
           fontSize: '0.75rem',
@@ -225,28 +184,28 @@ export default function TrafficIntelligencePanel({ aiData }) {
           textTransform: 'uppercase',
           letterSpacing: '0.08em',
           color: 'var(--text-muted)',
-          marginBottom: '0.6rem'
+          marginBottom: '0.65rem'
         }}>
           Extracted Flow Dynamics (ESP Encrypted Data Plane)
         </div>
 
         <div style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))',
-          gap: '0.5rem'
+          gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))',
+          gap: '0.55rem'
         }}>
           {[
-            { label: 'Mean Packet Size', val: `${kf.mean_packet_length || 0} B` },
-            { label: 'Size Dispersion', val: `± ${kf.packet_length_std || 0} B` },
-            { label: 'Mean IAT Pacing', val: `${kf.mean_iat_ms || 0} ms` },
-            { label: 'Burstiness Index', val: kf.burstiness_index || 0 },
+            { label: 'Mean Packet Size', val: `${Number(kf.mean_packet_length || 0).toFixed(1)} B` },
+            { label: 'Size Dispersion', val: `± ${Number(kf.packet_length_std || 0).toFixed(1)} B` },
+            { label: 'Mean IAT Pacing', val: `${Number(kf.mean_iat_ms || 0).toFixed(2)} ms` },
+            { label: 'Burstiness Index', val: Number(kf.burstiness_index || 0).toFixed(2) },
             { label: 'Small Packets (<250B)', val: `${((kf.small_packet_ratio || 0) * 100).toFixed(1)}%` },
             { label: 'Large MTU (>900B)', val: `${((kf.large_packet_ratio || 0) * 100).toFixed(1)}%` }
           ].map((item, i) => (
             <div
               key={i}
               style={{
-                padding: '0.6rem 0.75rem',
+                padding: '0.75rem 0.85rem',
                 background: 'var(--glass-inner)',
                 border: '1px solid var(--glass-inner-border)',
                 borderRadius: 'var(--radius-sm)',
@@ -254,8 +213,8 @@ export default function TrafficIntelligencePanel({ aiData }) {
                 flexDirection: 'column'
               }}
             >
-              <span style={{ fontSize: '0.68rem', color: 'var(--text-muted)', marginBottom: '2px' }}>{item.label}</span>
-              <span style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-primary)' }}>{item.val}</span>
+              <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginBottom: '3px', textTransform: 'uppercase', letterSpacing: '0.04em' }}>{item.label}</span>
+              <span style={{ fontSize: '1.02rem', fontWeight: 700, color: 'var(--text-primary)' }}>{item.val}</span>
             </div>
           ))}
         </div>
