@@ -1,0 +1,346 @@
+@page{size:A4 portrait;margin:0}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;background:#e9edf2}
+body{font-family:Arial,Helvetica,sans-serif;color:#10243e;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+:root{
+  --navy:#0d2139;
+  --navy2:#132c4a;
+  --text:#26364a;
+  --muted:#7a8797;
+  --line:#d7dde5;
+  --soft:#f4f6f9;
+  --blue:#2d679d;
+  --orange:#c95b17;
+  --green:#2e9b70;
+  --red:#b73737;
+  --yellow:#d79a28;
+}
+.page{
+  width:210mm;
+  height:297mm;
+  background:#fff;
+  margin:0 auto 10mm;
+  padding:14mm 16mm 12mm;
+  position:relative;
+  overflow:hidden;
+  page-break-after:always;
+}
+.page:last-child{page-break-after:auto}
+.header{height:22mm;border-bottom:1px solid #152b44;position:relative}
+.brand{position:absolute;left:0;top:0;display:flex;align-items:center;gap:2.5mm}
+.brand-logo{height:8.5mm;width:17mm;object-fit:contain;display:block}
+.brand-name{font-size:12px;font-weight:900;letter-spacing:-.4px;color:var(--navy)}
+.brand-sub{font-size:4.7px;letter-spacing:1.2px;color:#738092;margin-top:.7mm;font-weight:700}
+.header-meta{position:absolute;right:0;top:0;text-align:right;font-family:"Courier New",monospace;font-size:7px;line-height:1.55;letter-spacing:1px;color:var(--navy);font-weight:700}
+.report-kicker{font-size:6px;letter-spacing:1.5px;color:var(--blue);font-weight:800;margin-top:4.5mm}
+h1{font-size:22px;margin:1.5mm 0;line-height:1.1;letter-spacing:-.5px;color:var(--navy)}
+h2{font-size:13px;margin:0;color:var(--navy);letter-spacing:-.15px}
+.subtitle{font-size:9px;color:#6e7c8e;margin-bottom:4mm}
+.section-title{display:flex;align-items:baseline;justify-content:space-between;border-bottom:1px solid var(--line);padding-bottom:1.6mm;margin-top:3.5mm;margin-bottom:3mm}
+.section-title .hint{font-size:7px;color:#8993a0}
+
+/* Executive Posture Callout */
+.posture-banner{
+  min-height:22mm;
+  max-height:24mm;
+  border-radius:1.5mm;
+  padding:3.2mm 4mm;
+  margin-bottom:3mm;
+  overflow:hidden;
+  display:grid;
+  grid-template-columns:1fr auto;
+  gap:4mm;
+  align-items:center;
+  border:1px solid #cbd9e6;
+  background:#f1f6fa;
+  border-left:3px solid var(--orange);
+}
+.posture-banner.crit{border-left-color:var(--red);background:#fcf1f1}
+.posture-banner.safe{border-left-color:var(--green);background:#edf8f3}
+.posture-main{overflow:hidden}
+.posture-badge-row{display:flex;align-items:center;gap:3mm;margin-bottom:1.5mm}
+.posture-badge{
+  font-size:6px;
+  font-weight:900;
+  letter-spacing:1px;
+  padding:1mm 2.2mm;
+  border-radius:1mm;
+  background:var(--orange);
+  color:#fff;
+  text-transform:uppercase;
+  display:inline-block;
+}
+.posture-badge.crit{background:var(--red)}
+.posture-badge.safe{background:var(--green)}
+.posture-kicker{font-size:6px;letter-spacing:1.1px;color:#6a798c;font-weight:800}
+.posture-summary{font-size:7.2px;line-height:1.4;color:#3b4c5e;max-height:13.5mm;overflow:hidden}
+.posture-decision{
+  text-align:center;
+  padding:2mm 3.5mm;
+  border-left:1px solid #d4dee8;
+  min-width:38mm;
+}
+.decision-q{font-size:5.5px;letter-spacing:.8px;color:#7a8798;font-weight:700}
+.decision-ans{font-size:11px;font-weight:900;color:var(--orange);margin-top:1mm}
+.decision-ans.crit{color:var(--red)}
+.decision-ans.safe{color:var(--green)}
+
+/* Risk Overview & Executive KPI Grid */
+.exec-risk-grid{
+  display:grid;
+  grid-template-columns:1fr 2fr;
+  gap:6mm;
+  margin-bottom:2mm;
+}
+.exec-gauge-card{
+  border:1px solid #cfd6df;
+  border-radius:2mm;
+  padding:3.5mm 4mm;
+  height:36mm;
+  position:relative;
+  text-align:center;
+}
+.exec-gauge-label{
+  font-family:"Courier New",monospace;
+  font-size:6.4px;
+  letter-spacing:1px;
+  color:#7b8796;
+  font-weight:700;
+  text-align:left;
+}
+.gauge-box{width:100%;height:22mm;position:relative;margin-top:1mm}
+.gauge-box svg{width:100%;height:100%;overflow:visible}
+.gauge-num{
+  position:absolute;
+  left:50%;
+  top:48%;
+  transform:translate(-50%,-50%);
+  font-size:16px;
+  font-weight:900;
+  color:var(--navy);
+}
+.gauge-lbl{
+  position:absolute;
+  left:50%;
+  top:76%;
+  transform:translateX(-50%);
+  font-size:5.5px;
+  letter-spacing:1px;
+  color:var(--orange);
+  font-weight:800;
+  white-space:nowrap;
+}
+.kpi-cards{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:3mm;
+}
+.kpi-card{
+  border:1px solid #d0d7e0;
+  border-radius:1.5mm;
+  background:#f8f9fb;
+  padding:3mm 3.5mm;
+  height:16.5mm;
+  overflow:hidden;
+}
+.kpi-card .kpi-label{font-size:5.8px;letter-spacing:.8px;color:#788596;font-weight:700;text-transform:uppercase}
+.kpi-card .kpi-val{font-size:12px;font-weight:900;color:var(--navy);margin-top:1.2mm}
+.kpi-card .kpi-sub{font-size:5.6px;color:#6b7c8f;margin-top:.6mm;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+/* Threat Matrix */
+.threat-matrix{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:3.5mm;
+  margin-top:2mm;
+  margin-bottom:2mm;
+}
+.threat-cell{
+  border:1px solid #d6dde6;
+  border-radius:1.5mm;
+  padding:3mm;
+  height:33mm;
+  position:relative;
+  background:#fff;
+  overflow:hidden;
+  border-top:2.5px solid #a4b0be;
+}
+.threat-cell.crit{border-top-color:var(--red);background:#fff9f9}
+.threat-cell.high{border-top-color:var(--orange);background:#fffbf8}
+.threat-cell.med{border-top-color:var(--yellow);background:#fffdf6}
+.threat-cell.low{border-top-color:var(--green);background:#f8fcf9}
+.threat-title{font-size:7px;font-weight:800;color:var(--navy);line-height:1.2;margin-bottom:1.5mm}
+.threat-meta{
+  display:flex;
+  justify-content:space-between;
+  font-family:"Courier New",monospace;
+  font-size:5.4px;
+  color:#6b798b;
+  margin-bottom:1.5mm;
+}
+.threat-desc{font-size:5.8px;line-height:1.3;color:#546476;max-height:13mm;overflow:hidden}
+.threat-status-tag{
+  position:absolute;
+  bottom:2.2mm;
+  right:2.8mm;
+  font-size:5.3px;
+  font-weight:800;
+  letter-spacing:.6px;
+  padding:.6mm 1.5mm;
+  border-radius:.8mm;
+}
+.threat-cell.crit .threat-status-tag{background:#fde8e8;color:var(--red)}
+.threat-cell.high .threat-status-tag{background:#feede2;color:var(--orange)}
+.threat-cell.med .threat-status-tag{background:#fff6d9;color:#b27d11}
+.threat-cell.low .threat-status-tag{background:#e8f7ee;color:var(--green)}
+
+/* Scope Row */
+.scope-row{
+  border:1px solid #d3dae3;
+  border-radius:1.5mm;
+  background:#f9fafc;
+  padding:3mm 5mm;
+  height:24mm;
+  display:grid;
+  grid-template-columns:1.2fr 1fr 1.2fr;
+  gap:4mm;
+  align-items:center;
+  overflow:hidden;
+}
+.scope-item{font-size:6.3px;color:#4f5f71}
+.scope-item b{font-size:7.2px;color:var(--navy);display:block;margin-bottom:1mm}
+.scope-item span{font-family:"Courier New",monospace;color:#334253;display:block}
+
+/* Tables */
+.table-wrap{width:100%;overflow:hidden}
+table{width:100%;border-collapse:collapse;font-size:6.7px;table-layout:fixed}
+th{background:var(--navy);color:#fff;text-align:left;font-size:5.8px;letter-spacing:.8px;padding:2.2mm 2.2mm;font-weight:700}
+td{padding:1.7mm 2.2mm;border-bottom:1px solid #dce1e7;color:#3b4a5d;vertical-align:middle;overflow:hidden;text-overflow:ellipsis}
+tbody tr:nth-child(even) td{background:#f5f7fa}
+td:first-child{font-weight:700;color:#24364b}
+
+/* Framework compliance table */
+.comp-wrap{height:46mm}
+.comp-wrap th:nth-child(1){width:25%}
+.comp-wrap th:nth-child(2){width:35%}
+.comp-wrap th:nth-child(3){width:18%}
+.comp-wrap th:nth-child(4){width:22%}
+.badge-comp{
+  display:inline-block;
+  padding:.8mm 1.6mm;
+  border-radius:1mm;
+  font-size:5.4px;
+  font-weight:800;
+  letter-spacing:.5px;
+}
+.badge-comp.pass{background:#eaf7f0;color:var(--green)}
+.badge-comp.gap{background:#fff0e8;color:var(--orange)}
+.badge-comp.fail{background:#fbecec;color:var(--red)}
+
+/* Dynamic Trend Chart Box */
+.trend-box{
+  border:1px solid #d0d7df;
+  border-radius:1.5mm;
+  height:58mm;
+  padding:3.5mm 4mm 2.5mm;
+  overflow:hidden;
+}
+.trend-head{display:flex;justify-content:space-between;font-size:6.5px;color:#7d8998;align-items:center}
+.trend-legend{display:flex;gap:4mm}
+.t-legend-item{display:flex;align-items:center;gap:1.5mm}
+.t-line-blue{width:4mm;border-top:1.5px solid var(--blue)}
+.t-line-orange{width:4mm;border-top:1.5px dashed var(--orange)}
+.t-dot{width:1.6mm;height:1.6mm;border-radius:50%;background:var(--red)}
+#trendSvg{width:100%;height:38mm;display:block;margin-top:2mm}
+.trend-caption{font-size:5.8px;color:#788698;margin-top:1.5mm;text-align:right}
+
+/* Strategic Roadmap */
+.roadmap-grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:3.5mm;
+  margin-top:2mm;
+  margin-bottom:2mm;
+}
+.road-card{
+  border:1px solid #d2dae4;
+  border-radius:1.5mm;
+  padding:3mm;
+  height:36mm;
+  overflow:hidden;
+  background:#fff;
+}
+.road-phase{
+  font-size:5.8px;
+  font-weight:900;
+  letter-spacing:1px;
+  color:var(--blue);
+  text-transform:uppercase;
+  margin-bottom:1mm;
+}
+.road-time{
+  font-family:"Courier New",monospace;
+  font-size:6.8px;
+  font-weight:800;
+  color:var(--navy);
+  margin-bottom:1.5mm;
+}
+.road-action{font-size:6.6px;font-weight:800;color:#213347;margin-bottom:1mm;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.road-desc{font-size:5.8px;line-height:1.3;color:#556679;max-height:14mm;overflow:hidden}
+.road-kpi{
+  font-family:"Courier New",monospace;
+  font-size:5.4px;
+  color:var(--green);
+  font-weight:700;
+  margin-top:1.5mm;
+}
+
+/* Attestation Signoff */
+.attest-card{
+  border:1px solid #cbd7e4;
+  background:#f4f7fb;
+  border-radius:1.5mm;
+  padding:3mm 5mm;
+  height:24mm;
+  display:grid;
+  grid-template-columns:2fr 1fr 1fr;
+  gap:5mm;
+  align-items:center;
+  overflow:hidden;
+}
+.attest-text{font-size:6.2px;line-height:1.4;color:#4c5e73}
+.attest-text b{color:var(--navy);font-size:7px;display:block;margin-bottom:.8mm}
+.attest-sign{
+  border-left:1px solid #d5dfea;
+  padding-left:4mm;
+  font-family:"Courier New",monospace;
+  font-size:5.8px;
+  color:#556679;
+}
+.attest-sign b{font-family:Arial,sans-serif;font-size:7px;color:var(--navy);display:block}
+
+/* Footer */
+.footer{
+  position:absolute;
+  bottom:7mm;
+  left:16mm;
+  right:16mm;
+  border-top:1px solid #dce1e7;
+  padding-top:3mm;
+  display:grid;
+  grid-template-columns:1fr 1fr 1fr;
+  font-family:"Courier New",monospace;
+  font-size:5.8px;
+  color:#7d8794;
+  letter-spacing:.5px;
+}
+.footer div:nth-child(2){text-align:center;font-family:Arial,sans-serif;font-weight:700;color:#1f3046}
+.footer div:last-child{text-align:right}
+
+@media screen{
+  .page{box-shadow:0 4px 20px rgba(10,30,50,.12)}
+}
+@media print{
+  html,body{background:#fff}
+  .page{margin:0;box-shadow:none}
+}
