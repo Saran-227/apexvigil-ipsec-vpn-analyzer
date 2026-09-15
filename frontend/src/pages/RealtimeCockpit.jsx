@@ -9,6 +9,7 @@ import {
   ArrowLeft,
   FileCode,
   ShieldCheck,
+  Shield,
   Activity,
   Play,
   Square,
@@ -30,45 +31,64 @@ import {
   CheckCircle,
   XCircle,
   BarChart2,
-  RefreshCw
+  RefreshCw,
+  PhoneCall,
+  Video,
+  Globe,
+  MessageSquare,
+  Mail,
+  Package,
+  Network
 } from 'lucide-react'
 import GlassCard from '../components/GlassCard'
 
+const TRAFFIC_ICONS = {
+  voip: PhoneCall,
+  video: Video,
+  web: Globe,
+  chat: MessageSquare,
+  email: Mail,
+  bulk: Package,
+  icmp: Radio,
+  mixed: Network
+}
+
 const CIPHER_OPTIONS = [
-  { value: 'AES-256-GCM', label: 'AES-256-GCM (NSA CNSA 2.0 AEAD - Recommended)', klen: 256, isAead: true },
-  { value: 'AES-128-GCM', label: 'AES-128-GCM (NIST SP 800-77 AEAD Baseline)', klen: 128, isAead: true },
-  { value: 'AES-256-CBC', label: 'AES-256-CBC (CBC with separate HMAC)', klen: 256, isAead: false },
-  { value: 'AES-128-CBC', label: 'AES-128-CBC (Legacy Baseline CBC)', klen: 128, isAead: false },
-  { value: '3DES-CBC', label: '3DES-CBC (Vulnerable Sweet32 64-bit Collision)', klen: 192, isAead: false, isBad: true },
-  { value: 'DES', label: 'DES (Cryptographically Broken 56-bit)', klen: 64, isAead: false, isBad: true }
+  { value: 'AES-256-GCM', label: 'AES-256-GCM', klen: 256, isAead: true },
+  { value: 'AES-128-GCM', label: 'AES-128-GCM', klen: 128, isAead: true },
+  { value: 'AES-256-CBC', label: 'AES-256-CBC', klen: 256, isAead: false },
+  { value: 'AES-128-CBC', label: 'AES-128-CBC', klen: 128, isAead: false },
+  { value: '3DES-CBC', label: '3DES-CBC', klen: 192, isAead: false, isBad: true },
+  { value: 'DES', label: 'DES', klen: 64, isAead: false, isBad: true }
 ]
 
 const DH_OPTIONS = [
-  { num: 19, name: 'Group 19 (ECP-256 / NIST P-256)', label: 'Group 19 (ECP-256 / CNSA 2.0 - Optimal)' },
-  { num: 20, name: 'Group 20 (ECP-384 / CNSA 2.0)', label: 'Group 20 (ECP-384 / Top Secret Defense)' },
-  { num: 14, name: 'Group 14 (2048-bit MODP)', label: 'Group 14 (2048-bit MODP - NIST Baseline)' },
-  { num: 5, name: 'Group 5 (1536-bit MODP)', label: 'Group 5 (1536-bit MODP - Deprecated)' },
-  { num: 2, name: 'Group 2 (1024-bit MODP)', label: 'Group 2 (1024-bit MODP - Logjam Vulnerable)', isBad: true },
-  { num: 1, name: 'Group 1 (768-bit MODP)', label: 'Group 1 (768-bit MODP - Broken)', isBad: true }
+  { num: 19, name: 'Group 19 (ECP-256)', label: 'Group 19 (ECP-256)' },
+  { num: 20, name: 'Group 20 (ECP-384)', label: 'Group 20 (ECP-384)' },
+  { num: 14, name: 'Group 14 (MODP 2048)', label: 'Group 14 (MODP 2048)' },
+  { num: 5, name: 'Group 5 (MODP 1536)', label: 'Group 5 (MODP 1536)' },
+  { num: 2, name: 'Group 2 (MODP 1024)', label: 'Group 2 (MODP 1024)', isBad: true },
+  { num: 1, name: 'Group 1 (MODP 768)', label: 'Group 1 (MODP 768)', isBad: true }
 ]
 
 const INTEGRITY_OPTIONS = [
-  { value: 'AEAD Combined (GCM Tag)', label: 'AEAD Integrated 128-bit Tag (Hardware Accelerated)' },
-  { value: 'HMAC-SHA-384', label: 'HMAC-SHA-384 (CNSA 2.0)' },
-  { value: 'HMAC-SHA-256', label: 'HMAC-SHA-256 (NIST SP 800-77 Baseline)' },
-  { value: 'HMAC-SHA-1', label: 'HMAC-SHA-1 (SHAttered Collision Vulnerable)' },
-  { value: 'HMAC-MD5', label: 'HMAC-MD5 (Broken Cryptographic Hash)', isBad: true }
+  { value: 'AEAD Combined (GCM Tag)', label: 'AEAD (128-bit Tag)' },
+  { value: 'HMAC-SHA-384', label: 'HMAC-SHA-384' },
+  { value: 'HMAC-SHA-256', label: 'HMAC-SHA-256' },
+  { value: 'HMAC-SHA-1', label: 'HMAC-SHA-1' },
+  { value: 'HMAC-MD5', label: 'HMAC-MD5', isBad: true }
 ]
 
+
 const TRAFFIC_PROFILES = [
-  { key: 'voip', name: 'VoIP (RTP / 20ms Audio Pacing)', icon: '🎙️', desc: 'Strict 20ms voice packets (~180B)' },
-  { key: 'video', name: 'Video Streaming (Bursty MTU)', icon: '📹', desc: 'High-throughput variable frames (~1150B)' },
-  { key: 'web', name: 'Web Browsing (HTTP/1.1 & HTTP/2)', icon: '🌐', desc: 'Asymmetric bursty GET/POST transactions' },
-  { key: 'chat', name: 'WhatsApp / Secure Chat', icon: '💬', desc: 'Sporadic small frames with idle gaps (~160B)' },
-  { key: 'email', name: 'E-Mail (SMTP / IMAP)', icon: '📧', desc: 'Command-response text and MIME attachments' },
-  { key: 'bulk', name: 'Bulk Data Transfer (TCP Streaming)', icon: '📦', desc: 'Window-saturated 1500B MTU payloads' },
-  { key: 'icmp', name: 'ICMP Echo (Network Probes)', icon: '📡', desc: 'Periodic fixed ping probes (~98B)' },
-  { key: 'mixed', name: 'Concurrent Multiplexed (VoIP + Bulk)', icon: '🔀', desc: 'Bimodal distribution: voice + bulk data' }
+  { key: 'voip', name: 'VoIP' },
+  { key: 'video', name: 'Video Streaming' },
+  { key: 'web', name: 'Web Browsing' },
+  { key: 'chat', name: 'Secure Chat' },
+  { key: 'email', name: 'E-Mail' },
+  { key: 'bulk', name: 'Bulk Transfer' },
+  { key: 'icmp', name: 'ICMP Echo' },
+  { key: 'mixed', name: 'Concurrent Multiplexed' }
 ]
 
 const TRAFFIC_STATS = {
@@ -90,14 +110,14 @@ const PRESET_TOPOLOGIES = {
       {
         id: 'link-1',
         name: 'Link 1: HQ Gateway <-> Datacenter Core',
-        source: '172.28.0.2 (HQ Gateway)',
-        destination: '172.28.0.3 (DC Core)',
+        source: '172.28.0.2',
+        destination: '172.28.0.3',
         operating_mode: 'tunnel',
         crypto: {
           ike_version: 2,
           encryption: 'AES-256-GCM',
           key_length: 256,
-          dh_group: 'Group 19 (ECP-256 / NIST P-256)',
+          dh_group: 'Group 19 (ECP-256)',
           dh_group_num: 19,
           integrity: 'AEAD Combined (GCM Tag)',
           prf: 'PRF_HMAC_SHA2_256',
@@ -109,14 +129,14 @@ const PRESET_TOPOLOGIES = {
       {
         id: 'link-2',
         name: 'Link 2: Tactical Edge <-> Command HQ',
-        source: '10.0.10.5 (Tactical Edge)',
-        destination: '172.28.0.2 (HQ Gateway)',
+        source: '10.0.10.5',
+        destination: '172.28.0.2',
         operating_mode: 'tunnel',
         crypto: {
           ike_version: 1,
           encryption: '3DES-CBC',
           key_length: 192,
-          dh_group: 'Group 2 (1024-bit MODP)',
+          dh_group: 'Group 2 (MODP 1024)',
           dh_group_num: 2,
           integrity: 'HMAC-SHA-1',
           prf: 'PRF_HMAC_SHA1',
@@ -128,14 +148,14 @@ const PRESET_TOPOLOGIES = {
       {
         id: 'link-3',
         name: 'Link 3: Field Recon <-> Mission Hub',
-        source: '192.168.10.12 (Recon Drone)',
-        destination: '10.200.0.1 (Mission Hub)',
+        source: '192.168.10.12',
+        destination: '10.200.0.1',
         operating_mode: 'transport',
         crypto: {
           ike_version: 2,
           encryption: 'AES-128-CBC',
           key_length: 128,
-          dh_group: 'Group 14 (2048-bit MODP)',
+          dh_group: 'Group 14 (MODP 2048)',
           dh_group_num: 14,
           integrity: 'HMAC-SHA-256',
           prf: 'PRF_HMAC_SHA2_256',
@@ -153,14 +173,14 @@ const PRESET_TOPOLOGIES = {
       {
         id: 'link-1',
         name: 'Link 1: Primary Backbone Alpha',
-        source: '10.100.1.1 (Alpha Gateway)',
-        destination: '10.100.2.1 (Beta Gateway)',
+        source: '10.100.1.1',
+        destination: '10.100.2.1',
         operating_mode: 'tunnel',
         crypto: {
           ike_version: 2,
           encryption: 'AES-256-GCM',
           key_length: 256,
-          dh_group: 'Group 19 (ECP-256 / NIST P-256)',
+          dh_group: 'Group 19 (ECP-256)',
           dh_group_num: 19,
           integrity: 'AEAD Combined (GCM Tag)',
           prf: 'PRF_HMAC_SHA2_256',
@@ -172,14 +192,14 @@ const PRESET_TOPOLOGIES = {
       {
         id: 'link-2',
         name: 'Link 2: Classified Enclave Sync',
-        source: '10.200.5.1 (Vault)',
-        destination: '10.200.5.2 (Hot Standby)',
+        source: '10.200.5.1',
+        destination: '10.200.5.2',
         operating_mode: 'tunnel',
         crypto: {
           ike_version: 2,
           encryption: 'AES-256-GCM',
           key_length: 256,
-          dh_group: 'Group 20 (ECP-384 / CNSA 2.0)',
+          dh_group: 'Group 20 (ECP-384)',
           dh_group_num: 20,
           integrity: 'AEAD Combined (GCM Tag)',
           prf: 'PRF_HMAC_SHA2_384',
@@ -197,14 +217,14 @@ const PRESET_TOPOLOGIES = {
       {
         id: 'link-1',
         name: 'Link 1: Legacy SCADA Link (Sweet32 Vulnerable)',
-        source: '192.168.99.10 (Plant RTU)',
-        destination: '192.168.99.1 (Master Server)',
+        source: '192.168.99.10',
+        destination: '192.168.99.1',
         operating_mode: 'tunnel',
         crypto: {
           ike_version: 1,
           encryption: '3DES-CBC',
           key_length: 192,
-          dh_group: 'Group 2 (1024-bit MODP)',
+          dh_group: 'Group 2 (MODP 1024)',
           dh_group_num: 2,
           integrity: 'HMAC-SHA-1',
           prf: 'PRF_HMAC_SHA1',
@@ -216,14 +236,14 @@ const PRESET_TOPOLOGIES = {
       {
         id: 'link-2',
         name: 'Link 2: Unhardened Field Office (Broken MD5)',
-        source: '10.10.10.2 (Remote Office)',
-        destination: '172.28.0.2 (HQ Gateway)',
+        source: '10.10.10.2',
+        destination: '172.28.0.2',
         operating_mode: 'transport',
         crypto: {
           ike_version: 1,
           encryption: 'AES-128-CBC',
           key_length: 128,
-          dh_group: 'Group 1 (768-bit MODP)',
+          dh_group: 'Group 1 (MODP 768)',
           dh_group_num: 1,
           integrity: 'HMAC-MD5',
           prf: 'PRF_HMAC_MD5',
@@ -428,7 +448,7 @@ export default function RealtimeCockpit({ connection = 'LIVE' }) {
         ike_version: 2,
         encryption: 'AES-256-GCM',
         key_length: 256,
-        dh_group: 'Group 19 (ECP-256 / NIST P-256)',
+        dh_group: 'Group 19 (ECP-256)',
         dh_group_num: 19,
         integrity: 'AEAD Combined (GCM Tag)',
         prf: 'PRF_HMAC_SHA2_256',
@@ -614,19 +634,19 @@ export default function RealtimeCockpit({ connection = 'LIVE' }) {
                     className="preset-chip"
                     onClick={() => handleApplyPreset('tactical')}
                   >
-                    <span>🛡️ Tactical Military Mesh (3 Links)</span>
+                    <Shield size={14} color="#38bdf8" /> <span>Tactical Military Mesh (3 Links)</span>
                   </button>
                   <button
                     className="preset-chip"
                     onClick={() => handleApplyPreset('zerotrust')}
                   >
-                    <span>🔒 Zero-Trust CNSA 2.0 (2 Links)</span>
+                    <Lock size={14} color="#34d399" /> <span>Zero-Trust CNSA 2.0 (2 Links)</span>
                   </button>
                   <button
                     className="preset-chip danger"
                     onClick={() => handleApplyPreset('legacy')}
                   >
-                    <span>⚠️ Legacy Sweet32/Logjam (2 Links)</span>
+                    <AlertTriangle size={14} color="#f87171" /> <span>Legacy Sweet32/Logjam (2 Links)</span>
                   </button>
                 </div>
 
@@ -699,8 +719,12 @@ export default function RealtimeCockpit({ connection = 'LIVE' }) {
                           <span className={`mini-tag ${enc.includes('3DES') || enc.includes('DES') ? 'bad' : 'blue'}`}>
                             {enc}
                           </span>
-                          <span className="mini-tag">
-                            {trf.icon} {lnk.traffic.toUpperCase()}
+                          <span className="mini-tag" style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                            {(() => {
+                              const IconComp = TRAFFIC_ICONS[lnk.traffic] || Activity
+                              return <IconComp size={11} color="currentColor" />
+                            })()}
+                            <span>{lnk.traffic.toUpperCase()}</span>
                           </span>
                           <span className="mini-tag">
                             IKEv{lnk.crypto.ike_version}
@@ -756,8 +780,8 @@ export default function RealtimeCockpit({ connection = 'LIVE' }) {
                           value={curLink.operating_mode}
                           onChange={(e) => updateSelectedLink('operating_mode', e.target.value)}
                         >
-                          <option value="tunnel">Tunnel Mode (Full IP Encapsulation - Gateway)</option>
-                          <option value="transport">Transport Mode (Payload Only - Host-to-Host)</option>
+                          <option value="tunnel">Tunnel Mode</option>
+                          <option value="transport">Transport Mode</option>
                         </select>
                       </div>
                     </div>
@@ -834,8 +858,8 @@ export default function RealtimeCockpit({ connection = 'LIVE' }) {
                             value={curLink.crypto.ike_version}
                             onChange={(e) => updateSelectedLink('crypto.ike_version', parseInt(e.target.value))}
                           >
-                            <option value="2">IKEv2 (RFC 7296 - Modern)</option>
-                            <option value="1">IKEv1 (RFC 9395 - Deprecated)</option>
+                            <option value="2">IKEv2</option>
+                            <option value="1">IKEv1</option>
                           </select>
                         </div>
                         <div>
@@ -845,8 +869,8 @@ export default function RealtimeCockpit({ connection = 'LIVE' }) {
                             value={curLink.crypto.pfs_enabled ? 'true' : 'false'}
                             onChange={(e) => updateSelectedLink('crypto.pfs_enabled', e.target.value === 'true')}
                           >
-                            <option value="true">Enabled (Secondary DH)</option>
-                            <option value="false">Disabled (Reusing Keying)</option>
+                            <option value="true">Enabled</option>
+                            <option value="false">Disabled</option>
                           </select>
                         </div>
                       </div>
@@ -857,18 +881,21 @@ export default function RealtimeCockpit({ connection = 'LIVE' }) {
                   <div className="config-section">
                     <div className="config-section-title">3. TRANSFERRED INNER APPLICATION DATA</div>
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '0.5rem' }}>
-                      {TRAFFIC_PROFILES.map(tp => (
-                        <button
-                          key={tp.key}
-                          type="button"
-                          className={`traffic-select-chip ${curLink.traffic === tp.key ? 'active' : ''}`}
-                          onClick={() => updateSelectedLink('traffic', tp.key)}
-                        >
-                          <div style={{ fontSize: '1rem' }}>{tp.icon}</div>
-                          <div style={{ fontSize: '0.74rem', fontWeight: 600, marginTop: '2px' }}>{tp.name}</div>
-                          <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)', marginTop: '2px' }}>{tp.desc}</div>
-                        </button>
-                      ))}
+                      {TRAFFIC_PROFILES.map(tp => {
+                        const IconComp = TRAFFIC_ICONS[tp.key] || Activity
+                        const isSelected = curLink.traffic === tp.key
+                        return (
+                          <button
+                            key={tp.key}
+                            type="button"
+                            className={`traffic-select-chip ${isSelected ? 'active' : ''}`}
+                            onClick={() => updateSelectedLink('traffic', tp.key)}
+                          >
+                            <IconComp size={20} color={isSelected ? 'var(--accent-blue)' : '#94a3b8'} />
+                            <div style={{ fontSize: '0.82rem', fontWeight: 700 }}>{tp.name}</div>
+                          </button>
+                        )
+                      })}
                     </div>
                   </div>
 
@@ -1290,8 +1317,8 @@ export default function RealtimeCockpit({ connection = 'LIVE' }) {
                     FORMALIZED 6-PILLAR NIST SP 800-77 &amp; CNSA 2.0 SCORING BREAKDOWN:
                   </div>
 
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '0.65rem' }}>
-                    {Object.entries(inspectedLink.security_assessment.rubric_breakdown || {}).map(([key, pillar]) => {
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: '0.55rem' }}>
+                    {Object.entries(inspectedLink?.security_assessment?.rubric_breakdown || {}).map(([key, pillar]) => {
                       const pct = Math.round((pillar.score / pillar.max_score) * 100)
                       const isGood = pillar.status === 'OPTIMAL' || pillar.status === 'COMPLIANT'
                       const isFail = pillar.status === 'CRITICAL_FAIL'
@@ -1300,13 +1327,13 @@ export default function RealtimeCockpit({ connection = 'LIVE' }) {
                         <div
                           key={key}
                           style={{
-                            padding: '0.75rem 0.85rem',
+                            padding: '0.65rem 0.8rem',
                             background: 'var(--glass-inner)',
-                            border: '1px solid var(--border-subtle)',
+                            border: `1px solid ${isFail ? 'rgba(248,113,113,0.3)' : 'var(--border-subtle)'}`,
                             borderRadius: 'var(--radius-sm)'
                           }}
                         >
-                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
                             <span style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-primary)' }}>
                               {pillar.name}
                             </span>
@@ -1322,16 +1349,12 @@ export default function RealtimeCockpit({ connection = 'LIVE' }) {
                             </span>
                           </div>
 
-                          <div style={{ width: '100%', height: 4, borderRadius: 2, background: 'rgba(255,255,255,0.08)', overflow: 'hidden', margin: '4px 0' }}>
+                          <div style={{ width: '100%', height: 4, borderRadius: 2, background: 'rgba(255,255,255,0.08)', overflow: 'hidden' }}>
                             <div style={{
                               width: `${pct}%`,
                               height: '100%',
                               background: isFail ? 'var(--accent-red)' : isGood ? 'var(--accent-green)' : 'var(--accent-amber)'
                             }} />
-                          </div>
-
-                          <div style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', lineHeight: 1.35, marginTop: '4px' }}>
-                            {pillar.rationale}
                           </div>
                         </div>
                       )

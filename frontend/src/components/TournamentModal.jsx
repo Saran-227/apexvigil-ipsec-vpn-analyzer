@@ -1,5 +1,6 @@
 import React from 'react'
-import { Trophy, X, Award, CheckCircle } from 'lucide-react'
+import {
+  Medal, Trophy, X, Award, CheckCircle } from 'lucide-react'
 
 export default function TournamentModal({ isOpen, onClose, tournamentData }) {
   if (!isOpen) return null
@@ -134,7 +135,17 @@ export default function TournamentModal({ isOpen, onClose, tournamentData }) {
                     }}
                   >
                     <td style={{ padding: '0.7rem 0.5rem', fontWeight: 700 }}>
-                      {idx === 0 ? '🥇 1' : idx === 1 ? '🥈 2' : idx === 2 ? '🥉 3' : `${idx + 1}`}
+                      <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+                        {idx === 0 ? (
+                          <><Trophy size={14} color="#f59e0b" /> 1</>
+                        ) : idx === 1 ? (
+                          <><Award size={14} color="#94a3b8" /> 2</>
+                        ) : idx === 2 ? (
+                          <><Medal size={14} color="#d97706" /> 3</>
+                        ) : (
+                          <span style={{ color: 'var(--text-muted)' }}>{idx + 1}</span>
+                        )}
+                      </span>
                     </td>
                     <td style={{ padding: '0.7rem 0.5rem', fontWeight: isTop ? 700 : 500, color: isTop ? 'var(--accent-blue)' : 'inherit' }}>
                       {m.model}

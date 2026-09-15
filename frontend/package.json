@@ -3,6 +3,7 @@
   "private": true,
   "version": "1.0.0",
   "type": "module",
+  "main": "electron/main.cjs",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
@@ -24,6 +25,5 @@
   },
   "devDependencies": {
     "electron": "^44.3.0"
-  },
-  "main": "electron/main.cjs"
+  }
 }
