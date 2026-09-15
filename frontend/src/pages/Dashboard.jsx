@@ -9,6 +9,8 @@ import CryptoAuditPanel from '../components/CryptoAuditPanel'
 import TrafficIntelligencePanel from '../components/TrafficIntelligencePanel'
 import TimelineSlices from '../components/TimelineSlices'
 import TournamentModal from '../components/TournamentModal'
+import ReportExportModal from '../components/ReportExportModal'
+import { FileText } from 'lucide-react'
 
 export default function Dashboard({
   security,
@@ -29,6 +31,7 @@ export default function Dashboard({
   execSummary
 }) {
   const [isTournamentOpen, setIsTournamentOpen] = useState(false)
+  const [isReportModalOpen, setIsReportModalOpen] = useState(false)
 
   return (
     <>
@@ -81,13 +84,33 @@ export default function Dashboard({
             <div className="combo-divider" />
 
             <div className="combo-half">
-              <div className="card-title-row">
+              <div className="card-title-row" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <div>
                   <div className="section-kicker">WIRETAP TELEMETRY</div>
                   <h3 style={{ margin: '2px 0 0', fontSize: '0.95rem', fontWeight: 700 }}>
                     Active Capture Profiling
                   </h3>
                 </div>
+                <button
+                  type="button"
+                  onClick={() => setIsReportModalOpen(true)}
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    padding: '6px 14px',
+                    borderRadius: '8px',
+                    background: 'linear-gradient(135deg, rgba(56, 189, 248, 0.2), rgba(37, 99, 235, 0.25))',
+                    border: '1px solid rgba(56, 189, 248, 0.4)',
+                    color: '#38bdf8',
+                    fontSize: '0.8rem',
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                    transition: 'all 0.15s ease'
+                  }}
+                >
+                  <FileText size={14} /> Export Report
+                </button>
               </div>
 
               <div style={{
@@ -201,6 +224,20 @@ export default function Dashboard({
         isOpen={isTournamentOpen}
         onClose={() => setIsTournamentOpen(false)}
         tournamentData={tournamentData}
+      />
+      {/* Intelligence Report Generator Modal */}
+      <ReportExportModal
+        isOpen={isReportModalOpen}
+        onClose={() => setIsReportModalOpen(false)}
+        mode="pcap"
+        pcapFilename={activeFilename || execSummary?.target_pcap || 'sih26_asim_golden.pcap'}
+        activeData={auditData ? {
+          pcap_file: activeFilename || 'sih26_asim_golden.pcap',
+          executive_summary: execSummary,
+          cryptographic_audit: auditData,
+          ike_protocol_details: ikeDetails,
+          ai_traffic_intelligence: aiData
+        } : null}
       />
     </>
   )

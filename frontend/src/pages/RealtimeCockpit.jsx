@@ -1,7 +1,9 @@
 import { API_BASE } from '../services/api'
 import React, { useState, useEffect, useRef } from 'react'
+import ReportExportModal from '../components/ReportExportModal'
 import { useNavigate } from 'react-router-dom'
 import {
+  FileText,
   Radio,
   ArrowLeft,
   FileCode,
@@ -235,7 +237,7 @@ const PRESET_TOPOLOGIES = {
 
 export default function RealtimeCockpit({ connection = 'LIVE' }) {
   const navigate = useNavigate()
-  const [activeTab, setActiveTab] = useState('config') // 'config' or 'results'
+  const [activeTab, setActiveTab] = useState('results') // 'config' or 'results'
   const [links, setLinks] = useState(PRESET_TOPOLOGIES.tactical.links)
   const [selectedLinkIndex, setSelectedLinkIndex] = useState(0)
   const [isSimulating, setIsSimulating] = useState(false)
@@ -245,6 +247,7 @@ export default function RealtimeCockpit({ connection = 'LIVE' }) {
   const [isStreaming, setIsStreaming] = useState(false)
   const [isAborted, setIsAborted] = useState(false)
   const [elapsedSeconds, setElapsedSeconds] = useState(0)
+  const [isReportModalOpen, setIsReportModalOpen] = useState(false)
   const streamIntervalRef = useRef(null)
 
   const formatElapsed = (totalSec) => {
@@ -384,7 +387,7 @@ export default function RealtimeCockpit({ connection = 'LIVE' }) {
   // Load default preset on initial mount
   useEffect(() => {
     // Run an initial simulation of the tactical mesh so the results tab is pre-warmed
-    handleRunSimulation(PRESET_TOPOLOGIES.tactical.links, false)
+    handleRunSimulation(PRESET_TOPOLOGIES.tactical.links, true)
   }, [])
 
   const handleApplyPreset = (presetKey) => {
@@ -392,7 +395,7 @@ export default function RealtimeCockpit({ connection = 'LIVE' }) {
     if (preset) {
       setLinks(preset.links)
       setSelectedLinkIndex(0)
-      handleRunSimulation(preset.links, false)
+      handleRunSimulation(preset.links, true)
     }
   }
 
@@ -518,10 +521,15 @@ export default function RealtimeCockpit({ connection = 'LIVE' }) {
             </button>
             <button
               className={`cockpit-tab-btn ${activeTab === 'results' ? 'active' : ''}`}
-              onClick={() => setActiveTab('results')}
+              onClick={() => {
+                setActiveTab('results')
+                if (!isStreaming && !isAborted) {
+                  startLiveTicker()
+                }
+              }}
             >
               <BarChart2 size={13} />
-              <span>2. Live Stream Results ({simulationResults?.links?.length || 0} Links)</span>
+              <span>2. Live Stream Results ({simulationResults?.links?.length || links.length} Links)</span>
             </button>
           </div>
 
@@ -895,7 +903,8 @@ export default function RealtimeCockpit({ connection = 'LIVE' }) {
         )}
 
         {/* VIEW 2: REAL-TIME SIMULATION RESULTS & MULTI-LINK AUDIT */}
-        {activeTab === 'results' && simulationResults && (
+        {activeTab === 'results' && (
+          simulationResults ? (
           <div>
             {/* Live Streaming Operator Control Strip */}
             <GlassCard style={{ padding: '0.85rem 1.25rem', marginBottom: '1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
@@ -957,6 +966,29 @@ export default function RealtimeCockpit({ connection = 'LIVE' }) {
                 >
                   <RotateCcw size={14} />
                   <span>Reset</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setIsReportModalOpen(true)}
+                  title="Generate and export comprehensive intelligence report"
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    padding: '7px 15px',
+                    borderRadius: '8px',
+                    background: 'linear-gradient(135deg, rgba(56, 189, 248, 0.2), rgba(37, 99, 235, 0.3))',
+                    border: '1px solid rgba(56, 189, 248, 0.45)',
+                    color: '#38bdf8',
+                    fontSize: '0.8rem',
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                    transition: 'all 0.15s ease'
+                  }}
+                >
+                  <FileText size={14} />
+                  <span>Export Audit Report</span>
                 </button>
               </div>
             </GlassCard>
@@ -1314,8 +1346,48 @@ export default function RealtimeCockpit({ connection = 'LIVE' }) {
               </GlassCard>
             )}
           </div>
+          ) : (
+            <GlassCard style={{ padding: '3.5rem 2rem', textAlign: 'center', margin: '2rem 0' }}>
+              <div style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                width: 64,
+                height: 64,
+                borderRadius: '50%',
+                background: 'rgba(56, 189, 248, 0.12)',
+                border: '1px solid rgba(56, 189, 248, 0.3)',
+                marginBottom: '1.25rem'
+              }}>
+                <RefreshCw size={28} color="#38bdf8" className="spin" />
+              </div>
+              <h3 style={{ margin: 0, fontSize: '1.15rem', fontWeight: 800, color: '#ffffff' }}>
+                Initializing Live Multi-Link Wiretap Telemetry &amp; Sensor Mesh...
+              </h3>
+              <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', maxWidth: 520, margin: '0.65rem auto 1.5rem', lineHeight: 1.5 }}>
+                Negotiating IKEv2 Phase 1/Phase 2 Security Associations, establishing virtual IPsec tunnels, and activating real-time packet stream telemetry.
+              </p>
+              <button
+                className="cockpit-run-btn"
+                onClick={() => handleRunSimulation(links, true)}
+                style={{ margin: '0 auto' }}
+              >
+                <Play size={14} fill="currentColor" />
+                <span>Launch Live Stream Now</span>
+              </button>
+            </GlassCard>
+          )
         )}
       </main>
+          {/* Intelligence Report Generator Modal */}
+      <ReportExportModal
+        isOpen={isReportModalOpen}
+        onClose={() => setIsReportModalOpen(false)}
+        mode="live"
+        activeData={simulationResults}
+        links={simulationResults?.links || links}
+        elapsedSeconds={elapsedSeconds}
+      />
     </div>
   )
 }

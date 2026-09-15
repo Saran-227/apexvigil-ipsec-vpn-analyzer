@@ -1,3 +1,7 @@
+import subprocess
+from fastapi.middleware.cors import CORSMiddleware
+import re
+import uuid
 #!/usr/bin/env python3
 """
 SIH26160 IPsec VPN Intelligence Platform - FastAPI Backend
@@ -27,6 +31,14 @@ app = FastAPI(
     title="NTRO IPsec Intelligence & Security Assessment Platform - API",
     description="SIH26160 Automated Cryptographic Audit & AI Encrypted Traffic Classifier (REST API)",
     version="2.0.0"
+)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 DATASET_DIR = os.path.join(PROJECT_ROOT, "dataset", "raw_pcapng")
@@ -239,6 +251,207 @@ async def run_simulation(req: SimulationRequest):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Simulation failed: {str(e)}")
 
+
+
+
+
+# ─── Multi-Tier Report Generation Endpoints ────────────────────────────────────
+from fastapi.responses import HTMLResponse
+from analyzer.report_engine import (
+    generate_executive_data,
+    generate_assessment_data,
+    generate_technical_data,
+    assemble_report_html
+)
+
+REPORTS_CACHE_DIR = os.path.join(PROJECT_ROOT, "reports_generated")
+os.makedirs(REPORTS_CACHE_DIR, exist_ok=True)
+
+
+class ReportRequest(BaseModel):
+    report_type: str = "executive"      # "executive" | "security" | "technical"
+    analysis_type: str = "pcap"         # "pcap" | "live"
+    scope: str = "overall"              # "overall" | link_id
+    timeframe: dict = None              # {"mode": "full"} or {"mode": "window", "start_sec": 5, "end_sec": 15}
+    pcap_filename: str = None
+    data: dict = None                   # evaluation or live simulation payload
+
+
+@app.post("/api/reports/generate")
+async def generate_report_endpoint(req: ReportRequest):
+    """
+    Generates an official ApexVigil intelligence report (Executive, Security Assessment, or Technical)
+    for either forensic PCAP captures (full duration) or real-time multi-link streams (overall/link, full/window).
+    """
+    try:
+        report_type = req.report_type.lower()
+        if report_type not in ["executive", "security", "technical"]:
+            report_type = "executive"
+
+        analysis_type = req.analysis_type.lower()
+        eval_data = req.data
+
+        if analysis_type == "pcap":
+            if not eval_data:
+                filename = req.pcap_filename or "sih26_asim_golden.pcap"
+                pcap_path = os.path.join(DATASET_DIR, filename)
+                if not os.path.exists(pcap_path):
+                    alt_path = os.path.join(PROJECT_ROOT, "dataset", filename)
+                    if os.path.exists(alt_path):
+                        pcap_path = alt_path
+                    else:
+                        raise HTTPException(status_code=404, detail=f"PCAP file {filename} not found")
+                eval_data = evaluator.evaluate_pcap(pcap_path, models_dir=MODELS_DIR)
+
+            if report_type == "executive":
+                report_data = generate_executive_data(eval_data, source_type="pcap")
+            elif report_type == "security":
+                report_data = generate_assessment_data(eval_data, source_type="pcap")
+            else:
+                report_data = generate_technical_data(eval_data, source_type="pcap")
+
+        else: # Live simulation
+            if not eval_data or "links" not in eval_data:
+                from analyzer.simulator import get_default_topology, simulate_network_topology
+                eval_data = simulate_network_topology(get_default_topology())
+
+            scope = req.scope or "overall"
+            timeframe = req.timeframe or {"mode": "full"}
+
+            if report_type == "executive":
+                report_data = generate_executive_data(eval_data, source_type="live", scope=scope, timeframe=timeframe)
+            elif report_type == "security":
+                report_data = generate_assessment_data(eval_data, source_type="live", scope=scope, timeframe=timeframe)
+            else:
+                report_data = generate_technical_data(eval_data, source_type="live", scope=scope, timeframe=timeframe)
+
+        # Assemble self-contained HTML
+        html_content = assemble_report_html(report_type, report_data)
+        report_id = report_data.get("meta", {}).get("id", f"AV-{uuid.uuid4().hex[:6]}")
+        clean_id = re.sub(r'[^a-zA-Z0-9_-]', '_', report_id)
+
+        file_path = os.path.join(REPORTS_CACHE_DIR, f"{clean_id}.html")
+        with open(file_path, "w", encoding="utf-8") as f:
+            f.write(html_content)
+
+        pdf_path = os.path.join(REPORTS_CACHE_DIR, f"{clean_id}.pdf")
+        render_html_to_pdf(file_path, pdf_path)
+
+        has_pdf = os.path.exists(pdf_path) and os.path.getsize(pdf_path) > 1000
+        return {
+            "status": "success",
+            "report_id": clean_id,
+            "report_type": report_type,
+            "filename": f"ApexVigil_{report_type.capitalize()}_Report.html",
+            "pdf_filename": f"ApexVigil_{report_type.capitalize()}_Report.pdf",
+            "view_url": f"/api/reports/view/{clean_id}",
+            "pdf_url": f"/api/reports/pdf/{clean_id}",
+            "pdf_download_url": f"/api/reports/pdf/download/{clean_id}",
+            "download_url": f"/api/reports/download/{clean_id}",
+            "has_pdf": has_pdf,
+            "meta": report_data.get("meta", {})
+        }
+
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail=f"Report generation error: {str(e)}")
+
+
+@app.get("/api/reports/view/{report_id}")
+async def view_report(report_id: str):
+    """Renders standalone report directly in browser/Electron window."""
+    clean_id = re.sub(r'[^a-zA-Z0-9_-]', '_', report_id)
+    file_path = os.path.join(REPORTS_CACHE_DIR, f"{clean_id}.html")
+    if not os.path.exists(file_path):
+        raise HTTPException(status_code=404, detail="Report not found or expired")
+    with open(file_path, "r", encoding="utf-8") as f:
+        html_content = f.read()
+    return HTMLResponse(content=html_content, media_type="text/html")
+
+
+@app.get("/api/reports/download/{report_id}")
+async def download_report(report_id: str):
+    """Downloads standalone HTML report file."""
+    clean_id = re.sub(r'[^a-zA-Z0-9_-]', '_', report_id)
+    file_path = os.path.join(REPORTS_CACHE_DIR, f"{clean_id}.html")
+    if not os.path.exists(file_path):
+        raise HTTPException(status_code=404, detail="Report not found or expired")
+    return FileResponse(
+        file_path,
+        filename=f"ApexVigil_{clean_id}.html",
+        media_type="text/html"
+    )
+
+
+
+
+EDGE_PATH = r"C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe"
+
+def render_html_to_pdf(html_path, pdf_path):
+    """Converts HTML report to standalone PDF using headless Microsoft Edge."""
+    if os.path.exists(EDGE_PATH):
+        try:
+            cmd = [
+                EDGE_PATH,
+                "--headless=new",
+                "--disable-gpu",
+                "--no-sandbox",
+                "--no-pdf-header-footer",
+                f"--print-to-pdf={pdf_path}",
+                f"file:///{html_path}"
+            ]
+            res = subprocess.run(cmd, capture_output=True, text=True, timeout=25)
+            return os.path.exists(pdf_path) and os.path.getsize(pdf_path) > 1000
+        except Exception as e:
+            print(f"[PDF Engine] Edge headless PDF conversion error: {e}")
+    return False
+
+
+@app.get("/api/reports/pdf/{report_id}")
+async def view_report_pdf(report_id: str):
+    """Renders generated report directly as a binary PDF in browser/Electron window."""
+    clean_id = re.sub(r'[^a-zA-Z0-9_-]', '_', report_id)
+    pdf_path = os.path.join(REPORTS_CACHE_DIR, f"{clean_id}.pdf")
+    html_path = os.path.join(REPORTS_CACHE_DIR, f"{clean_id}.html")
+
+    if not os.path.exists(pdf_path):
+        if not os.path.exists(html_path):
+            raise HTTPException(status_code=404, detail="Report not found or expired")
+        success = render_html_to_pdf(html_path, pdf_path)
+        if not success or not os.path.exists(pdf_path):
+            # Fallback to HTML if PDF engine is unavailable
+            with open(html_path, "r", encoding="utf-8") as f:
+                return HTMLResponse(content=f.read(), media_type="text/html")
+
+    return FileResponse(
+        pdf_path,
+        filename=f"ApexVigil_{clean_id}.pdf",
+        media_type="application/pdf",
+        headers={"Content-Disposition": f"inline; filename=ApexVigil_{clean_id}.pdf"}
+    )
+
+
+@app.get("/api/reports/pdf/download/{report_id}")
+async def download_report_pdf(report_id: str):
+    """Triggers download of the generated PDF file."""
+    clean_id = re.sub(r'[^a-zA-Z0-9_-]', '_', report_id)
+    pdf_path = os.path.join(REPORTS_CACHE_DIR, f"{clean_id}.pdf")
+    html_path = os.path.join(REPORTS_CACHE_DIR, f"{clean_id}.html")
+
+    if not os.path.exists(pdf_path):
+        if not os.path.exists(html_path):
+            raise HTTPException(status_code=404, detail="Report not found or expired")
+        success = render_html_to_pdf(html_path, pdf_path)
+        if not success or not os.path.exists(pdf_path):
+            raise HTTPException(status_code=500, detail="PDF generation failed")
+
+    return FileResponse(
+        pdf_path,
+        filename=f"ApexVigil_{clean_id}.pdf",
+        media_type="application/pdf",
+        headers={"Content-Disposition": f"attachment; filename=ApexVigil_{clean_id}.pdf"}
+    )
 
 
 if __name__ == "__main__":

@@ -150,6 +150,22 @@ function createMainWindow() {
   const menu = Menu.buildFromTemplate(menuTemplate)
   Menu.setApplicationMenu(menu)
 
+  mainWindow.webContents.setWindowOpenHandler(({ url }) => {
+    return {
+      action: 'allow',
+      overrideBrowserWindowOptions: {
+        width: 1200,
+        height: 900,
+        title: 'ApexVigil Intelligence Report Preview',
+        autoHideMenuBar: true,
+        webPreferences: {
+          nodeIntegration: false,
+          contextIsolation: true
+        }
+      }
+    }
+  })
+
   mainWindow.once('ready-to-show', () => {
     mainWindow.show()
   })
