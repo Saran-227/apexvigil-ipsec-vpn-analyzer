@@ -91,7 +91,7 @@ export default function Header({ connection = 'LIVE' }) {
 
       <div className="top-actions">
         <button
-          onClick={() => navigate('/realtime')}
+          onClick={() => navigate('/realtime?tab=config', { state: { tab: 'config' } })}
           className="header-mode-switch-btn"
           title="Switch to Real-Time Live Stream Cockpit"
         >

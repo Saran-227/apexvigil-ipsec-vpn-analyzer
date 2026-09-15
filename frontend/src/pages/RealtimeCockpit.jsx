@@ -2,7 +2,7 @@ import logoIcon from '../public/icon.png'
 import { API_BASE } from '../services/api'
 import React, { useState, useEffect, useRef } from 'react'
 import ReportExportModal from '../components/ReportExportModal'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 import {
   FileText,
   Radio,
@@ -238,7 +238,22 @@ const PRESET_TOPOLOGIES = {
 
 export default function RealtimeCockpit({ connection = 'LIVE' }) {
   const navigate = useNavigate()
-  const [activeTab, setActiveTab] = useState('results') // 'config' or 'results'
+  const location = useLocation()
+  const getInitialTab = () => {
+    const params = new URLSearchParams(location.search)
+    if (params.get('tab')) return params.get('tab')
+    if (location.state && location.state.tab) return location.state.tab
+    return 'config'
+  }
+  const [activeTab, setActiveTab] = useState(getInitialTab)
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search)
+    const tab = params.get('tab') || (location.state && location.state.tab)
+    if (tab && (tab === 'config' || tab === 'results')) {
+      setActiveTab(tab)
+    }
+  }, [location.search, location.state])
   const [links, setLinks] = useState(PRESET_TOPOLOGIES.tactical.links)
   const [selectedLinkIndex, setSelectedLinkIndex] = useState(0)
   const [isSimulating, setIsSimulating] = useState(false)
@@ -385,10 +400,11 @@ export default function RealtimeCockpit({ connection = 'LIVE' }) {
     }
   }, [])
 
-  // Load default preset on initial mount
+  // Load default preset on initial mount without switching away from Topology & Config
   useEffect(() => {
-    // Run an initial simulation of the tactical mesh so the results tab is pre-warmed
-    handleRunSimulation(PRESET_TOPOLOGIES.tactical.links, true)
+    const targetTab = new URLSearchParams(location.search).get('tab') || (location.state && location.state.tab) || 'config'
+    const shouldSwitch = targetTab === 'results'
+    handleRunSimulation(PRESET_TOPOLOGIES.tactical.links, shouldSwitch)
   }, [])
 
   const handleApplyPreset = (presetKey) => {
@@ -396,7 +412,7 @@ export default function RealtimeCockpit({ connection = 'LIVE' }) {
     if (preset) {
       setLinks(preset.links)
       setSelectedLinkIndex(0)
-      handleRunSimulation(preset.links, true)
+      handleRunSimulation(preset.links, false)
     }
   }
 
