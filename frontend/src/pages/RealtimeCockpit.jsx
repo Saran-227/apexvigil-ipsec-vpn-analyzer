@@ -1,6 +1,6 @@
 import logoIcon from '../public/icon.png'
 import { API_BASE } from '../services/api'
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useState, useEffect, useRef, useMemo } from 'react'
 import ReportExportModal from '../components/ReportExportModal'
 import { useNavigate, useLocation } from 'react-router-dom'
 import {
@@ -283,6 +283,7 @@ export default function RealtimeCockpit({ connection = 'LIVE' }) {
   const [isStreaming, setIsStreaming] = useState(false)
   const [isAborted, setIsAborted] = useState(false)
   const [elapsedSeconds, setElapsedSeconds] = useState(0)
+  const [streamHistory, setStreamHistory] = useState([])
   const [isReportModalOpen, setIsReportModalOpen] = useState(false)
   const streamIntervalRef = useRef(null)
 
@@ -350,13 +351,8 @@ export default function RealtimeCockpit({ connection = 'LIVE' }) {
           }
         })
 
-        // Rolling oscilloscope waveform (last 25 points)
-        const prevOsc = prevResults.oscilloscope || { aggregate_pps: [], timeline: [] }
-        const currentAgg = [...(prevOsc.aggregate_pps || [])]
-        currentAgg.push(secTotalPackets)
-        if (currentAgg.length > 25) {
-          currentAgg.shift()
-        }
+        // Update rolling streamHistory for oscilloscope
+        setStreamHistory(prevHist => [...prevHist, secTotalPackets])
 
         const prevSummary = prevResults.network_summary || {}
         const updatedSummary = {
@@ -375,11 +371,7 @@ export default function RealtimeCockpit({ connection = 'LIVE' }) {
         return {
           ...prevResults,
           links: updatedLinks,
-          network_summary: updatedSummary,
-          oscilloscope: {
-            ...prevOsc,
-            aggregate_pps: currentAgg
-          }
+          network_summary: updatedSummary
         }
       })
       } catch (err) {
@@ -409,6 +401,7 @@ export default function RealtimeCockpit({ connection = 'LIVE' }) {
     setIsStreaming(false)
     setIsAborted(false)
     setElapsedSeconds(0)
+    setStreamHistory([])
     handleRunSimulation(links, false)
   }
 
@@ -503,6 +496,9 @@ export default function RealtimeCockpit({ connection = 'LIVE' }) {
       if (data.links && data.links.length > 0) {
         setInspectedLink(data.links[0])
       }
+      const initPps = data.network_summary?.current_aggregate_pps || (data.oscilloscope?.aggregate_pps?.[0] || 180)
+      setStreamHistory([initPps])
+      setElapsedSeconds(0)
       if (switchTab) {
         setActiveTab('results')
         startLiveTicker()
@@ -514,6 +510,52 @@ export default function RealtimeCockpit({ connection = 'LIVE' }) {
       setIsSimulating(false)
     }
   }
+
+  const WINDOW_SECONDS = 15
+  const graphData = useMemo(() => {
+    const hist = streamHistory.length > 0 ? streamHistory : [180]
+    let displayed = []
+
+    if (elapsedSeconds <= WINDOW_SECONDS) {
+      // 0 to 15s: Graph starts from the beginning (x=0) and moves towards the end
+      displayed = hist.slice(0, elapsedSeconds + 1)
+    } else {
+      // > 15s: 15s window keeps moving ahead, pointer stays at the end and graph moves leftward
+      displayed = hist.slice(-(WINDOW_SECONDS + 1))
+    }
+
+    const maxPps = Math.max(...displayed, 220)
+    const minPps = 0
+
+    const points = displayed.map((pps, idx) => {
+      let x = (idx / WINDOW_SECONDS) * 500
+      const y = 58 - ((pps - minPps) / (maxPps - minPps || 1)) * 48
+      return { x: Math.min(500, Math.max(0, x)), y: Math.min(65, Math.max(8, y)), pps }
+    })
+
+    const leadPoint = points[points.length - 1] || { x: 0, y: 30, pps: 0 }
+    const leadX = leadPoint.x
+    const leadY = leadPoint.y
+
+    let linePath = ''
+    let areaPath = ''
+    if (points.length <= 1) {
+      linePath = `M 0 ${leadY.toFixed(1)} L 0 ${leadY.toFixed(1)}`
+      areaPath = `M 0 65 L 0 ${leadY.toFixed(1)} L 0 65 Z`
+    } else {
+      linePath = points.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x.toFixed(1)} ${p.y.toFixed(1)}`).join(' ')
+      areaPath = `M 0 65 ` + points.map(p => `L ${p.x.toFixed(1)} ${p.y.toFixed(1)}`).join(' ') + ` L ${leadX.toFixed(1)} 65 Z`
+    }
+
+    return {
+      points,
+      areaPath,
+      linePath,
+      leadX,
+      leadY,
+      currentPps: leadPoint.pps || 0
+    }
+  }, [streamHistory, elapsedSeconds])
 
   const curLink = links[selectedLinkIndex] || links[0]
 
@@ -969,7 +1011,7 @@ export default function RealtimeCockpit({ connection = 'LIVE' }) {
           <div>
             {/* Live Streaming Operator Control Strip */}
             <GlassCard style={{ padding: '0.85rem 1.25rem', marginBottom: '1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem', flexWrap: 'wrap' }}>
                 {isStreaming ? (
                   <div className="live-pulse-badge transmitting">
                     <span className="pulsing-beacon"></span>
@@ -978,7 +1020,7 @@ export default function RealtimeCockpit({ connection = 'LIVE' }) {
                 ) : isAborted ? (
                   <div className="live-pulse-badge aborted">
                     <span className="stop-beacon"></span>
-                    <span>STREAM ABORTED BY OPERATOR</span>
+                    <span>STREAM ABORTED</span>
                   </div>
                 ) : (
                   <div className="live-pulse-badge idle">
@@ -986,16 +1028,16 @@ export default function RealtimeCockpit({ connection = 'LIVE' }) {
                   </div>
                 )}
 
-                <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.4rem', fontFamily: 'monospace' }}>
-                  <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>ELAPSED:</span>
-                  <span style={{ fontSize: '1.15rem', fontWeight: 800, color: isStreaming ? 'var(--accent-cyan)' : 'var(--text-primary)' }}>
+                <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.45rem', fontFamily: 'monospace' }}>
+                  <span style={{ fontSize: '0.74rem', fontWeight: 700, color: 'var(--text-muted)' }}>ELAPSED:</span>
+                  <span style={{ fontSize: '1.25rem', fontWeight: 900, color: isStreaming ? 'var(--accent-cyan)' : 'var(--text-primary)' }}>
                     {formatElapsed(elapsedSeconds)}
                   </span>
                 </div>
 
-                <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
-                  Flow: <strong style={{ color: 'var(--text-primary)' }}>{simulationResults.network_summary?.current_aggregate_pps || simulationResults.oscilloscope?.aggregate_pps?.[simulationResults.oscilloscope.aggregate_pps.length - 1] || 0} pkts/s</strong> | 
-                  Transferred: <strong style={{ color: 'var(--text-primary)' }}>{(simulationResults.network_summary?.total_packets_streamed || 0).toLocaleString()} pkts</strong> ({simulationResults.network_summary?.total_data_volume_mb || 0} MB)
+                <div style={{ display: 'flex', alignItems: 'center', gap: '1.2rem', fontSize: '0.78rem', color: 'var(--text-secondary)' }}>
+                  <span>Flow: <strong style={{ color: 'var(--text-primary)', fontWeight: 800 }}>{simulationResults.network_summary?.current_aggregate_pps || graphData.currentPps || 0} pkts/s</strong></span>
+                  <span>Transferred: <strong style={{ color: 'var(--text-primary)', fontWeight: 800 }}>{(simulationResults.network_summary?.total_packets_streamed || 0).toLocaleString()} pkts</strong> <span style={{ color: 'var(--text-muted)' }}>({simulationResults.network_summary?.total_data_volume_mb || 0} MB)</span></span>
                 </div>
               </div>
 
@@ -1004,18 +1046,16 @@ export default function RealtimeCockpit({ connection = 'LIVE' }) {
                   <button
                     className="cockpit-abort-btn"
                     onClick={handleAbortStream}
-                    title="Abort packet transmission and lock analytical findings"
                   >
-                    <Square size={14} fill="currentColor" />
-                    <span>Abort Live Stream</span>
+                    <Square size={13} fill="currentColor" />
+                    <span>Abort Stream</span>
                   </button>
                 ) : (
                   <button
                     className="cockpit-resume-btn"
                     onClick={handleResumeStream}
-                    title="Resume real-time transmission across all links"
                   >
-                    <Play size={14} fill="currentColor" />
+                    <Play size={13} fill="currentColor" />
                     <span>{isAborted ? 'Resume Stream' : 'Start Live Stream'}</span>
                   </button>
                 )}
@@ -1023,26 +1063,24 @@ export default function RealtimeCockpit({ connection = 'LIVE' }) {
                 <button
                   className="cockpit-reset-btn"
                   onClick={handleResetStream}
-                  title="Reset counters and restart stream"
                 >
-                  <RotateCcw size={14} />
+                  <RotateCcw size={13} />
                   <span>Reset</span>
                 </button>
 
                 <button
                   type="button"
                   onClick={() => setIsReportModalOpen(true)}
-                  title="Generate and export comprehensive intelligence report"
                   style={{
                     display: 'inline-flex',
                     alignItems: 'center',
                     gap: '6px',
-                    padding: '7px 15px',
-                    borderRadius: '8px',
+                    padding: '6px 14px',
+                    borderRadius: '7px',
                     background: 'linear-gradient(135deg, rgba(56, 189, 248, 0.2), rgba(37, 99, 235, 0.3))',
-                    border: '1px solid rgba(56, 189, 248, 0.45)',
+                    border: '1px solid rgba(56, 189, 248, 0.5)',
                     color: '#38bdf8',
-                    fontSize: '0.8rem',
+                    fontSize: '0.78rem',
                     fontWeight: 700,
                     cursor: 'pointer',
                     transition: 'all 0.15s ease'
@@ -1053,15 +1091,16 @@ export default function RealtimeCockpit({ connection = 'LIVE' }) {
                 </button>
               </div>
             </GlassCard>
+
             {/* Top Network Health Strip */}
-            <div style={{ display: 'grid', gridTemplateColumns: '260px 1fr', gap: '1rem', marginBottom: '1rem' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '320px 1fr', gap: '1rem', marginBottom: '1rem' }}>
               {/* Overall Network Scorecard */}
               <GlassCard style={{ padding: '1.25rem', display: 'flex', alignItems: 'center', gap: '1.25rem' }}>
                 <div style={{
-                  width: 82,
-                  height: 82,
+                  width: 104,
+                  height: 104,
                   borderRadius: '50%',
-                  border: `4px solid ${
+                  border: `5px solid ${
                     simulationResults.network_summary.overall_compliance === 'PASS'
                       ? 'var(--accent-green)'
                       : simulationResults.network_summary.overall_compliance === 'FAIL'
@@ -1073,98 +1112,136 @@ export default function RealtimeCockpit({ connection = 'LIVE' }) {
                   alignItems: 'center',
                   justifyContent: 'center',
                   flexShrink: 0,
-                  background: 'var(--glass-inner)'
+                  background: 'var(--glass-inner)',
+                  boxShadow: `0 0 20px ${
+                    simulationResults.network_summary.overall_compliance === 'PASS'
+                      ? 'rgba(34, 197, 94, 0.2)'
+                      : simulationResults.network_summary.overall_compliance === 'FAIL'
+                        ? 'rgba(239, 68, 68, 0.2)'
+                        : 'rgba(245, 158, 11, 0.2)'
+                  }`
                 }}>
-                  <strong style={{ fontSize: '1.45rem', fontWeight: 800, color: 'var(--text-primary)' }}>
+                  <strong style={{ fontSize: '2.3rem', fontWeight: 900, color: 'var(--text-primary)', lineHeight: 1 }}>
                     {simulationResults.network_summary.average_security_score}
                   </strong>
-                  <span style={{ fontSize: '0.62rem', color: 'var(--text-muted)' }}>NETWORK AVG</span>
+                  <span style={{ fontSize: '0.65rem', fontWeight: 700, color: 'var(--text-muted)', marginTop: '4px', letterSpacing: '0.04em' }}>
+                    NETWORK AVG
+                  </span>
                 </div>
 
-                <div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
                   <div style={{
-                    fontSize: '0.7rem',
-                    fontWeight: 700,
-                    padding: '2px 7px',
+                    fontSize: '0.75rem',
+                    fontWeight: 800,
+                    padding: '3px 9px',
                     borderRadius: '4px',
-                    display: 'inline-block',
+                    alignSelf: 'flex-start',
                     background: simulationResults.network_summary.overall_compliance === 'PASS' ? 'var(--green-soft)' : simulationResults.network_summary.overall_compliance === 'FAIL' ? 'var(--red-soft)' : 'var(--amber-soft)',
                     color: simulationResults.network_summary.overall_compliance === 'PASS' ? 'var(--accent-green)' : simulationResults.network_summary.overall_compliance === 'FAIL' ? 'var(--accent-red)' : 'var(--accent-amber)',
-                    marginBottom: '4px'
+                    letterSpacing: '0.04em'
                   }}>
                     {simulationResults.network_summary.overall_compliance} POSTURE
                   </div>
-                  <h3 style={{ margin: 0, fontSize: '0.92rem', fontWeight: 700 }}>
+                  <h3 style={{ margin: 0, fontSize: '1.05rem', fontWeight: 800, color: 'var(--text-primary)' }}>
                     {simulationResults.network_summary.total_links} Concurrent Links
                   </h3>
-                  <div style={{ fontSize: '0.74rem', color: 'var(--text-muted)', marginTop: '2px' }}>
-                    {simulationResults.network_summary.total_active_threats} active vulnerabilities detected across network.
+                  <div style={{
+                    fontSize: '0.78rem',
+                    fontWeight: 700,
+                    color: simulationResults.network_summary.total_active_threats > 0 ? 'var(--accent-red)' : 'var(--accent-green)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '5px'
+                  }}>
+                    {simulationResults.network_summary.total_active_threats > 0 ? (
+                      <>
+                        <AlertTriangle size={13} />
+                        <span>{simulationResults.network_summary.total_active_threats} Vulnerabilities Detected</span>
+                      </>
+                    ) : (
+                      <>
+                        <ShieldCheck size={13} />
+                        <span>All Links Compliant</span>
+                      </>
+                    )}
                   </div>
                 </div>
               </GlassCard>
 
               {/* Real-time Oscilloscope Mini Card */}
-              <GlassCard style={{ padding: '1.25rem' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.65rem' }}>
+              <GlassCard style={{ padding: '1.25rem', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.4rem' }}>
                   <div>
                     <div className="section-kicker">STREAM OSCILLOSCOPE</div>
-                    <div style={{ fontSize: '0.82rem', fontWeight: 700, color: 'var(--text-primary)' }}>
-                      Multi-Link Aggregate Packet Throughput Dynamics
+                    <div style={{ fontSize: '0.95rem', fontWeight: 800, color: 'var(--text-primary)' }}>
+                      Aggregate Throughput Telemetry
                     </div>
                   </div>
-                  <div style={{ display: 'flex', gap: '1rem', fontSize: '0.72rem', color: 'var(--text-secondary)' }}>
-                    <span>Total Packets: <strong>{simulationResults.network_summary.total_packets_streamed.toLocaleString()}</strong></span>
-                    <span>Volume: <strong>{simulationResults.network_summary.total_data_volume_mb} MB</strong></span>
-                    <span>Duration: <strong>{simulationResults.network_summary.simulation_duration_sec}s</strong></span>
+                  <div style={{ display: 'flex', gap: '1.2rem', fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
+                    <span>Packets: <strong style={{ color: 'var(--text-primary)', fontWeight: 800 }}>{simulationResults.network_summary.total_packets_streamed.toLocaleString()}</strong></span>
+                    <span>Volume: <strong style={{ color: 'var(--text-primary)', fontWeight: 800 }}>{simulationResults.network_summary.total_data_volume_mb} MB</strong></span>
+                    <span>Window: <strong style={{ color: 'var(--accent-cyan)', fontWeight: 800 }}>15s</strong></span>
                   </div>
                 </div>
 
-                {/* Simulated SVG Waveform */}
-                <div style={{ height: 60, width: '100%', position: 'relative' }}>
-                  <svg width="100%" height="100%" preserveAspectRatio="none" viewBox="0 0 500 60">
+                {/* Rolling 15-Second Oscilloscope SVG */}
+                <div style={{ height: 65, width: '100%', position: 'relative' }}>
+                  <svg width="100%" height="100%" preserveAspectRatio="none" viewBox="0 0 500 70">
                     <defs>
                       <linearGradient id="streamGrad" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="0%" stopColor="#38bdf8" stopOpacity="0.4" />
+                        <stop offset="0%" stopColor="#38bdf8" stopOpacity="0.45" />
                         <stop offset="100%" stopColor="#38bdf8" stopOpacity="0.0" />
                       </linearGradient>
                     </defs>
+
+                    {/* Guidelines */}
+                    <line x1="0" y1="20" x2="500" y2="20" stroke="rgba(255,255,255,0.06)" strokeDasharray="3 3" />
+                    <line x1="0" y1="45" x2="500" y2="45" stroke="rgba(255,255,255,0.06)" strokeDasharray="3 3" />
+
                     {/* Area */}
                     <path
-                      d={
-                        simulationResults.oscilloscope?.aggregate_pps
-                          ? `M 0 60 ` + simulationResults.oscilloscope.aggregate_pps.map((pps, i) => {
-                              const x = (i / (simulationResults.oscilloscope.aggregate_pps.length - 1)) * 500
-                              const maxPps = Math.max(...simulationResults.oscilloscope.aggregate_pps, 1)
-                              const y = 60 - (pps / maxPps) * 50
-                              return `L ${x} ${y} `
-                            }).join('') + `L 500 60 Z`
-                          : "M 0 60 L 500 60 Z"
-                      }
+                      d={graphData.areaPath}
                       fill="url(#streamGrad)"
                     />
-                    {/* Line */}
+
+                    {/* Waveform Line */}
                     <path
-                      d={
-                        simulationResults.oscilloscope?.aggregate_pps
-                          ? simulationResults.oscilloscope.aggregate_pps.map((pps, i) => {
-                              const x = (i / (simulationResults.oscilloscope.aggregate_pps.length - 1)) * 500
-                              const maxPps = Math.max(...simulationResults.oscilloscope.aggregate_pps, 1)
-                              const y = 60 - (pps / maxPps) * 50
-                              return `${i === 0 ? 'M' : 'L'} ${x} ${y} `
-                            }).join('')
-                          : "M 0 60 L 500 60"
-                      }
+                      d={graphData.linePath}
                       fill="none"
                       stroke="#38bdf8"
-                      strokeWidth="2"
+                      strokeWidth="2.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
                     />
+
+                    {/* Leading Pointer */}
+                    {isStreaming && (
+                      <g>
+                        <circle cx={graphData.leadX} cy={graphData.leadY} r="8" fill="#38bdf8" opacity="0.35">
+                          <animate attributeName="r" values="5;10;5" dur="1.2s" repeatCount="indefinite" />
+                          <animate attributeName="opacity" values="0.6;0.1;0.6" dur="1.2s" repeatCount="indefinite" />
+                        </circle>
+                        <circle cx={graphData.leadX} cy={graphData.leadY} r="4" fill="#38bdf8" />
+                        <circle cx={graphData.leadX} cy={graphData.leadY} r="1.8" fill="#ffffff" />
+                      </g>
+                    )}
                   </svg>
+                </div>
+
+                {/* Dynamic Timeline Markers */}
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '4px', fontSize: '0.68rem', color: 'var(--text-muted)', fontFamily: 'var(--font-mono)' }}>
+                  <span>{elapsedSeconds <= 15 ? '0s (START)' : `-${15}s`}</span>
+                  <span>{elapsedSeconds <= 15 ? '5s' : `-${10}s`}</span>
+                  <span>{elapsedSeconds <= 15 ? '10s' : `-${5}s`}</span>
+                  <span style={{ color: isStreaming ? 'var(--accent-cyan)' : 'var(--text-muted)', fontWeight: 700 }}>
+                    {elapsedSeconds <= 15 ? '15s (END)' : `NOW (${elapsedSeconds}s)`}
+                  </span>
                 </div>
               </GlassCard>
             </div>
 
-            {/* Multi-Link Cards Grid */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(350px, 1fr))', gap: '1rem', marginBottom: '1.25rem' }}>
+            {/* Multi-Link Cards Grid (Balanced 3 Columns) */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1rem', marginBottom: '1.25rem' }}>
               {simulationResults.links.map((lnk) => {
                 const sec = lnk.security_assessment
                 const ai = lnk.ai_traffic_intelligence
@@ -1182,8 +1259,7 @@ export default function RealtimeCockpit({ connection = 'LIVE' }) {
                   <GlassCard
                     key={lnk.id}
                     onClick={() => {
-                      console.log('[Cockpit] Selecting link:', lnk.id, lnk.name);
-                      setInspectedLink(lnk);
+                      setInspectedLink(lnk)
                     }}
                     className={`sim-link-card ${isSelected ? 'selected' : ''}`}
                     style={{
@@ -1191,94 +1267,102 @@ export default function RealtimeCockpit({ connection = 'LIVE' }) {
                       cursor: 'pointer',
                       border: isSelected ? '2px solid var(--accent-blue)' : '1px solid var(--glass-inner-border)',
                       background: isSelected ? 'rgba(56, 189, 248, 0.08)' : 'var(--glass-surface)',
-                      boxShadow: isSelected ? '0 0 16px rgba(56, 189, 248, 0.2)' : 'none',
+                      boxShadow: isSelected ? '0 0 18px rgba(56, 189, 248, 0.22)' : 'none',
                       transition: 'all 0.2s ease',
-                      position: 'relative'
+                      display: 'flex',
+                      flexDirection: 'column',
+                      justifyContent: 'space-between'
                     }}
                   >
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.65rem' }}>
-                      <div>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                          <div style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--text-primary)' }}>
-                            {lnk.name}
+                    <div>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.65rem' }}>
+                        <div>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                            <div style={{ fontSize: '0.92rem', fontWeight: 800, color: 'var(--text-primary)' }}>
+                              {lnk.name}
+                            </div>
+                            {isSelected && (
+                              <span style={{
+                                fontSize: '0.62rem',
+                                fontWeight: 800,
+                                padding: '2px 7px',
+                                borderRadius: '3px',
+                                background: 'rgba(56, 189, 248, 0.2)',
+                                color: 'var(--accent-blue)',
+                                border: '1px solid rgba(56, 189, 248, 0.4)',
+                                letterSpacing: '0.04em'
+                              }}>
+                                INSPECTING
+                              </span>
+                            )}
                           </div>
-                          {isSelected && (
-                            <span style={{
-                              fontSize: '0.6rem',
-                              fontWeight: 800,
-                              padding: '1px 6px',
-                              borderRadius: '3px',
-                              background: 'rgba(56, 189, 248, 0.2)',
-                              color: 'var(--accent-blue)',
-                              border: '1px solid rgba(56, 189, 248, 0.4)',
-                              letterSpacing: '0.04em'
-                            }}>
-                              INSPECTING
+                          <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginTop: '2px' }}>
+                            {lnk.endpoints}
+                          </div>
+                        </div>
+
+                        {/* Prominent Score Display */}
+                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
+                          <div style={{
+                            display: 'flex',
+                            alignItems: 'baseline',
+                            gap: '2px',
+                            padding: '4px 10px',
+                            borderRadius: '6px',
+                            background: sec.compliance_status === 'PASS' ? 'var(--green-soft)' : sec.compliance_status === 'FAIL' ? 'var(--red-soft)' : 'var(--amber-soft)',
+                            border: `1px solid ${sec.compliance_status === 'PASS' ? 'rgba(34,197,94,0.3)' : sec.compliance_status === 'FAIL' ? 'rgba(239,68,68,0.3)' : 'rgba(245,158,11,0.3)'}`
+                          }}>
+                            <span style={{ fontSize: '1.25rem', fontWeight: 900, color: statusColor, lineHeight: 1 }}>{sec.risk_score}</span>
+                            <span style={{ fontSize: '0.72rem', fontWeight: 700, color: 'var(--text-muted)' }}>/100</span>
+                          </div>
+                          {isCapped && (
+                            <span style={{ fontSize: '0.62rem', fontWeight: 800, color: 'var(--accent-red)', marginTop: '2px' }}>
+                              VETO CAPPED
                             </span>
                           )}
                         </div>
-                        <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>
-                          {lnk.endpoints}
+                      </div>
+
+                      {/* Suite & Telemetry Summary Facts */}
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '0.5rem', fontSize: '0.74rem', margin: '0.75rem 0' }}>
+                        <div style={{ padding: '6px 8px', background: 'var(--glass-inner)', borderRadius: '4px' }}>
+                          <span style={{ color: 'var(--text-muted)' }}>Cipher: </span>
+                          <strong>{sec.negotiated_suite.encryption || 'AES-GCM'}</strong>
+                        </div>
+                        <div style={{ padding: '6px 8px', background: 'var(--glass-inner)', borderRadius: '4px' }}>
+                          <span style={{ color: 'var(--text-muted)' }}>DH Group: </span>
+                          <strong>{sec.negotiated_suite.dh_group || 'Group 14'}</strong>
+                        </div>
+                        <div style={{ padding: '6px 8px', background: 'var(--glass-inner)', borderRadius: '4px' }}>
+                          <span style={{ color: 'var(--text-muted)' }}>AI App: </span>
+                          <strong style={{ color: 'var(--accent-blue)' }}>{ai.predicted_application}</strong>
+                        </div>
+                        <div style={{ padding: '6px 8px', background: 'var(--glass-inner)', borderRadius: '4px' }}>
+                          <span style={{ color: 'var(--text-muted)' }}>Traffic: </span>
+                          <strong>{st.total_packets.toLocaleString()} pkts</strong>
+                          {st.dropped_packets > 0 && (
+                            <span style={{ color: 'var(--accent-red)', marginLeft: '4px', fontWeight: 700 }}>
+                              ({st.dropped_packets} drops)
+                            </span>
+                          )}
                         </div>
                       </div>
-
-                      {/* Score Badge */}
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-                        {isCapped && (
-                          <span style={{ fontSize: '0.62rem', fontWeight: 700, padding: '1px 5px', borderRadius: '3px', background: 'var(--red-soft)', color: 'var(--accent-red)' }}>
-                            VETO CAP
-                          </span>
-                        )}
-                        <span style={{
-                          fontSize: '0.78rem',
-                          fontWeight: 800,
-                          padding: '2px 8px',
-                          borderRadius: '4px',
-                          background: sec.compliance_status === 'PASS' ? 'var(--green-soft)' : sec.compliance_status === 'FAIL' ? 'var(--red-soft)' : 'var(--amber-soft)',
-                          color: statusColor
-                        }}>
-                          {sec.risk_score} / 100
-                        </span>
-                      </div>
                     </div>
 
-                    {/* Suite & Telemetry Summary */}
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '0.45rem', fontSize: '0.72rem', margin: '0.65rem 0' }}>
-                      <div style={{ padding: '4px 6px', background: 'var(--glass-inner)', borderRadius: '3px' }}>
-                        <span style={{ color: 'var(--text-muted)' }}>Cipher: </span>
-                        <strong>{sec.negotiated_suite.encryption || 'AES-GCM'}</strong>
-                      </div>
-                      <div style={{ padding: '4px 6px', background: 'var(--glass-inner)', borderRadius: '3px' }}>
-                        <span style={{ color: 'var(--text-muted)' }}>DH Group: </span>
-                        <strong>{sec.negotiated_suite.dh_group || 'Group 14'}</strong>
-                      </div>
-                      <div style={{ padding: '4px 6px', background: 'var(--glass-inner)', borderRadius: '3px' }}>
-                        <span style={{ color: 'var(--text-muted)' }}>AI App: </span>
-                        <strong style={{ color: 'var(--accent-blue)' }}>{ai.predicted_application}</strong>
-                      </div>
-                      <div style={{ padding: '4px 6px', background: 'var(--glass-inner)', borderRadius: '3px' }}>
-                        <span style={{ color: 'var(--text-muted)' }}>Traffic: </span>
-                        <strong>{st.total_packets.toLocaleString()} pkts</strong>
-                        {st.dropped_packets > 0 && (
-                          <span style={{ color: 'var(--accent-red)', marginLeft: '4px', fontWeight: 700 }}>
-                            ({st.dropped_packets} drops)
-                          </span>
-                        )}
-                      </div>
+                    {/* Clean Status Line */}
+                    <div style={{ paddingTop: '0.45rem', borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+                      {sec.violations.length > 0 ? (
+                        <div style={{ fontSize: '0.74rem', color: 'var(--accent-red)', display: 'flex', alignItems: 'center', gap: '0.35rem', fontWeight: 700 }}>
+                          <AlertTriangle size={13} />
+                          <span>{sec.violations.length} Critical Security Flaws</span>
+                        </div>
+                      ) : (
+                        <div style={{ fontSize: '0.74rem', color: 'var(--accent-green)', display: 'flex', alignItems: 'center', gap: '0.35rem', fontWeight: 700 }}>
+                          <ShieldCheck size={13} />
+                          <span>NIST SP 800-77 Compliant</span>
+                        </div>
+                      )}
                     </div>
-
-                    {/* Violations notice */}
-                    {sec.violations.length > 0 ? (
-                      <div style={{ fontSize: '0.7rem', color: 'var(--accent-red)', marginTop: '4px', display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
-                        <AlertTriangle size={12} />
-                        <span>{sec.violations.length} fatal exploit/vulnerability detected</span>
-                      </div>
-                    ) : (
-                      <div style={{ fontSize: '0.7rem', color: 'var(--accent-green)', marginTop: '4px', display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
-                        <ShieldCheck size={12} />
-                        <span>NIST SP 800-77 Rev. 1 Compliant</span>
-                      </div>
-                    )}
                   </GlassCard>
                 )
               })}
@@ -1287,73 +1371,89 @@ export default function RealtimeCockpit({ connection = 'LIVE' }) {
             {/* Detailed Link Inspector */}
             {inspectedLink && (
               <GlassCard style={{ padding: '1.5rem', marginTop: '1rem' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', borderBottom: '1px solid var(--border)', paddingBottom: '0.75rem' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.15rem', borderBottom: '1px solid var(--border)', paddingBottom: '0.85rem' }}>
                   <div>
-                    <div className="section-kicker">SELECTED LINK DEEP AUDIT &amp; 6-PILLAR RUBRIC</div>
-                    <h2 style={{ margin: '2px 0 0', fontSize: '1.1rem', fontWeight: 700 }}>
+                    <div className="section-kicker">SELECTED LINK DEEP AUDIT</div>
+                    <h2 style={{ margin: '3px 0 0', fontSize: '1.2rem', fontWeight: 800, color: '#f8fafc' }}>
                       {inspectedLink.name} ({inspectedLink.endpoints})
                     </h2>
                   </div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                    <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-                      Operational Mode: <strong>{inspectedLink.configured_mode}</strong>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                    <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>
+                      Mode: <strong style={{ color: 'var(--text-primary)' }}>{inspectedLink.configured_mode}</strong>
                     </span>
-                    <span style={{
-                      fontSize: '0.85rem',
-                      fontWeight: 800,
-                      padding: '3px 10px',
-                      borderRadius: '4px',
+                    <div style={{
+                      display: 'flex',
+                      alignItems: 'baseline',
+                      gap: '4px',
+                      padding: '4px 12px',
+                      borderRadius: '6px',
                       background: inspectedLink.security_assessment.compliance_status === 'PASS' ? 'var(--green-soft)' : inspectedLink.security_assessment.compliance_status === 'FAIL' ? 'var(--red-soft)' : 'var(--amber-soft)',
-                      color: inspectedLink.security_assessment.compliance_status === 'PASS' ? 'var(--accent-green)' : inspectedLink.security_assessment.compliance_status === 'FAIL' ? 'var(--accent-red)' : 'var(--accent-amber)'
+                      border: `1px solid ${inspectedLink.security_assessment.compliance_status === 'PASS' ? 'rgba(34,197,94,0.4)' : inspectedLink.security_assessment.compliance_status === 'FAIL' ? 'rgba(239,68,68,0.4)' : 'rgba(245,158,11,0.4)'}`
                     }}>
-                      Score: {inspectedLink.security_assessment.risk_score}/100 [{inspectedLink.security_assessment.compliance_status}]
-                    </span>
+                      <span style={{ fontSize: '1.25rem', fontWeight: 900, color: inspectedLink.security_assessment.compliance_status === 'PASS' ? 'var(--accent-green)' : inspectedLink.security_assessment.compliance_status === 'FAIL' ? 'var(--accent-red)' : 'var(--accent-amber)', lineHeight: 1 }}>
+                        {inspectedLink.security_assessment.risk_score}
+                      </span>
+                      <span style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-muted)' }}>/ 100</span>
+                      <span style={{ fontSize: '0.75rem', fontWeight: 800, color: inspectedLink.security_assessment.compliance_status === 'PASS' ? 'var(--accent-green)' : inspectedLink.security_assessment.compliance_status === 'FAIL' ? 'var(--accent-red)' : 'var(--accent-amber)', marginLeft: '4px' }}>
+                        [{inspectedLink.security_assessment.compliance_status}]
+                      </span>
+                    </div>
                   </div>
                 </div>
 
-                {/* 6-Pillar Rubric Cards Grid */}
+                {/* 6-Pillar Rubric Cards Grid (Balanced 3x2 Grid) */}
                 <div style={{ marginBottom: '1.25rem' }}>
-                  <div style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-muted)', marginBottom: '0.5rem' }}>
-                    FORMALIZED 6-PILLAR NIST SP 800-77 &amp; CNSA 2.0 SCORING BREAKDOWN:
+                  <div style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-muted)', marginBottom: '0.65rem' }}>
+                    6-PILLAR NIST SP 800-77 &amp; CNSA 2.0 AUDIT:
                   </div>
 
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: '0.55rem' }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.65rem' }}>
                     {Object.entries(inspectedLink?.security_assessment?.rubric_breakdown || {}).map(([key, pillar]) => {
                       const pct = Math.round((pillar.score / pillar.max_score) * 100)
                       const isGood = pillar.status === 'OPTIMAL' || pillar.status === 'COMPLIANT'
                       const isFail = pillar.status === 'CRITICAL_FAIL'
+                      const pColor = isFail ? 'var(--accent-red)' : isGood ? 'var(--accent-green)' : 'var(--accent-amber)'
 
                       return (
                         <div
                           key={key}
                           style={{
-                            padding: '0.65rem 0.8rem',
+                            padding: '0.8rem 0.95rem',
                             background: 'var(--glass-inner)',
                             border: `1px solid ${isFail ? 'rgba(248,113,113,0.3)' : 'var(--border-subtle)'}`,
-                            borderRadius: 'var(--radius-sm)'
+                            borderRadius: 'var(--radius-sm)',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            justifyContent: 'space-between'
                           }}
                         >
-                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
-                            <span style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-primary)' }}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                            <span style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--text-primary)' }}>
                               {pillar.name}
                             </span>
                             <span style={{
-                              fontSize: '0.68rem',
-                              fontWeight: 700,
-                              padding: '1px 6px',
-                              borderRadius: '3px',
+                              fontSize: '0.92rem',
+                              fontWeight: 900,
+                              padding: '2px 8px',
+                              borderRadius: '4px',
                               background: isFail ? 'var(--red-soft)' : isGood ? 'var(--green-soft)' : 'var(--amber-soft)',
-                              color: isFail ? 'var(--accent-red)' : isGood ? 'var(--accent-green)' : 'var(--accent-amber)'
+                              color: pColor,
+                              display: 'flex',
+                              alignItems: 'baseline',
+                              gap: '2px'
                             }}>
-                              {pillar.score} / {pillar.max_score}
+                              <span>{pillar.score}</span>
+                              <span style={{ fontSize: '0.68rem', fontWeight: 700, opacity: 0.8 }}>/{pillar.max_score}</span>
                             </span>
                           </div>
 
-                          <div style={{ width: '100%', height: 4, borderRadius: 2, background: 'rgba(255,255,255,0.08)', overflow: 'hidden' }}>
+                          <div style={{ width: '100%', height: 5, borderRadius: 3, background: 'rgba(255,255,255,0.08)', overflow: 'hidden' }}>
                             <div style={{
                               width: `${pct}%`,
                               height: '100%',
-                              background: isFail ? 'var(--accent-red)' : isGood ? 'var(--accent-green)' : 'var(--accent-amber)'
+                              background: pColor,
+                              borderRadius: 3
                             }} />
                           </div>
                         </div>
@@ -1366,7 +1466,7 @@ export default function RealtimeCockpit({ connection = 'LIVE' }) {
                 {inspectedLink.security_assessment.violations.length > 0 && (
                   <div style={{ marginTop: '1rem' }}>
                     <div style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--accent-red)', marginBottom: '0.5rem' }}>
-                      IDENTIFIED VULNERABILITIES &amp; THREATS ({inspectedLink.security_assessment.violations.length}):
+                      IDENTIFIED VULNERABILITIES ({inspectedLink.security_assessment.violations.length}):
                     </div>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '0.45rem' }}>
                       {inspectedLink.security_assessment.violations.map((v, idx) => (
