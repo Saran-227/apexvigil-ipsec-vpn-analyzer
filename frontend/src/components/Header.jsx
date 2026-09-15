@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { ShieldCheck, Trophy, Printer, SunMoon, Radio, ArrowLeft, Layers } from 'lucide-react'
+import { Trophy, Printer, Radio, ArrowLeft } from 'lucide-react'
+import logoIcon from '../public/icon.png'
 
 const NAV_ITEMS = [
   { label: 'OVERVIEW', href: '#top' },
@@ -48,11 +49,30 @@ export default function Header({ connection = 'LIVE', mode = 'OFFLINE SECURE', o
           <span>Hub</span>
         </button>
         <div className="topbar-divider" />
-        <div className="brand" onClick={() => handleNav('#top')} style={{ cursor: 'pointer' }}>
-          <div className="brand-mark"><ShieldCheck size={21} /></div>
+        <div className="brand" onClick={() => handleNav('#top')} style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
+          <div
+            style={{
+              width: 32,
+              height: 32,
+              borderRadius: 6,
+              backgroundColor: '#ffffff',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              padding: 2,
+              overflow: 'hidden',
+              flexShrink: 0
+            }}
+          >
+            <img
+              src={logoIcon}
+              alt="ApexVigil Logo"
+              style={{ width: '100%', height: '100%', objectFit: 'contain', display: 'block' }}
+            />
+          </div>
           <div>
-            <div className="brand-title">NTRO IPsec <em>Intelligence</em></div>
-            <div className="brand-sub">SIH26160 · Forensic PCAP Workspace</div>
+            <div className="brand-title">ApexVigil <em>IPsec Intelligence</em></div>
+            <div className="brand-sub">Forensic PCAP Workspace</div>
           </div>
         </div>
       </div>

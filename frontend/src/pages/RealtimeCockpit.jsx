@@ -1,3 +1,4 @@
+import logoIcon from '../public/icon.png'
 import { API_BASE } from '../services/api'
 import React, { useState, useEffect, useRef } from 'react'
 import ReportExportModal from '../components/ReportExportModal'
@@ -494,16 +495,33 @@ export default function RealtimeCockpit({ connection = 'LIVE' }) {
             <span>Workspace Hub</span>
           </button>
           <div className="cockpit-divider" />
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
-            <div className="brand-mark">
-              <Radio size={16} color="var(--accent-cyan)" />
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
+            <div
+              style={{
+                width: 32,
+                height: 32,
+                borderRadius: 6,
+                backgroundColor: '#ffffff',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                padding: 2,
+                overflow: 'hidden',
+                flexShrink: 0
+              }}
+            >
+              <img
+                src={logoIcon}
+                alt="ApexVigil Logo"
+                style={{ width: '100%', height: '100%', objectFit: 'contain', display: 'block' }}
+              />
             </div>
             <div>
               <div style={{ fontSize: '0.88rem', fontWeight: 700, color: 'var(--text-primary)' }}>
-                Multi-Link IPsec Simulation &amp; Live Stream Cockpit
+                ApexVigil <em>IPsec Live Cockpit</em>
               </div>
               <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>
-                Autonomous Topology Builder, Channel Degradation Injector &amp; Live 6-Pillar Auditor
+                Real-Time Multi-Link Stream Wiretap &amp; Telemetry
               </div>
             </div>
           </div>

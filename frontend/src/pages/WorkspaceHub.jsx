@@ -1,13 +1,13 @@
 import React from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
-  ShieldCheck,
   FileCode,
   Radio,
   ArrowRight,
   CheckCircle2,
   Activity
 } from 'lucide-react'
+import logoIcon from '../public/icon.png'
 
 export default function WorkspaceHub({
   connection = 'LIVE',
@@ -30,21 +30,37 @@ export default function WorkspaceHub({
 
   return (
     <div className="hub-container">
-      {/* Minimal Topbar */}
+      {/* Minimal Topbar with Square Product Logo */}
       <header className="hub-topbar">
         <div className="hub-brand">
-          <div className="brand-mark">
-            <ShieldCheck size={18} color="var(--accent-blue)" />
+          <div
+            style={{
+              width: 36,
+              height: 36,
+              borderRadius: 8,
+              backgroundColor: '#ffffff',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              padding: 3,
+              overflow: 'hidden',
+              boxShadow: '0 2px 8px rgba(0, 0, 0, 0.3)',
+              flexShrink: 0
+            }}
+          >
+            <img
+              src={logoIcon}
+              alt="ApexVigil Logo"
+              style={{
+                width: '100%',
+                height: '100%',
+                objectFit: 'contain',
+                display: 'block'
+              }}
+            />
           </div>
           <div className="hub-brand-text">
-            <span className="hub-title">IPsec <em>Intelligence Platform</em></span>
-          </div>
-        </div>
-
-        <div className="hub-status-strip">
-          <div className="hub-status-pill">
-            <span className="hub-led active" />
-            <span>System Ready</span>
+            <span className="hub-title">ApexVigil <em>IPsec Intelligence Platform</em></span>
           </div>
         </div>
       </header>
