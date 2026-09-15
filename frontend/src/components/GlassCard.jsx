@@ -1,1 +1,13 @@
-export default function GlassCard({children,className='',style}){return <section className={`glass-card ${className}`} style={style} aria-live="polite">{children}</section>}
+export default function GlassCard({ children, className = '', style, onClick, ...rest }) {
+  return (
+    <section
+      className={`glass-card ${className}`}
+      style={style}
+      onClick={onClick}
+      aria-live="polite"
+      {...rest}
+    >
+      {children}
+    </section>
+  )
+}

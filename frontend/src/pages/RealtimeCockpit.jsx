@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react'
+import { API_BASE } from '../services/api'
+import React, { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
   Radio,
@@ -66,6 +67,17 @@ const TRAFFIC_PROFILES = [
   { key: 'icmp', name: 'ICMP Echo (Network Probes)', icon: '📡', desc: 'Periodic fixed ping probes (~98B)' },
   { key: 'mixed', name: 'Concurrent Multiplexed (VoIP + Bulk)', icon: '🔀', desc: 'Bimodal distribution: voice + bulk data' }
 ]
+
+const TRAFFIC_STATS = {
+  voip: { pps_range: [45, 55], mean_packet_size: 180 },
+  video: { pps_range: [80, 160], mean_packet_size: 1150 },
+  web: { pps_range: [25, 60], mean_packet_size: 650 },
+  chat: { pps_range: [5, 20], mean_packet_size: 160 },
+  email: { pps_range: [15, 35], mean_packet_size: 450 },
+  bulk: { pps_range: [100, 200], mean_packet_size: 1420 },
+  icmp: { pps_range: [1, 5], mean_packet_size: 98 },
+  mixed: { pps_range: [70, 130], mean_packet_size: 800 }
+}
 
 const PRESET_TOPOLOGIES = {
   tactical: {
@@ -230,6 +242,144 @@ export default function RealtimeCockpit({ connection = 'LIVE' }) {
   const [simulationResults, setSimulationResults] = useState(null)
   const [inspectedLink, setInspectedLink] = useState(null)
   const [errorMsg, setErrorMsg] = useState(null)
+  const [isStreaming, setIsStreaming] = useState(false)
+  const [isAborted, setIsAborted] = useState(false)
+  const [elapsedSeconds, setElapsedSeconds] = useState(0)
+  const streamIntervalRef = useRef(null)
+
+  const formatElapsed = (totalSec) => {
+    const m = Math.floor(totalSec / 60).toString().padStart(2, '0')
+    const s = (totalSec % 60).toString().padStart(2, '0')
+    return `${m}:${s}`
+  }
+
+  const startLiveTicker = () => {
+    if (streamIntervalRef.current) clearInterval(streamIntervalRef.current)
+    setIsStreaming(true)
+    setIsAborted(false)
+
+    streamIntervalRef.current = setInterval(() => {
+      try {
+        setElapsedSeconds(prev => prev + 1)
+
+        setSimulationResults(prevResults => {
+        if (!prevResults || !prevResults.links) return prevResults
+
+        let secTotalPackets = 0
+        let secTotalBytes = 0
+
+        const updatedLinks = prevResults.links.map(lnk => {
+          const tKey = (lnk.traffic_key || lnk.traffic || 'voip').toLowerCase()
+          const tInfo = TRAFFIC_STATS[tKey] || TRAFFIC_STATS.voip
+          const [minPps, maxPps] = tInfo.pps_range || [40, 60]
+          const meanSize = tInfo.mean_packet_size || 180
+          const lossPct = (lnk.channel_conditions?.packet_loss_pct || 0) / 100
+
+          // Calculate random live PPS slice
+          const noise = 0.85 + Math.random() * 0.3
+          const basePps = Math.round(((minPps + maxPps) / 2) * noise)
+          
+          const drops = (Math.random() < lossPct || lossPct > 0.03) ? Math.max(1, Math.round(basePps * lossPct)) : 0
+          const delivered = Math.max(1, basePps - drops)
+          const bytesThisSec = delivered * meanSize
+
+          secTotalPackets += delivered
+          secTotalBytes += bytesThisSec
+
+          const prevTel = lnk.stream_telemetry || {}
+          const newTotal = (prevTel.total_packets || 0) + delivered + drops
+          const newEsp = (prevTel.esp_packets || 0) + delivered
+          const newDrops = (prevTel.dropped_packets || 0) + drops
+          const liveKbps = Math.round((bytesThisSec * 8) / 1000)
+
+          const baseJitter = lnk.channel_conditions?.jitter_ms || 0
+          const liveJitter = Math.max(0, Math.round((baseJitter + (Math.random() * 4 - 2)) * 10) / 10)
+
+          return {
+            ...lnk,
+            live_pps: delivered,
+            live_jitter_ms: liveJitter,
+            stream_telemetry: {
+              ...prevTel,
+              total_packets: newTotal,
+              esp_packets: newEsp,
+              dropped_packets: newDrops,
+              throughput_kbps: liveKbps,
+              live_jitter_ms: liveJitter,
+              current_seq: (prevTel.current_seq || 1000) + delivered
+            }
+          }
+        })
+
+        // Rolling oscilloscope waveform (last 25 points)
+        const prevOsc = prevResults.oscilloscope || { aggregate_pps: [], timeline: [] }
+        const currentAgg = [...(prevOsc.aggregate_pps || [])]
+        currentAgg.push(secTotalPackets)
+        if (currentAgg.length > 25) {
+          currentAgg.shift()
+        }
+
+        const prevSummary = prevResults.network_summary || {}
+        const updatedSummary = {
+          ...prevSummary,
+          total_packets_streamed: (prevSummary.total_packets_streamed || 0) + secTotalPackets,
+          total_data_volume_mb: Math.round(((prevSummary.total_data_volume_mb || 0) + (secTotalBytes / (1024 * 1024))) * 100) / 100,
+          current_aggregate_pps: secTotalPackets
+        }
+
+        // Keep active inspected link updated
+        setInspectedLink(currentInspected => {
+          if (!currentInspected) return updatedLinks[0]
+          return updatedLinks.find(l => l.id === currentInspected.id) || updatedLinks[0]
+        })
+
+        return {
+          ...prevResults,
+          links: updatedLinks,
+          network_summary: updatedSummary,
+          oscilloscope: {
+            ...prevOsc,
+            aggregate_pps: currentAgg
+          }
+        }
+      })
+      } catch (err) {
+        console.error('[LiveTicker Error]:', err)
+      }
+    }, 1000)
+  }
+
+  const handleAbortStream = () => {
+    if (streamIntervalRef.current) {
+      clearInterval(streamIntervalRef.current)
+      streamIntervalRef.current = null
+    }
+    setIsStreaming(false)
+    setIsAborted(true)
+  }
+
+  const handleResumeStream = () => {
+    startLiveTicker()
+  }
+
+  const handleResetStream = () => {
+    if (streamIntervalRef.current) {
+      clearInterval(streamIntervalRef.current)
+      streamIntervalRef.current = null
+    }
+    setIsStreaming(false)
+    setIsAborted(false)
+    setElapsedSeconds(0)
+    handleRunSimulation(links, false)
+  }
+
+  useEffect(() => {
+    return () => {
+      if (streamIntervalRef.current) {
+        clearInterval(streamIntervalRef.current)
+      }
+    }
+  }, [])
 
   // Load default preset on initial mount
   useEffect(() => {
@@ -300,7 +450,7 @@ export default function RealtimeCockpit({ connection = 'LIVE' }) {
     setIsSimulating(true)
     setErrorMsg(null)
     try {
-      const resp = await fetch('/api/simulate/run', {
+      const resp = await fetch(API_BASE + '/simulate/run', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ links: linksToRun })
@@ -315,6 +465,7 @@ export default function RealtimeCockpit({ connection = 'LIVE' }) {
       }
       if (switchTab) {
         setActiveTab('results')
+        startLiveTicker()
       }
     } catch (err) {
       console.error('Simulation error:', err)
@@ -746,6 +897,69 @@ export default function RealtimeCockpit({ connection = 'LIVE' }) {
         {/* VIEW 2: REAL-TIME SIMULATION RESULTS & MULTI-LINK AUDIT */}
         {activeTab === 'results' && simulationResults && (
           <div>
+            {/* Live Streaming Operator Control Strip */}
+            <GlassCard style={{ padding: '0.85rem 1.25rem', marginBottom: '1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}>
+                {isStreaming ? (
+                  <div className="live-pulse-badge transmitting">
+                    <span className="pulsing-beacon"></span>
+                    <span>LIVE STREAM TRANSMITTING</span>
+                  </div>
+                ) : isAborted ? (
+                  <div className="live-pulse-badge aborted">
+                    <span className="stop-beacon"></span>
+                    <span>STREAM ABORTED BY OPERATOR</span>
+                  </div>
+                ) : (
+                  <div className="live-pulse-badge idle">
+                    <span>STREAM READY</span>
+                  </div>
+                )}
+
+                <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.4rem', fontFamily: 'monospace' }}>
+                  <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>ELAPSED:</span>
+                  <span style={{ fontSize: '1.15rem', fontWeight: 800, color: isStreaming ? 'var(--accent-cyan)' : 'var(--text-primary)' }}>
+                    {formatElapsed(elapsedSeconds)}
+                  </span>
+                </div>
+
+                <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
+                  Flow: <strong style={{ color: 'var(--text-primary)' }}>{simulationResults.network_summary?.current_aggregate_pps || simulationResults.oscilloscope?.aggregate_pps?.[simulationResults.oscilloscope.aggregate_pps.length - 1] || 0} pkts/s</strong> | 
+                  Transferred: <strong style={{ color: 'var(--text-primary)' }}>{(simulationResults.network_summary?.total_packets_streamed || 0).toLocaleString()} pkts</strong> ({simulationResults.network_summary?.total_data_volume_mb || 0} MB)
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
+                {isStreaming ? (
+                  <button
+                    className="cockpit-abort-btn"
+                    onClick={handleAbortStream}
+                    title="Abort packet transmission and lock analytical findings"
+                  >
+                    <Square size={14} fill="currentColor" />
+                    <span>Abort Live Stream</span>
+                  </button>
+                ) : (
+                  <button
+                    className="cockpit-resume-btn"
+                    onClick={handleResumeStream}
+                    title="Resume real-time transmission across all links"
+                  >
+                    <Play size={14} fill="currentColor" />
+                    <span>{isAborted ? 'Resume Stream' : 'Start Live Stream'}</span>
+                  </button>
+                )}
+
+                <button
+                  className="cockpit-reset-btn"
+                  onClick={handleResetStream}
+                  title="Reset counters and restart stream"
+                >
+                  <RotateCcw size={14} />
+                  <span>Reset</span>
+                </button>
+              </div>
+            </GlassCard>
             {/* Top Network Health Strip */}
             <div style={{ display: 'grid', gridTemplateColumns: '260px 1fr', gap: '1rem', marginBottom: '1rem' }}>
               {/* Overall Network Scorecard */}
@@ -874,14 +1088,41 @@ export default function RealtimeCockpit({ connection = 'LIVE' }) {
                 return (
                   <GlassCard
                     key={lnk.id}
-                    onClick={() => setInspectedLink(lnk)}
+                    onClick={() => {
+                      console.log('[Cockpit] Selecting link:', lnk.id, lnk.name);
+                      setInspectedLink(lnk);
+                    }}
                     className={`sim-link-card ${isSelected ? 'selected' : ''}`}
-                    style={{ padding: '1.15rem', cursor: 'pointer' }}
+                    style={{
+                      padding: '1.15rem',
+                      cursor: 'pointer',
+                      border: isSelected ? '2px solid var(--accent-blue)' : '1px solid var(--glass-inner-border)',
+                      background: isSelected ? 'rgba(56, 189, 248, 0.08)' : 'var(--glass-surface)',
+                      boxShadow: isSelected ? '0 0 16px rgba(56, 189, 248, 0.2)' : 'none',
+                      transition: 'all 0.2s ease',
+                      position: 'relative'
+                    }}
                   >
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.65rem' }}>
                       <div>
-                        <div style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--text-primary)' }}>
-                          {lnk.name}
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                          <div style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--text-primary)' }}>
+                            {lnk.name}
+                          </div>
+                          {isSelected && (
+                            <span style={{
+                              fontSize: '0.6rem',
+                              fontWeight: 800,
+                              padding: '1px 6px',
+                              borderRadius: '3px',
+                              background: 'rgba(56, 189, 248, 0.2)',
+                              color: 'var(--accent-blue)',
+                              border: '1px solid rgba(56, 189, 248, 0.4)',
+                              letterSpacing: '0.04em'
+                            }}>
+                              INSPECTING
+                            </span>
+                          )}
                         </div>
                         <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>
                           {lnk.endpoints}
@@ -924,7 +1165,12 @@ export default function RealtimeCockpit({ connection = 'LIVE' }) {
                       </div>
                       <div style={{ padding: '4px 6px', background: 'var(--glass-inner)', borderRadius: '3px' }}>
                         <span style={{ color: 'var(--text-muted)' }}>Traffic: </span>
-                        <strong>{st.total_packets} pkts ({st.dropped_packets} drops)</strong>
+                        <strong>{st.total_packets.toLocaleString()} pkts</strong>
+                        {st.dropped_packets > 0 && (
+                          <span style={{ color: 'var(--accent-red)', marginLeft: '4px', fontWeight: 700 }}>
+                            ({st.dropped_packets} drops)
+                          </span>
+                        )}
                       </div>
                     </div>
 
