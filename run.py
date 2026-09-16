@@ -26,4 +26,4 @@ if __name__ == "__main__":
     print("  [+] Press CTRL+C to stop the service")
     print("="*70 + "\n")
 
-    uvicorn.run(app, host="127.0.0.1", port=8000)
+    uvicorn.run("dashboard.app:app", host="127.0.0.1", port=8000, reload=True)

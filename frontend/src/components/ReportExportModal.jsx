@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import {
   FileText,
   ShieldCheck,
@@ -16,10 +16,12 @@ export default function ReportExportModal({
   pcapFilename = 'capture.pcap',
   activeData = null,
   links = [],
+  initialScope = 'overall',
+  onScopeChange = null,
   elapsedSeconds = 15
 }) {
   const [reportType, setReportType] = useState('executive')
-  const [scope, setScope] = useState('overall')
+  const [scope, setScope] = useState(initialScope || 'overall')
   const [timeframeMode, setTimeframeMode] = useState('full')
   const [startSec, setStartSec] = useState(0)
   const [endSec, setEndSec] = useState(Math.max(5, Math.round(elapsedSeconds)))
@@ -27,13 +29,26 @@ export default function ReportExportModal({
   const [generatedReport, setGeneratedReport] = useState(null)
   const [error, setError] = useState(null)
 
+  const prevIsOpenRef = useRef(false)
+
   useEffect(() => {
-    if (isOpen) {
+    // Only reset state when the modal transitions from closed to open
+    if (isOpen && !prevIsOpenRef.current) {
       setGeneratedReport(null)
       setError(null)
+      setScope(initialScope || 'overall')
       setEndSec(Math.max(5, Math.round(elapsedSeconds)))
     }
-  }, [isOpen, elapsedSeconds])
+    prevIsOpenRef.current = isOpen
+  }, [isOpen])
+
+  const handleScopeSelect = (newScope) => {
+    setScope(newScope)
+    setGeneratedReport(null)
+    if (onScopeChange) {
+      onScopeChange(newScope === 'overall' ? 'all' : newScope)
+    }
+  }
 
   if (!isOpen) return null
 
@@ -153,7 +168,7 @@ export default function ReportExportModal({
                 Generate Intelligence Report
               </h2>
               <span style={{ fontSize: '0.78rem', color: '#94a3b8' }}>
-                Target: <strong style={{ color: '#ffffff' }}>{pcapFilename}</strong>
+                Target: <strong style={{ color: '#ffffff' }}>{mode === 'live' ? (scope === 'overall' ? 'All Links (Network Aggregate)' : (links?.find(l => l.id === scope)?.name || (scope === 'link-1' ? 'Link 1: HQ Gateway ↔ Datacenter Core' : scope === 'link-2' ? 'Link 2: Tactical Edge ↔ Command HQ' : scope === 'link-3' ? 'Link 3: Field Recon ↔ Mission Hub' : scope))) : pcapFilename}</strong>
               </span>
             </div>
           </div>
@@ -175,6 +190,66 @@ export default function ReportExportModal({
             <X size={18} />
           </button>
         </div>
+
+        {/* Step: Analysis Scope Selection (Live Telemetry) */}
+        {mode === 'live' && (
+          <div style={{ marginTop: '1.25rem' }}>
+            <div style={{ fontSize: '0.75rem', fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <Network size={15} color="#38bdf8" />
+              Analysis Scope:
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '0.6rem' }}>
+              <button
+                type="button"
+                onClick={() => handleScopeSelect('overall')}
+                style={{
+                  padding: '0.65rem 0.85rem',
+                  borderRadius: '10px',
+                  background: scope === 'overall' ? 'rgba(56, 189, 248, 0.22)' : 'rgba(30, 41, 59, 0.45)',
+                  border: scope === 'overall' ? '1.5px solid #38bdf8' : '1px solid rgba(255, 255, 255, 0.08)',
+                  color: scope === 'overall' ? '#ffffff' : '#94a3b8',
+                  fontSize: '0.8rem',
+                  fontWeight: scope === 'overall' ? 700 : 500,
+                  cursor: 'pointer',
+                  textAlign: 'center',
+                  transition: 'all 0.15s ease',
+                  boxShadow: scope === 'overall' ? '0 0 14px rgba(56, 189, 248, 0.25)' : 'none'
+                }}
+              >
+                All Links (Aggregate)
+              </button>
+              {(links && links.length > 0 ? links : [
+                { id: 'link-1', name: 'Link 1: HQ Gateway ↔ Datacenter Core' },
+                { id: 'link-2', name: 'Link 2: Tactical Edge ↔ Command HQ' },
+                { id: 'link-3', name: 'Link 3: Field Recon ↔ Mission Hub' }
+              ]).map(lnk => {
+                const isSelected = scope === lnk.id
+                return (
+                  <button
+                    key={lnk.id}
+                    type="button"
+                    onClick={() => handleScopeSelect(lnk.id)}
+                    style={{
+                      padding: '0.65rem 0.85rem',
+                      borderRadius: '10px',
+                      background: isSelected ? 'rgba(56, 189, 248, 0.22)' : 'rgba(30, 41, 59, 0.45)',
+                      border: isSelected ? '1.5px solid #38bdf8' : '1px solid rgba(255, 255, 255, 0.08)',
+                      color: isSelected ? '#ffffff' : '#94a3b8',
+                      fontSize: '0.8rem',
+                      fontWeight: isSelected ? 700 : 500,
+                      cursor: 'pointer',
+                      textAlign: 'center',
+                      transition: 'all 0.15s ease',
+                      boxShadow: isSelected ? '0 0 14px rgba(56, 189, 248, 0.25)' : 'none'
+                    }}
+                  >
+                    {lnk.name || lnk.id}
+                  </button>
+                )
+              })}
+            </div>
+          </div>
+        )}
 
         {/* Step 1: Select Report Tier - Names only */}
         <div style={{ marginTop: '1.25rem' }}>

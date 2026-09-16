@@ -284,6 +284,15 @@ async def generate_report_endpoint(req: ReportRequest):
     for either forensic PCAP captures (full duration) or real-time multi-link streams (overall/link, full/window).
     """
     try:
+        import importlib
+        import analyzer.report_engine
+        importlib.reload(analyzer.report_engine)
+        from analyzer.report_engine import (
+            generate_executive_data,
+            generate_assessment_data,
+            generate_technical_data,
+            assemble_report_html
+        )
         report_type = req.report_type.lower()
         if report_type not in ["executive", "security", "technical"]:
             report_type = "executive"

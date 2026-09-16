@@ -4,12 +4,21 @@ const http = require('http')
 const { spawn, exec } = require('child_process')
 const fs = require('fs')
 
+// Explicit AppUserModelID ensures Windows Taskbar associates the window with ApexVigil icon
+if (process.platform === 'win32') {
+  app.setAppUserModelId('ApexVigil.IPsec.Intelligence')
+}
+
 let mainWindow = null
 let pythonProcess = null
 let spawnedPython = false
 
 const REPO_ROOT = path.resolve(__dirname, '..', '..')
 const FRONTEND_DIR = path.resolve(__dirname, '..')
+
+const icoPath = path.join(FRONTEND_DIR, 'public', 'icon.ico')
+const pngPath = path.join(FRONTEND_DIR, 'src', 'public', 'icon.png')
+const appIconPath = (process.platform === 'win32' && fs.existsSync(icoPath)) ? icoPath : pngPath
 
 function isPortOpen(host, port, endpoint = '') {
   return new Promise((resolve) => {
@@ -87,6 +96,7 @@ function createMainWindow() {
     title: 'NTRO IPsec Intelligence Platform (SIH26160) - Desktop Edition',
     backgroundColor: '#090d16',
     show: false,
+    icon: appIconPath,
     webPreferences: {
       preload: path.join(__dirname, 'preload.cjs'),
       nodeIntegration: false,
@@ -157,6 +167,7 @@ function createMainWindow() {
         width: 1200,
         height: 900,
         title: 'ApexVigil Intelligence Report Preview',
+        icon: appIconPath,
         autoHideMenuBar: true,
         webPreferences: {
           nodeIntegration: false,
@@ -165,6 +176,12 @@ function createMainWindow() {
       }
     }
   })
+
+  try {
+    mainWindow.setIcon(appIconPath)
+  } catch (e) {
+    console.warn('[Electron] Could not set window icon:', e.message)
+  }
 
   mainWindow.once('ready-to-show', () => {
     mainWindow.show()

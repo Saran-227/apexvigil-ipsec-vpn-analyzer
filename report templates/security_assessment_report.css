@@ -17,282 +17,298 @@ body{font-family:Arial,Helvetica,sans-serif;color:#10243e;-webkit-print-color-ad
 }
 .page{
   width:210mm;
-  height:297mm;
+  min-height:297mm;
   background:#fff;
   margin:0 auto 10mm;
-  padding:13mm 16mm 10mm;
-  position:relative;
-  overflow:hidden;
+  padding:15mm 16mm 14mm;
+  display:flex;
+  flex-direction:column;
+  justify-content:space-between;
+  box-sizing:border-box;
   page-break-after:always;
 }
 .page:last-child{page-break-after:auto}
+.page-content{
+  flex:1;
+  display:flex;
+  flex-direction:column;
+}
 
 /* Header */
-.header{height:20mm;border-bottom:1px solid #152b44;position:relative}
-.brand{position:absolute;left:0;top:0;display:flex;align-items:center;gap:2.5mm}
-.brand-logo{height:8mm;width:16mm;object-fit:contain;display:block}
-.brand-name{font-size:12px;font-weight:900;letter-spacing:-.4px;color:var(--navy)}
-.brand-sub{font-size:4.7px;letter-spacing:1.2px;color:#738092;margin-top:.7mm;font-weight:700}
-.header-meta{position:absolute;right:0;top:0;text-align:right;font-family:"Courier New",monospace;font-size:6.8px;line-height:1.5;letter-spacing:1px;color:var(--navy);font-weight:700}
-.report-kicker{font-size:5.8px;letter-spacing:1.5px;color:var(--blue);font-weight:800;margin-top:3mm}
-h1{font-size:20px;margin:1.2mm 0;line-height:1.1;letter-spacing:-.5px;color:var(--navy)}
-h2{font-size:12px;margin:0;color:var(--navy);letter-spacing:-.15px}
-.subtitle{font-size:8.5px;color:#6e7c8e;margin-bottom:3mm}
+.header{height:22mm;border-bottom:1.5px solid #152b44;position:relative;margin-bottom:2.5mm}
+.brand{position:absolute;left:0;top:0;display:flex;align-items:center;gap:3.5mm}
+.brand-logo{height:12mm;width:24mm;object-fit:contain;display:block}
+.brand-name{font-size:17px;font-weight:900;letter-spacing:-.4px;color:var(--navy)}
+.brand-sub{font-size:7.5px;letter-spacing:1.5px;color:#6b798b;margin-top:.8mm;font-weight:800}
+.header-meta{position:absolute;right:0;top:0;text-align:right;font-family:"Courier New",monospace;font-size:9px;line-height:1.55;letter-spacing:.8px;color:var(--navy);font-weight:700}
+.report-kicker{font-size:8.5px;letter-spacing:1.8px;color:var(--blue);font-weight:800;margin-top:2mm}
+h1{font-size:24px;margin:1.2mm 0;line-height:1.15;letter-spacing:-.5px;color:var(--navy)}
+h2{font-size:14.5px;margin:0;color:var(--navy);letter-spacing:-.15px}
+.subtitle{font-size:10.5px;color:#5a6878;margin-bottom:3mm}
 
-.section-title{display:flex;align-items:baseline;justify-content:space-between;border-bottom:1px solid var(--line);padding-bottom:1.4mm;margin-top:2.8mm;margin-bottom:2.4mm}
-.section-title .hint{font-size:6.8px;color:#8993a0}
+.section-title{display:flex;align-items:baseline;justify-content:space-between;border-bottom:1.5px solid var(--line);padding-bottom:1.6mm;margin-top:3.5mm;margin-bottom:3mm}
+.section-title .hint{font-size:9px;color:#758393;font-weight:600}
 
-/* Audit Summary Banner */
+/* SECTION 1: SCOPE & BANNER */
 .audit-summary-banner{
-  border:1px solid #cbd9e6;
-  border-left:3px solid var(--orange);
-  background:#f4f8fb;
-  border-radius:1.3mm;
-  padding:2.6mm 3.5mm;
+  border:1.5px solid #c9d6e4;
+  border-left:5px solid var(--green);
+  background:#f6faf8;
+  border-radius:2mm;
+  padding:4mm 5mm;
   display:grid;
-  grid-template-columns:30mm 1fr;
-  gap:3.5mm;
+  grid-template-columns:36mm 1fr;
+  gap:4.5mm;
   align-items:center;
-  margin-bottom:2.2mm;
+  margin-bottom:4mm;
 }
-.as-score-box{text-align:center;border-right:1px solid #d5dfea;padding-right:3mm}
-.as-score-num{font-size:18px;font-weight:900;color:var(--navy);line-height:1}
-.as-score-lbl{font-size:6.2px;font-weight:800;color:var(--orange);letter-spacing:.6px;margin-top:.8mm}
-.as-title{font-size:7px;font-weight:800;letter-spacing:.8px;color:var(--navy);text-transform:uppercase}
-.as-desc{font-size:6.8px;line-height:1.38;color:#455668;margin-top:.8mm}
+.as-score-col{text-align:center;border-right:1.5px solid #d5e0ec;padding-right:4mm}
+.as-score-num{font-size:32px;font-weight:900;color:var(--navy);line-height:1}
+.as-grade{font-size:8.5px;font-weight:800;color:var(--green);margin-top:1.5mm;letter-spacing:.8px}
+.as-title{font-size:11px;font-weight:900;color:var(--navy);letter-spacing:.5px}
+.as-desc{font-size:9.5px;line-height:1.5;color:#304254;margin-top:1.5mm}
 
-/* Scope Card */
-.scope-row-card{
-  border:1px solid #d4dde6;
-  background:#f9fafc;
-  border-radius:1.2mm;
-  padding:2mm 3.2mm;
+.scope-bar{
+  border:1px solid #cbd7e4;
+  background:#f7f9fb;
+  border-radius:1.8mm;
+  padding:3.2mm 4.5mm;
   display:flex;
   justify-content:space-between;
   align-items:center;
-  margin-bottom:2mm;
+  margin-bottom:3.5mm;
 }
-.sr-lbl{font-size:5px;letter-spacing:.8px;color:#7e8b9a;font-weight:800}
-.sr-val{font-size:7.5px;font-weight:800;color:var(--navy);font-family:"Courier New",monospace;margin-top:.4mm;display:block}
+.sb-item{display:flex;flex-direction:column}
+.sb-item.right{text-align:right}
+.sb-lbl{font-size:8px;letter-spacing:.7px;color:#637487;font-weight:800}
+.sb-val{font-size:10.5px;font-weight:900;color:var(--navy);margin-top:1mm;font-family:"Courier New",monospace}
 
-/* Tables */
-.table-wrap{width:100%;overflow:hidden}
-.audit-table{width:100%;border-collapse:collapse;font-size:6.2px;table-layout:fixed}
-.audit-table th{background:var(--navy);color:#fff;text-align:left;font-size:5.5px;letter-spacing:.7px;padding:2mm 2.2mm;font-weight:700}
-.audit-table td{padding:1.6mm 2.2mm;border-bottom:1px solid #dce1e7;color:#3b4a5d;vertical-align:middle;overflow:hidden;text-overflow:ellipsis}
-.audit-table tbody tr:nth-child(even) td{background:#f6f8fb}
-.audit-table td:first-child{font-weight:700;color:#24364b}
-
-.bench-wrap{height:34mm;margin-bottom:2mm}
-.bench-wrap th:nth-child(1){width:22%}
-.bench-wrap th:nth-child(2){width:25%}
-.bench-wrap th:nth-child(3){width:33%}
-.bench-wrap th:nth-child(4){width:20%}
-
-.badge-verdict{display:inline-block;padding:.6mm 1.6mm;border-radius:.8mm;font-size:5.2px;font-weight:800;letter-spacing:.4px}
-.badge-verdict.pass{background:#e8f7ee;color:var(--green)}
-.badge-verdict.gap{background:#fff0e8;color:var(--orange)}
-.badge-verdict.fail{background:#fde8e8;color:var(--red)}
+.table-wrap{width:100%;overflow:visible}
+.mb-card{margin-bottom:3.5mm}
+.audit-table{width:100%;border-collapse:collapse;font-size:9px}
+.audit-table th{background:#0d2139;color:#fff;padding:2.5mm 3.5mm;text-align:left;font-weight:800;letter-spacing:.6px;font-size:8px}
+.audit-table td{padding:2.8mm 3.5mm;border-bottom:1px solid #dce1e7;color:#2d3e50;vertical-align:middle}
+.compliance-pill{font-size:8px;font-weight:800;padding:1mm 2.5mm;border-radius:1mm;letter-spacing:.5px}
+.compliance-pill.compliant{background:#e8f7ee;color:var(--green)}
+.compliance-pill.non-compliant{background:#fde8e8;color:var(--red)}
 
 /* SECTION 2: CRYPTOGRAPHIC HEALTH AUDIT */
-.crypto-health-grid{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:3mm;
-  margin-bottom:2mm;
-}
+.health-grid{display:grid;grid-template-columns:1fr 1fr;gap:4.5mm;margin-bottom:4mm}
 .health-card{
-  border:1px solid #d0d8e2;
-  border-radius:1.3mm;
+  border:1px solid #d1d9e3;
+  border-radius:2mm;
   background:#fff;
-  padding:2.8mm 3.4mm;
-  height:40mm;
-  overflow:hidden;
+  padding:4.5mm 5mm;
+  min-height:65mm;
+  display:flex;
+  flex-direction:column;
+  justify-content:space-between;
 }
-.hc-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:1.6mm}
-.hc-title{font-size:6.2px;font-weight:800;letter-spacing:.6px;color:var(--navy)}
-.hc-badge{font-size:5.2px;font-weight:800;padding:.6mm 1.5mm;border-radius:.8mm}
-.hc-badge.pass{background:#e8f7ee;color:var(--green)}
-.hc-badge.fail{background:#fde8e8;color:var(--red)}
-.hc-main-val{font-size:9px;font-weight:900;color:var(--navy);font-family:"Courier New",monospace}
-.hc-specs{font-size:5.8px;line-height:1.45;color:#4f5f72;margin-top:1.2mm}
-.hc-specs b{color:#768494}
-.hc-verdict{
-  border:1px solid #e2e8f0;
-  background:#f8fafd;
-  border-left:2mm solid var(--green);
-  border-radius:.8mm;
-  padding:1.4mm 2mm;
-  font-size:5.8px;
-  line-height:1.3;
-  color:#3f5062;
-  margin-top:1.5mm;
+.card-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:2mm}
+.card-title{font-size:10px;font-weight:800;letter-spacing:.6px;color:var(--navy)}
+.card-tag{font-size:8px;font-weight:800;padding:1mm 2.5mm;border-radius:1mm}
+.card-tag.safe{background:#e8f7ee;color:var(--green)}
+.card-tag.alert{background:#feede2;color:var(--orange)}
+.card-tag.crit{background:#fde8e8;color:var(--red)}
+.hc-val{font-size:16px;font-weight:900;color:var(--navy);margin-top:1mm}
+.hc-specs{font-size:9px;line-height:1.6;color:#3f5164;margin-top:2mm}
+.hc-assessment{
+  border:1px solid #dbe3ed;
+  background:#f9fafc;
+  border-left:3.5px solid var(--blue);
+  border-radius:1.5mm;
+  padding:2.5mm 3.5mm;
+  font-size:8.5px;
+  line-height:1.45;
+  color:#3a4b5d;
+  margin-top:2.5mm;
 }
 
-/* SECTION 3: KEY MANAGEMENT & EXCHANGE AUDIT */
-.key-mgmt-grid{
+/* SECTION 3: KEY MANAGEMENT (Spacious 2x2 Grid) */
+.key-mgmt-2x2-grid{
   display:grid;
-  grid-template-columns:repeat(4,1fr);
-  gap:2.5mm;
-  margin-bottom:2.6mm;
+  grid-template-columns:1fr 1fr;
+  gap:4.5mm;
+  margin-bottom:4mm;
 }
 .km-card{
-  border:1px solid #d4dde6;
-  border-radius:1.3mm;
+  border:1px solid #d5dfea;
+  border-radius:2mm;
+  padding:4.5mm 5mm;
+  min-height:55mm;
   background:#fff;
-  padding:2.2mm 2.6mm;
-  height:38mm;
-  overflow:hidden;
-  border-top:2.5px solid var(--blue);
+  border-top:4.5px solid #a2b0bf;
+  display:flex;
+  flex-direction:column;
+  justify-content:space-between;
 }
-.km-card:nth-child(2){border-top-color:var(--red);background:#fffaf9}
-.km-head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:1mm}
-.km-title{font-size:5.5px;font-weight:800;letter-spacing:.5px;color:var(--navy);line-height:1.2}
-.km-tag{font-size:4.8px;font-weight:800;padding:.4mm 1.2mm;border-radius:.6mm;white-space:nowrap}
+.km-card.safe{border-top-color:var(--green);background:#fbfdfb}
+.km-card.crit{border-top-color:var(--red);background:#fffaf9}
+.km-card.warn{border-top-color:var(--orange);background:#fffbf8}
+.km-head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:2mm}
+.km-title{font-size:9.5px;font-weight:800;letter-spacing:.6px;color:var(--navy);line-height:1.3;max-width:52mm}
+.km-tag{font-size:8px;font-weight:800;padding:1mm 2.5mm;border-radius:1mm;white-space:nowrap}
 .km-tag.pass{background:#e8f7ee;color:var(--green)}
 .km-tag.fail{background:#fde8e8;color:var(--red)}
 .km-tag.alert{background:#fff3e6;color:var(--orange)}
-.km-val{font-size:7.5px;font-weight:900;color:var(--navy);margin-top:.8mm}
-.km-sub{font-size:5.4px;color:#677789;margin-top:.4mm;font-family:"Courier New",monospace;line-height:1.2}
-.km-desc{font-size:5.4px;line-height:1.3;color:#526274;margin-top:1.2mm;max-height:15mm;overflow:hidden}
+.km-val{font-size:13.5px;font-weight:900;color:var(--navy);margin-top:1mm}
+.km-sub{font-size:9px;color:#536476;margin-top:1mm;font-family:"Courier New",monospace}
+.km-desc{font-size:9px;line-height:1.5;color:#3f5062;margin-top:2mm}
 
 /* SECTION 4: PROTOCOL & STATE INTEGRITY */
-.protocol-integrity-grid{
-  display:grid;
-  grid-template-columns:repeat(3,1fr);
-  gap:3mm;
-}
+.protocol-grid{display:grid;grid-template-columns:repeat(3, 1fr);gap:4mm;margin-bottom:4mm}
 .proto-card{
-  border:1px solid #d0d8e2;
-  border-radius:1.3mm;
+  border:1px solid #cfd7e1;
+  border-radius:2mm;
   background:#fff;
-  padding:2.8mm 3.4mm;
-  height:38mm;
-  overflow:hidden;
-  border-top:2.5px solid var(--green);
+  padding:4mm 4.5mm;
+  min-height:50mm;
+  display:flex;
+  flex-direction:column;
+  justify-content:space-between;
 }
-.proto-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5mm}
-.proto-title{font-size:6px;font-weight:800;letter-spacing:.6px;color:var(--navy)}
-.proto-tag{font-size:5.2px;font-weight:800;padding:.6mm 1.5mm;border-radius:.8mm}
-.proto-tag.pass{background:#e8f7ee;color:var(--green)}
-.proto-val{font-size:8px;font-weight:900;color:var(--navy);font-family:"Courier New",monospace}
-.proto-desc{font-size:5.8px;line-height:1.35;color:#526274;margin-top:1.2mm}
+.proto-head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:2mm}
+.proto-title{font-size:8.5px;font-weight:800;letter-spacing:.6px;color:var(--navy);line-height:1.3}
+.proto-tag{font-size:7.5px;font-weight:800;padding:.8mm 2mm;border-radius:1mm}
+.proto-tag.safe{background:#e8f7ee;color:var(--green)}
+.proto-val{font-size:12.5px;font-weight:900;color:var(--navy);margin-top:1mm}
+.proto-desc{font-size:8.5px;line-height:1.5;color:#3e5062;margin-top:2mm}
 
-/* SECTION 5: SIDE-CHANNEL & METADATA VULNERABILITY AUDIT */
-.side-channel-container{
-  display:grid;
-  grid-template-columns:35mm 1fr;
-  gap:3mm;
-  margin-bottom:2.6mm;
+/* SECTION 5: SIDE-CHANNEL AUDIT */
+.side-channel-grid{display:grid;grid-template-columns:38mm 1fr 1fr 1fr;gap:3.5mm;margin-bottom:4mm}
+.sc-score-card{
+  border:1px solid #d2dae4;
+  border-radius:2mm;
+  background:#f8f9fb;
+  padding:4mm;
+  text-align:center;
+  min-height:58mm;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
 }
-.leakage-score-box{
-  border:1px solid #d4dde6;
-  border-radius:1.3mm;
-  background:#f8fafd;
-  padding:3mm;
-  height:35mm;
+.sc-title{font-size:7.5px;font-weight:800;letter-spacing:.6px;color:#67788a}
+.sc-val{font-size:32px;font-weight:900;color:var(--navy);margin:1.5mm 0}
+.sc-risk{font-size:8.5px;font-weight:900;color:var(--orange);letter-spacing:.8px}
+.sc-note{font-size:7.5px;color:#637485;margin-top:1.5mm;line-height:1.35}
+
+.sc-detail-card{
+  border:1px solid #cfd7e1;
+  border-radius:2mm;
+  background:#fff;
+  padding:4mm 4.5mm;
+  min-height:58mm;
+  display:flex;
+  flex-direction:column;
+  justify-content:space-between;
+}
+.sc-d-head{display:flex;flex-direction:column;gap:1.5mm;margin-bottom:2mm}
+.sc-d-title{font-size:8.5px;font-weight:800;letter-spacing:.6px;color:var(--navy)}
+.sc-d-tag{font-size:8px;font-weight:800;padding:.8mm 2.2mm;border-radius:1mm;align-self:flex-start}
+.sc-d-tag.alert{background:#feede2;color:var(--orange)}
+.sc-d-tag.crit{background:#fde8e8;color:var(--red)}
+.sc-d-desc{font-size:8.5px;line-height:1.5;color:#3a4b5d}
+
+.metadata-leak-box{
+  border:1px solid #cbd8e5;
+  border-left:4px solid var(--orange);
+  background:#fffaf6;
+  border-radius:1.8mm;
+  padding:4mm 5mm;
+  margin-top:2mm;
+}
+.ml-title{font-size:9.5px;font-weight:900;color:var(--navy);letter-spacing:.6px;margin-bottom:1.5mm}
+.ml-text{font-size:9px;line-height:1.55;color:#354759}
+
+/* SECTION 6: THREAT MATRIX & POSTURE PROJECTION */
+.severity-pill{font-size:8px;font-weight:800;padding:1mm 2.2mm;border-radius:1mm;letter-spacing:.5px}
+.severity-pill.high{background:#fde8e8;color:var(--red)}
+.severity-pill.medium{background:#feede2;color:var(--orange)}
+.severity-pill.low{background:#e8f7ee;color:var(--green)}
+
+.posture-projection-grid{
+  display:grid;
+  grid-template-columns:40mm 1fr;
+  gap:4.5mm;
+  margin-bottom:3.5mm;
+}
+.sev-quad{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:2.5mm;
+}
+.sev-stat-box{
+  border:1px solid #d5dfea;
+  background:#f8f9fb;
+  border-radius:1.8mm;
+  padding:3.5mm 2.5mm;
   text-align:center;
   display:flex;
   flex-direction:column;
   justify-content:center;
 }
-.ls-lbl{font-size:5.2px;letter-spacing:.7px;color:#798696;font-weight:800}
-.ls-num{font-size:18px;font-weight:900;color:var(--orange);margin-top:1mm}
-.ls-grade{font-size:6px;font-weight:800;color:var(--orange);letter-spacing:.6px;margin-top:.4mm}
+.ss-num{font-size:22px;font-weight:900}
+.ss-lbl{font-size:8px;font-weight:800;letter-spacing:.6px;color:#677889;margin-top:.8mm}
 
-.leakage-details-grid{
-  display:grid;
-  grid-template-columns:repeat(3,1fr);
-  gap:2mm;
-  height:35mm;
-}
-.ld-card{
-  border:1px solid #d4dde6;
-  border-radius:1.2mm;
-  background:#fff;
-  padding:2.2mm 2.6mm;
-  overflow:hidden;
-}
-.ld-lbl{font-size:5px;letter-spacing:.5px;color:#7c8a9a;font-weight:800;display:block}
-.ld-val{font-size:6.8px;font-weight:900;display:block;margin-top:.8mm}
-.ld-val.alert{color:var(--orange)}
-.ld-val.crit{color:var(--red)}
-.ld-desc{font-size:5.4px;line-height:1.3;color:#556678;margin-top:1mm;display:block}
-
-/* SECTION 6: COMPREHENSIVE THREAT & VULNERABILITY MATRIX */
-.vuln-wrap{height:46mm;margin-bottom:2.4mm}
-.vuln-wrap th:nth-child(1){width:15%}
-.vuln-wrap th:nth-child(2){width:33%}
-.vuln-wrap th:nth-child(3){width:18%}
-.vuln-wrap th:nth-child(4){width:11%}
-.vuln-wrap th:nth-child(5){width:23%}
-
-.severity-pill{display:inline-block;padding:.6mm 1.5mm;border-radius:.8mm;font-size:5.2px;font-weight:800;letter-spacing:.5px}
-.severity-pill.high{background:#fff0e8;color:var(--orange)}
-.severity-pill.medium{background:#fff8df;color:#b27d11}
-.severity-pill.low{background:#eaf7f0;color:var(--green)}
-.severity-pill.critical{background:#fbecec;color:var(--red)}
-
-.posture-projection-grid{
-  display:grid;
-  grid-template-columns:1fr 2fr;
-  gap:3mm;
-}
-.severity-stat-row{
-  display:grid;
-  grid-template-columns:repeat(2,1fr);
-  gap:1.8mm;
-  height:30mm;
-}
-.sev-stat-box{
-  border:1px solid #d5dfea;
-  border-radius:1.2mm;
-  background:#f9fafc;
-  padding:2mm;
-  text-align:center;
-}
-.sev-stat-box .ss-num{font-size:12px;font-weight:900;color:var(--navy)}
-.sev-stat-box .ss-lbl{font-size:5px;font-weight:800;color:#788696;letter-spacing:.6px;margin-top:.4mm}
-
-.projection-box{
-  border:1px solid #cbd7e4;
-  background:#1e293b;
+/* Unconstrained height, generous padding, complete containment of narrative text! */
+.posture-projection-card{
+  border:1px solid #1a3352;
+  background:#0f1f33;
   color:#fff;
-  border-radius:1.3mm;
-  padding:2.6mm 3.4mm;
-  height:30mm;
-  overflow:hidden;
+  border-radius:2mm;
+  padding:5mm 5.5mm;
+  min-height:58mm;
+  display:flex;
+  flex-direction:column;
+  justify-content:space-between;
 }
-.proj-head{font-size:5.6px;letter-spacing:.8px;color:#94a3b8;font-weight:800}
-.proj-metrics-row{display:grid;grid-template-columns:repeat(4,1fr);gap:2mm;margin-top:1.2mm}
-.pm-item{border-right:1px solid rgba(255,255,255,.15);padding-right:2mm}
-.pm-item:last-child{border-right:0}
-.pm-lbl{font-size:4.8px;letter-spacing:.5px;color:#94a3b8;font-weight:700}
-.pm-val{font-size:8.5px;font-weight:900;color:#fff;margin-top:.6mm}
+.proj-head{font-size:9.5px;font-weight:900;letter-spacing:1px;color:#7dd3fc;margin-bottom:3mm}
+.proj-metrics{display:grid;grid-template-columns:repeat(4, 1fr);gap:3mm;margin-bottom:3mm}
+.pm-col{display:flex;flex-direction:column}
+.pm-lbl{font-size:7.5px;font-weight:800;letter-spacing:.6px;color:#94a3b8}
+.pm-val{font-size:15px;font-weight:900;color:#fff;margin-top:1.2mm}
 .pm-val.gain{color:#38bdf8}
 .pm-val.grade{color:#4ade80}
-.proj-summary-text{font-size:5.8px;line-height:1.35;color:#cbd5e1;margin-top:1.6mm}
+.proj-summary-text{
+  font-size:9.5px;
+  line-height:1.55;
+  color:#cbd5e1;
+  border-top:1px solid #233b5c;
+  padding-top:3mm;
+}
 
-/* Footer */
+.audit-signoff-card{
+  border:1px solid #cad6e3;
+  background:#f4f7fb;
+  border-radius:2mm;
+  padding:3.5mm 5mm;
+  display:grid;
+  grid-template-columns:2.5fr 1fr;
+  gap:4.5mm;
+  align-items:center;
+}
+.as-main{font-size:9px;line-height:1.5;color:#354759}
+.as-main b{font-size:10px;color:var(--navy);display:block;margin-bottom:1mm}
+.as-meta{border-left:1.5px solid #d2dce6;padding-left:4mm;font-family:"Courier New",monospace;font-size:8.5px;color:#455668}
+.as-meta b{font-family:Arial,sans-serif;font-size:10px;color:var(--navy);display:block;margin-bottom:1mm}
+
+/* Footer with Natural Auto Margin */
 .footer{
-  position:absolute;
-  bottom:6mm;
-  left:16mm;
-  right:16mm;
+  margin-top:auto;
+  padding-top:3mm;
   border-top:1px solid #dce1e7;
-  padding-top:2.5mm;
   display:grid;
   grid-template-columns:1fr 1fr 1fr;
   font-family:"Courier New",monospace;
-  font-size:5.6px;
-  color:#7d8794;
-  letter-spacing:.5px;
+  font-size:8.5px;
+  color:#637080;
+  letter-spacing:.6px;
 }
 .footer div:nth-child(2){text-align:center;font-family:Arial,sans-serif;font-weight:700;color:#1f3046}
 .footer div:last-child{text-align:right}
 
 @media screen{
-  .page{box-shadow:0 4px 20px rgba(10,30,50,.12)}
+  .page{box-shadow:0 6px 24px rgba(10,30,50,.14)}
 }
 @media print{
   html,body{background:#fff}

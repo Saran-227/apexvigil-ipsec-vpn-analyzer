@@ -1910,6 +1910,8 @@ export default function RealtimeCockpit({ connection = 'LIVE' }) {
         mode="live"
         activeData={simulationResults}
         links={simulationResults?.links || links}
+        initialScope={selectedScope === 'all' ? 'overall' : selectedScope}
+        onScopeChange={setSelectedScope}
         elapsedSeconds={elapsedSeconds}
       />
     </div>

@@ -9,236 +9,265 @@
 <body>
 
 <!-- ==========================================
-     PAGE 1: SECTIONS 1, 2, AND 3
+     PAGE 1: SECTIONS 1 AND 2
      ========================================== -->
 <section class="page page-1">
-<header class="header">
-  <div class="brand">
-    <img src="logo.png" class="brand-logo" alt="ApexVigil Logo">
-    <div>
-      <div class="brand-name">ApexVigil</div>
-      <div class="brand-sub">SECURITY INTELLIGENCE</div>
+  <div class="page-content">
+    <header class="header">
+      <div class="brand">
+        <img src="logo.png" class="brand-logo" alt="ApexVigil Logo">
+        <div>
+          <div class="brand-name">ApexVigil</div>
+          <div class="brand-sub">SECURITY INTELLIGENCE</div>
+        </div>
+      </div>
+      <div class="header-meta">
+        EXECUTIVE RISK BRIEFING<br>
+        Report ID: <span id="reportId"></span><br>
+        Generated: <span id="generated"></span>
+      </div>
+    </header>
+
+    <div class="report-kicker">EXECUTIVE IPSEC SECURITY BRIEFING</div>
+    <h1>Executive IPsec VPN Security &amp; Risk Posture</h1>
+    <div class="subtitle">High-level strategic risk evaluation, cryptographic posture, and operational exposure briefing for leadership</div>
+
+    <!-- SECTION 1: EXECUTIVE SUMMARY & SYSTEM METADATA -->
+    <div class="section-title">
+      <h2>Section 1: Executive Summary &amp; System Metadata</h2>
+      <span class="hint">Session timestamps, endpoints evaluated, and overall audit verdict</span>
     </div>
-  </div>
-  <div class="header-meta">
-    EXECUTIVE RISK BRIEFING<br>
-    Report ID: <span id="reportId"></span><br>
-    Generated: <span id="generated"></span>
-  </div>
-</header>
 
-<div class="report-kicker">EXECUTIVE IPSEC SECURITY BRIEFING</div>
-<h1>Executive IPsec VPN Security &amp; Risk Posture</h1>
-<div class="subtitle">High-level strategic risk evaluation, cryptographic posture, and operational exposure briefing for leadership</div>
-
-<!-- SECTION 1: EXECUTIVE SUMMARY & SYSTEM METADATA -->
-<div class="section-title">
-  <h2>Section 1: Executive Summary &amp; System Metadata</h2>
-  <span class="hint">Session timestamps, endpoints evaluated, and overall audit verdict</span>
-</div>
-
-<div class="sec1-summary-banner" id="verdictBanner">
-  <div class="verdict-header">
-    <span class="verdict-badge" id="verdictBadge">ATTENTION REQUIRED</span>
-    <span class="verdict-action" id="verdictAction">IMMEDIATE ACTION: YES · HIGH</span>
-  </div>
-  <div class="verdict-text" id="verdictSummary"></div>
-</div>
-
-<div class="metadata-grid" id="metadataGrid">
-  <div class="meta-card">
-    <div class="m-lbl">SESSION TIMESTAMPS</div>
-    <div class="m-val" id="metaDuration">--</div>
-    <div class="m-sub" id="metaPeriod">--</div>
-  </div>
-  <div class="meta-card">
-    <div class="m-lbl">ORIGIN GATEWAY</div>
-    <div class="m-val" id="metaOriginHost">--</div>
-    <div class="m-sub" id="metaOriginIp">--</div>
-  </div>
-  <div class="meta-card">
-    <div class="m-lbl">SECURED TUNNEL</div>
-    <div class="m-val" id="metaTunnelName">--</div>
-    <div class="m-sub" id="metaTunnelCipher">--</div>
-  </div>
-  <div class="meta-card">
-    <div class="m-lbl">REMOTE GATEWAY</div>
-    <div class="m-val" id="metaRemoteHost">--</div>
-    <div class="m-sub" id="metaRemoteIp">--</div>
-  </div>
-</div>
-
-<!-- SECTION 2: HOLISTIC RISK SCORECARD -->
-<div class="section-title">
-  <h2>Section 2: Holistic Risk Scorecard</h2>
-  <span class="hint">Visual 0–100 score gauge, NIST compliance status badge, and deployment readiness rating</span>
-</div>
-
-<div class="scorecard-grid">
-  <!-- Visual Gauge Card -->
-  <div class="gauge-card">
-    <div class="g-lbl">COMPOSITE RISK INDEX</div>
-    <div class="gauge-wrap">
-      <svg viewBox="0 0 200 95">
-        <path d="M25 80 A70 70 0 0 1 175 80" fill="none" stroke="#e2e8f0" stroke-width="9" stroke-linecap="round"/>
-        <path id="gaugeArc" d="M25 80 A70 70 0 0 1 175 80" fill="none" stroke="#c95b17" stroke-width="9" stroke-linecap="round" pathLength="100" stroke-dasharray="70 100"/>
-      </svg>
-      <div class="gauge-number" id="gaugeNumber">70</div>
-      <div class="gauge-risk-lbl" id="gaugeRisk">HIGH RISK</div>
+    <div class="sec1-summary-banner" id="verdictBanner">
+      <div class="verdict-header">
+        <span class="verdict-badge" id="verdictBadge">ATTENTION REQUIRED</span>
+        <span class="verdict-action" id="verdictAction">IMMEDIATE ACTION: YES • HIGH</span>
+      </div>
+      <div class="verdict-text" id="verdictSummary"></div>
     </div>
-  </div>
 
-  <!-- Compliance & Readiness Cards -->
-  <div class="scorecard-center">
-    <div class="compliance-badge-card">
-      <div class="c-title">NIST SP 800-77 REV. 1 COMPLIANCE</div>
-      <div class="c-badge-row">
-        <span class="nist-badge fail" id="nistBadge">CRITICAL FAIL</span>
-        <span class="nist-ref">MANDATE §4.2.3 (PFS Child SA)</span>
+    <div class="metadata-grid" id="metadataGrid">
+      <div class="meta-card">
+        <div class="m-lbl">SESSION TIMESTAMPS</div>
+        <div class="m-val" id="metaDuration">--</div>
+        <div class="m-sub" id="metaPeriod">--</div>
+      </div>
+      <div class="meta-card">
+        <div class="m-lbl">ORIGIN GATEWAY</div>
+        <div class="m-val" id="metaOriginHost">--</div>
+        <div class="m-sub" id="metaOriginIp">--</div>
+      </div>
+      <div class="meta-card">
+        <div class="m-lbl">SECURED TUNNEL</div>
+        <div class="m-val" id="metaTunnelName">--</div>
+        <div class="m-sub" id="metaTunnelCipher">--</div>
+      </div>
+      <div class="meta-card">
+        <div class="m-lbl">REMOTE GATEWAY</div>
+        <div class="m-val" id="metaRemoteHost">--</div>
+        <div class="m-sub" id="metaRemoteIp">--</div>
       </div>
     </div>
-    <div class="readiness-card">
-      <div class="r-title">DEPLOYMENT READINESS RATING</div>
-      <div class="r-rating" id="readinessRating">CONDITIONAL DEPLOYMENT</div>
-      <div class="r-desc" id="readinessDesc">Remediate Child SA forward secrecy prior to untrusted transit.</div>
+
+    <!-- SECTION 2: HOLISTIC RISK SCORECARD -->
+    <div class="section-title">
+      <h2>Section 2: Holistic Risk Scorecard</h2>
+      <span class="hint">Visual 0–100 score gauge, NIST compliance status badge, and deployment readiness rating</span>
+    </div>
+
+    <div class="scorecard-grid">
+      <!-- Visual Gauge Card -->
+      <div class="gauge-card">
+        <div class="g-lbl">COMPOSITE RISK INDEX</div>
+        <div class="gauge-wrap">
+          <svg viewBox="0 0 200 95">
+            <path class="gauge-bg" d="M 20 95 A 80 80 0 0 1 180 95" fill="none" stroke="#e6ecf2" stroke-width="15" stroke-linecap="round" />
+            <path class="gauge-fill" id="gaugePath" d="M 20 95 A 80 80 0 0 1 180 95" fill="none" stroke="var(--green)" stroke-width="15" stroke-linecap="round" stroke-dasharray="251.2" stroke-dashoffset="0" />
+          </svg>
+          <div class="gauge-number" id="gaugeNumber">--</div>
+          <div class="gauge-risk-lbl" id="gaugeRiskLabel">LOW RISK</div>
+        </div>
+      </div>
+
+      <!-- Compliance & Readiness Status -->
+      <div class="scorecard-center">
+        <div class="compliance-badge-card">
+          <div class="c-title">NIST SP 800-77 REV. 1 COMPLIANCE</div>
+          <div class="c-badge-row">
+            <span class="nist-badge" id="nistBadge">PASS</span>
+            <span class="nist-ref" id="nistRef">MANDATE §4.2.3</span>
+          </div>
+        </div>
+        <div class="readiness-card">
+          <div class="r-title">DEPLOYMENT READINESS RATING</div>
+          <div class="r-rating" id="readyRating">READY FOR PRODUCTION</div>
+          <div class="r-desc" id="readyDesc">Production readiness verified under federal cybersecurity guidelines.</div>
+        </div>
+      </div>
+
+      <!-- Metric KPI Quad -->
+      <div class="kpi-quad" id="kpiGrid"></div>
     </div>
   </div>
 
-  <!-- Executive KPIs -->
-  <div class="kpi-quad" id="kpiGrid">
-    <!-- Populated by JS -->
-  </div>
-</div>
-
-<!-- SECTION 3: EXECUTIVE THREAT MATRIX -->
-<div class="section-title">
-  <h2>Section 3: Executive Threat Matrix</h2>
-  <span class="hint">Grid mapping critical vulnerabilities to business risk and exposure vectors</span>
-</div>
-
-<div class="threat-grid" id="threatGrid">
-  <!-- 4 Threat Cards Populated by JS -->
-</div>
-
-<div class="footer">
-  <div>CONFIDENTIAL · EXECUTIVE RISK BRIEFING</div>
-  <div>ApexVigil Intelligence</div>
-  <div>Page 1 of 2</div>
-</div>
+  <footer class="footer">
+    <div>CONFIDENTIAL • EXECUTIVE RISK BRIEFING</div>
+    <div>ApexVigil Intelligence</div>
+    <div>Page 1 of 3</div>
+  </footer>
 </section>
 
 <!-- ==========================================
-     PAGE 2: SECTIONS 4 AND 5
+     PAGE 2: SECTION 3 (EXECUTIVE THREAT MATRIX)
      ========================================== -->
 <section class="page page-2">
-<header class="header">
-  <div class="brand">
-    <img src="logo.png" class="brand-logo" alt="ApexVigil Logo">
-    <div>
-      <div class="brand-name">ApexVigil</div>
-      <div class="brand-sub">SECURITY INTELLIGENCE</div>
-    </div>
-  </div>
-  <div class="header-meta">
-    EXECUTIVE RISK BRIEFING<br>
-    Report ID: <span id="reportId2"></span><br>
-    Generated: <span id="generated2"></span>
-  </div>
-</header>
-
-<div class="report-kicker">TRAFFIC CLASSIFICATION &amp; STRATEGIC ROADMAP</div>
-<h1>Traffic Overview &amp; Strategic Remediation</h1>
-<div class="subtitle">Deep payload inference distribution, side-channel leakage, and prioritized resource allocation roadmap</div>
-
-<!-- SECTION 4: HIGH-LEVEL TRAFFIC OVERVIEW -->
-<div class="section-title">
-  <h2>Section 4: High-Level Traffic Overview</h2>
-  <span class="hint">Summary distribution of classified tunnel traffic and covert channel risk</span>
-</div>
-
-<div class="traffic-overview-grid">
-  <!-- Left Box: Traffic Distribution -->
-  <div class="traffic-dist-card">
-    <div class="card-head">
-      <span class="card-title">CLASSIFIED TUNNEL TRAFFIC DISTRIBUTION</span>
-      <span class="card-tag">AI/ML INFERENCE</span>
-    </div>
-    <div class="traffic-bars" id="trafficBars">
-      <!-- Populated by JS -->
-    </div>
-    <div class="flow-mini-stats" id="flowMiniStats">
-      <!-- Populated by JS -->
-    </div>
-  </div>
-
-  <!-- Right Box: Covert Channel & Side-Channel Risk -->
-  <div class="covert-risk-card">
-    <div class="card-head">
-      <span class="card-title">COVERT CHANNEL &amp; METADATA EXPOSURE</span>
-      <span class="card-tag alert" id="covertTag">MODERATE RISK</span>
-    </div>
-    <div class="covert-metrics">
-      <div class="cm-item">
-        <span class="cm-lbl">SHANNON ENTROPY</span>
-        <span class="cm-val" id="covertEntropy">7.98 / 8.00</span>
-        <span class="cm-sub">High Randomness (Encrypted)</span>
+  <div class="page-content">
+    <header class="header">
+      <div class="brand">
+        <img src="logo.png" class="brand-logo" alt="ApexVigil Logo">
+        <div>
+          <div class="brand-name">ApexVigil</div>
+          <div class="brand-sub">SECURITY INTELLIGENCE</div>
+        </div>
       </div>
-      <div class="cm-item">
-        <span class="cm-lbl">PACKET PREDICTABILITY</span>
-        <span class="cm-val" id="covertPredictability">Moderate</span>
-        <span class="cm-sub">MTU Length Clustering</span>
+      <div class="header-meta">
+        EXECUTIVE RISK BRIEFING<br>
+        Report ID: <span id="reportId2"></span><br>
+        Generated: <span id="generated2"></span>
       </div>
-      <div class="cm-item">
-        <span class="cm-lbl">BURSTINESS VARIANCE</span>
-        <span class="cm-val" id="covertBurstiness">Low</span>
-        <span class="cm-sub">Isochronous Media Cadence</span>
+    </header>
+
+    <div class="report-kicker">THREAT EXPOSURE &amp; BUSINESS IMPACT EVALUATION</div>
+    <h1>Executive Threat Matrix</h1>
+    <div class="subtitle">Comprehensive register mapping discovered cryptographic and protocol vulnerabilities to direct business risk</div>
+
+    <!-- SECTION 3: EXECUTIVE THREAT MATRIX -->
+    <div class="section-title">
+      <h2>Section 3: Executive Threat Matrix</h2>
+      <span class="hint">Grid mapping critical vulnerabilities to business risk and operational exposure vectors</span>
+    </div>
+
+    <div class="threat-grid-2x2" id="threatGrid"></div>
+  </div>
+
+  <footer class="footer">
+    <div>CONFIDENTIAL • EXECUTIVE RISK BRIEFING</div>
+    <div>ApexVigil Intelligence</div>
+    <div>Page 2 of 3</div>
+  </footer>
+</section>
+
+<!-- ==========================================
+     PAGE 3: SECTIONS 4 AND 5 + ATTESTATION
+     ========================================== -->
+<section class="page page-3">
+  <div class="page-content">
+    <header class="header">
+      <div class="brand">
+        <img src="logo.png" class="brand-logo" alt="ApexVigil Logo">
+        <div>
+          <div class="brand-name">ApexVigil</div>
+          <div class="brand-sub">SECURITY INTELLIGENCE</div>
+        </div>
+      </div>
+      <div class="header-meta">
+        EXECUTIVE RISK BRIEFING<br>
+        Report ID: <span id="reportId3"></span><br>
+        Generated: <span id="generated3"></span>
+      </div>
+    </header>
+
+    <div class="report-kicker">TRAFFIC CLASSIFICATION &amp; STRATEGIC ROADMAP</div>
+    <h1>Traffic Overview &amp; Strategic Remediation</h1>
+    <div class="subtitle">Deep payload inference distribution, side-channel leakage, and prioritized resource allocation roadmap</div>
+
+    <!-- SECTION 4: HIGH-LEVEL TRAFFIC OVERVIEW -->
+    <div class="section-title">
+      <h2>Section 4: High-Level Traffic Overview</h2>
+      <span class="hint">Summary distribution of classified tunnel traffic and covert channel risk</span>
+    </div>
+
+    <div class="traffic-overview-grid">
+      <!-- Traffic Distribution -->
+      <div class="traffic-dist-card">
+        <div class="card-head">
+          <span class="card-title">CLASSIFIED TUNNEL TRAFFIC DISTRIBUTION</span>
+          <span class="card-tag">AI/ML INFERENCE</span>
+        </div>
+        <div class="traffic-bars" id="trafficBars"></div>
+        <div class="flow-mini-stats">
+          <div class="f-mini"><span class="f-lbl">TOTAL PACKETS</span><span class="f-val" id="flowTotalPkts">--</span></div>
+          <div class="f-mini"><span class="f-lbl">DATA VOLUME</span><span class="f-val" id="flowTotalVol">--</span></div>
+          <div class="f-mini"><span class="f-lbl">AVG RATE</span><span class="f-val" id="flowAvgRate">--</span></div>
+          <div class="f-mini"><span class="f-lbl">PEAK RATE</span><span class="f-val" id="flowPeakRate">--</span></div>
+        </div>
+      </div>
+
+      <!-- Covert Channel Risk -->
+      <div class="covert-risk-card">
+        <div class="card-head">
+          <span class="card-title">COVERT CHANNEL &amp; METADATA EXPOSURE</span>
+          <span class="card-tag" id="covertRiskTag">MODERATE RISK</span>
+        </div>
+        <div class="covert-metrics">
+          <div class="cm-item">
+            <span class="cm-lbl">SHANNON ENTROPY</span>
+            <span class="cm-val" id="covertEntropy">7.98 / 8.0</span>
+            <span class="cm-sub">High Randomness</span>
+          </div>
+          <div class="cm-item">
+            <span class="cm-lbl">PACKET PREDICTABILITY</span>
+            <span class="cm-val" id="covertPred">Moderate</span>
+            <span class="cm-sub" id="covertPredSub">MTU Length Clustering</span>
+          </div>
+          <div class="cm-item">
+            <span class="cm-lbl">BURSTINESS VARIANCE</span>
+            <span class="cm-val" id="covertBurst">Low</span>
+            <span class="cm-sub" id="covertBurstSub">Isochronous Cadence</span>
+          </div>
+        </div>
+        <div class="covert-assessment" id="covertAssessment"></div>
       </div>
     </div>
-    <div class="covert-assessment" id="covertAssessment">
-      Unpadded ESP packets leak frame sizes to passive observers, allowing application identification despite AES confidentiality.
+
+    <!-- SECTION 5: STRATEGIC REMEDIATION ACTION PLAN -->
+    <div class="section-title">
+      <h2>Section 5: Strategic Remediation Action Plan</h2>
+      <span class="hint">Prioritized recommendations for leadership sign-off and operational resource allocation</span>
+    </div>
+
+    <div class="remediation-roadmap" id="remediationRoadmap"></div>
+
+    <!-- Platform Attestation -->
+    <div class="section-title" style="margin-top:2mm;margin-bottom:2mm">
+      <h2>Executive Sign-Off &amp; Platform Attestation</h2>
+    </div>
+
+    <div class="attest-card">
+      <div class="attest-main">
+        <b>OFFICIAL PLATFORM ATTESTATION</b>
+        This executive assessment was compiled automatically by the ApexVigil Autonomous Intelligence Engine under zero-hallucination constraint. Cryptographic parameters and traffic telemetry were captured via deterministic deep packet dissection and verified against international security standards.
+      </div>
+      <div class="attest-box">
+        <b>AUDIT PLATFORM</b>
+        <span id="attestPlatform">ApexVigil Engine v2.4</span><br>
+        Inspection: Deterministic<br>
+        Integrity: Verified Cryptographic
+      </div>
+      <div class="attest-box">
+        <b>VALIDATION HASH</b>
+        <span id="attestHash" style="word-break:break-all">--</span><br>
+        Status: <span style="color:var(--green);font-weight:700">APPROVED</span><br>
+        Classification: RESTRICTED
+      </div>
     </div>
   </div>
-</div>
 
-<!-- SECTION 5: STRATEGIC REMEDIATION ACTION PLAN -->
-<div class="section-title">
-  <h2>Section 5: Strategic Remediation Action Plan</h2>
-  <span class="hint">Prioritized recommendations for leadership sign-off and operational resource allocation</span>
-</div>
-
-<div class="remediation-roadmap" id="remediationRoadmap">
-  <!-- 3 Phases Populated by JS -->
-</div>
-
-<!-- Executive Platform Attestation & Sign-Off -->
-<div class="section-title" style="margin-top:3mm;">
-  <h2>Executive Sign-Off &amp; Platform Attestation</h2>
-</div>
-
-<div class="attest-card">
-  <div class="attest-main">
-    <b>OFFICIAL PLATFORM ATTESTATION</b>
-    This executive assessment was compiled automatically by the ApexVigil Autonomous Intelligence Engine under zero-hallucination constraint. Cryptographic parameters and traffic telemetry were captured via deterministic deep packet dissection and verified against international security standards.
-  </div>
-  <div class="attest-box">
-    <b>AUDIT PLATFORM</b>
-    ApexVigil Engine v2.4<br>
-    Inspection: Deterministic<br>
-    Integrity: Verified Cryptographic
-  </div>
-  <div class="attest-box">
-    <b>VALIDATION HASH</b>
-    <span id="attestHash" style="font-family:monospace;font-size:6px;">SHA-256: 8b14e9f2...</span><br>
-    Status: <span style="color:#2e9b70;font-weight:800;">APPROVED</span><br>
-    Classification: RESTRICTED
-  </div>
-</div>
-
-<div class="footer">
-  <div>CONFIDENTIAL · EXECUTIVE RISK BRIEFING</div>
-  <div>ApexVigil Intelligence</div>
-  <div>Page 2 of 2</div>
-</div>
+  <footer class="footer">
+    <div>CONFIDENTIAL • EXECUTIVE RISK BRIEFING</div>
+    <div>ApexVigil Intelligence</div>
+    <div>Page 3 of 3</div>
+  </footer>
 </section>
 
 <script src="executive_report.js"></script>
