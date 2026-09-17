@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>ApexVigil IPsec VPN Executive Risk Report</title>
+<link rel="stylesheet" href="executive_report.css">
+</head>
+<body>
+<!-- FIXED EXECUTIVE TEMPLATE: Ollama must provide JSON values only. Never regenerate HTML/CSS. -->
+
+<!-- PAGE 1: EXECUTIVE RISK POSTURE & THREAT MATRIX -->
+<section class="page page-1">
+<header class="header">
+  <div class="brand">
+    <img src="logo.png" class="brand-logo" alt="ApexVigil Logo">
+    <div>
+      <div class="brand-name">ApexVigil</div>
+      <div class="brand-sub">SECURITY INTELLIGENCE</div>
+    </div>
+  </div>
+  <div class="header-meta">
+    EXECUTIVE RISK BRIEFING<br>
+    Report ID: <span id="reportId"></span><br>
+    Generated: <span id="generated"></span>
+  </div>
+</header>
+
+<div class="report-kicker">EXECUTIVE SECURITY POSTURE &amp; RISK BRIEFING</div>
+<h1>Executive IPsec VPN Security &amp; Risk Posture</h1>
+<div class="subtitle">High-level strategic risk evaluation and operational exposure briefing for CISO and leadership</div>
+
+<!-- IMMEDIATE POSTURE CALLOUT: Answers "Is there anything to worry about?" -->
+<div class="posture-banner" id="postureBanner">
+  <div class="posture-main">
+    <div class="posture-badge-row">
+      <span class="posture-badge" id="postureBadge">ATTENTION REQUIRED</span>
+      <span class="posture-kicker">STRATEGIC RISK STATUS</span>
+    </div>
+    <div class="posture-summary" id="postureSummary"></div>
+  </div>
+  <div class="posture-decision">
+    <div class="decision-q">IMMEDIATE ACTION NEEDED?</div>
+    <div class="decision-ans" id="postureAns">YES · HIGH</div>
+  </div>
+</div>
+
+<div class="section-title">
+  <h2>Overall Security Posture &amp; Key Performance Indicators</h2>
+  <span class="hint">Synthesized risk posture combining cryptographic integrity and traffic behavior</span>
+</div>
+
+<div class="exec-risk-grid">
+  <!-- Risk Gauge Card -->
+  <div class="exec-gauge-card">
+    <div class="exec-gauge-label">EXECUTIVE RISK INDEX</div>
+    <div class="gauge-box">
+      <svg viewBox="0 0 200 90">
+        <path d="M25 75 A75 75 0 0 1 175 75" fill="none" stroke="#dfe4ea" stroke-width="8" stroke-linecap="round"/>
+        <path id="gaugeArc" d="M25 75 A75 75 0 0 1 175 75" fill="none" stroke="#c95b17" stroke-width="8" stroke-linecap="round" pathLength="100" stroke-dasharray="62 100"/>
+      </svg>
+      <div class="gauge-num" id="gaugeNumber">62</div>
+      <div class="gauge-lbl" id="gaugeRisk">HIGH RISK</div>
+    </div>
+  </div>
+
+  <!-- 4 Executive KPIs -->
+  <div class="kpi-cards" id="kpiGrid">
+    <!-- Populated by JS -->
+  </div>
+</div>
+
+<div class="section-title">
+  <h2>Executive Threat Matrix &amp; Evaluated Exposure</h2>
+  <span class="hint">Impact vs. likelihood quadrant analysis for IPsec communication channels</span>
+</div>
+
+<div class="threat-matrix" id="threatMatrix">
+  <!-- 4 Threat Cards Populated by JS -->
+</div>
+
+<div class="section-title">
+  <h2>Monitored Deployment Scope</h2>
+  <span class="hint">Physical and logical communication boundary of evaluated VPN connection</span>
+</div>
+
+<div class="scope-row" id="execScope">
+  <!-- Populated by JS -->
+</div>
+
+<div class="footer">
+  <div>CONFIDENTIAL · EXECUTIVE BRIEFING</div>
+  <div>ApexVigil</div>
+  <div>Page 1 of 2</div>
+</div>
+</section>
+
+<!-- PAGE 2: REGULATORY COMPLIANCE, TREND & STRATEGIC ROADMAP -->
+<section class="page page-2">
+<header class="header">
+  <div class="brand">
+    <img src="logo.png" class="brand-logo" alt="ApexVigil Logo">
+    <div>
+      <div class="brand-name">ApexVigil</div>
+      <div class="brand-sub">SECURITY INTELLIGENCE</div>
+    </div>
+  </div>
+  <div class="header-meta">
+    EXECUTIVE RISK BRIEFING<br>
+    Report ID: <span id="reportId2"></span><br>
+    Generated: <span id="generated2"></span>
+  </div>
+</header>
+
+<h1>Regulatory Compliance &amp; Strategic Roadmap</h1>
+<div class="subtitle">Compliance alignment status, risk history trendline, and prioritized organizational remediation</div>
+
+<div class="section-title">
+  <h2>Security &amp; Threat Trendline</h2>
+  <span class="hint">Dynamic risk score and anomaly fluctuation across observation intervals</span>
+</div>
+
+<div class="trend-box">
+  <div class="trend-head">
+    <div id="trendMetricLabel">Composite Threat Velocity vs Security Baseline</div>
+    <div class="trend-legend">
+      <div class="t-legend-item"><span class="t-line-blue"></span>Observed Risk Index</div>
+      <div class="t-legend-item"><span class="t-line-orange"></span>Baseline Threshold (40)</div>
+      <div class="t-legend-item"><span class="t-dot"></span>Anomaly Incident</div>
+    </div>
+  </div>
+  <svg id="trendSvg" viewBox="0 0 720 220" preserveAspectRatio="none"></svg>
+  <div class="trend-caption">Analysis intervals: 12 discrete sampling windows over 56.79s capture duration</div>
+</div>
+
+<div class="section-title">
+  <h2>Regulatory &amp; Framework Compliance Scorecard</h2>
+  <span class="hint">Audit alignment against international cybersecurity standards</span>
+</div>
+
+<div class="table-wrap comp-wrap">
+  <table>
+    <thead>
+      <tr>
+        <th>REGULATORY FRAMEWORK</th>
+        <th>MANDATED REQUIREMENT</th>
+        <th>COMPLIANCE STATUS</th>
+        <th>BUSINESS RISK IMPLICATION</th>
+      </tr>
+    </thead>
+    <tbody id="complianceTable">
+      <!-- Populated by JS -->
+    </tbody>
+  </table>
+</div>
+
+<div class="section-title">
+  <h2>Strategic Remediation Roadmap</h2>
+  <span class="hint">Prioritized technical milestones to reduce enterprise risk exposure</span>
+</div>
+
+<div class="roadmap-grid" id="roadmapGrid">
+  <!-- Populated by JS -->
+</div>
+
+<div class="section-title">
+  <h2>Executive Sign-Off &amp; Platform Attestation</h2>
+</div>
+
+<div class="attest-card">
+  <div class="attest-text">
+    <b>OFFICIAL PLATFORM ATTESTATION</b>
+    This executive assessment was compiled automatically by the ApexVigil Autonomous Protocol Intelligence Platform. Evidence was gathered via deep packet inspection and deterministic cryptanalysis, with executive risk synthesis performed by local quantized LLM reasoning under zero-hallucination constraint.
+  </div>
+  <div class="attest-sign">
+    <b>AUDIT PLATFORM</b>
+    ApexVigil Engine v2.4<br>
+    Inspection: Deterministic<br>
+    Integrity: Verified
+  </div>
+  <div class="attest-sign">
+    <b>VALIDATION HASH</b>
+    SHA-256: 8b14e9...<br>
+    Status: APPROVED<br>
+    Classification: RESTRICTED
+  </div>
+</div>
+
+<div class="footer">
+  <div>CONFIDENTIAL · EXECUTIVE BRIEFING</div>
+  <div>ApexVigil</div>
+  <div>Page 2 of 2</div>
+</div>
+</section>
+
+<script src="executive_report.js"></script>
+</body>
+</html>

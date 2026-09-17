@@ -1,0 +1,29 @@
+{
+  "name": "ipsec-vpn-analyzer-dashboard",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "main": "electron/main.cjs",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "electron": "electron electron/main.cjs",
+    "electron:dev": "node electron/dev-runner.cjs",
+    "build:desktop": "vite build",
+    "start:desktop": "electron electron/main.cjs"
+  },
+  "dependencies": {
+    "@vitejs/plugin-react": "latest",
+    "d3": "^7.9.0",
+    "lucide-react": "latest",
+    "react": "latest",
+    "react-dom": "latest",
+    "react-router-dom": "^7.18.3",
+    "recharts": "latest",
+    "vite": "latest"
+  },
+  "devDependencies": {
+    "electron": "^44.3.0"
+  }
+}
