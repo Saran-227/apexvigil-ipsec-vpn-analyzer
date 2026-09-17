@@ -87,3 +87,6 @@ tmp/
 # (Keep metadata JSON and manifest tracked, ignore heavy binary captures by default)
 dataset/
 
+#Reports
+
+./reports_generated/
